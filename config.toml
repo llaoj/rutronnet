@@ -1,0 +1,30 @@
+title = "如创科技 Rutron Tech."
+baseURL = "https://rutron.net"
+theme = "ananke"
+copyright = '青岛如创科技有限公司版权所有'
+languageCode = "zh"
+defaultContentLanguage = "zh"
+SectionPagesMenu = "main"
+Paginate = 3 # this is set low for demonstrating with dummy content. Set to a higher number
+googleAnalytics = ""
+enableRobotsTXT = true
+
+[sitemap]
+  changefreq = "monthly"
+  priority = 0.5
+  filename = "sitemap.xml"
+
+[params]
+  text_color = ""
+  author = ""
+  favicon = ""
+  site_logo = ""
+  description = "The last theme you'll ever need. Maybe."
+  # choose a background color from any on this page: http://tachyons.io/docs/themes/skins/ and preface it with "bg-"
+  background_color_class = "bg-black"
+  featured_image = "/images/hero.png"
+  recent_posts_number = 2
+
+[[params.ananke_socials]]
+name = "github"
+url = "https://github.com/llaoj"
