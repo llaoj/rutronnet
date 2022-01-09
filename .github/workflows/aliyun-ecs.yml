@@ -1,0 +1,55 @@
+name: github pages
+
+on:
+  push:
+    branches:
+      - main  # Set a branch to deploy
+  pull_request:
+
+on:
+  push:
+    tags:
+    - 'v[0-9].[0-9]+.[0-9]+'
+    # branches:
+    #   - main
+
+env:
+  APP_NAME: rutronnet
+  APP_PORT: 8082
+  IMAGE_NAME: rutron/rutronnet
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true  # Fetch Hugo themes (true OR recursive)
+          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: 'latest'
+          # extended: true
+
+      - name: Build
+        run: |
+          hugo --minify
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          docker build -f deploy/Dockerfile -t ${{ secrets.REGISTRY }}/$IMAGE_NAME:$TAG_NAME .
+          docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ secrets.REGISTRY }}
+          docker push ${{ secrets.REGISTRY }}/$IMAGE_NAME:$TAG_NAME
+
+      - name: Deploy
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_USERNAME }}
+          key: ${{ secrets.ECS_PRIVATE_KEY }}
+          envs: GITHUB_REF,APP_NAME,APP_PORT,IMAGE_NAME
+          script: |
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            docker stop $APP_NAME && docker rm $APP_NAME
+            docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ secrets.REGISTRY }}
+            docker run -d --restart always --name $APP_NAME -p $APP_PORT:$APP_PORT ${{ secrets.REGISTRY }}/$IMAGE_NAME:$TAG_NAME
