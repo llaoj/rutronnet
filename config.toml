@@ -1,5 +1,5 @@
 title = "如创科技 Rutron Technology"
-baseURL = "https://rutron.net"
+baseURL = "http://rutron.net"
 theme = "ananke"
 copyright = '青岛如创科技有限公司版权所有'
 languageCode = "zh"
