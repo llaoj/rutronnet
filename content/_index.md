@@ -1,6 +1,41 @@
 ---
-title: "如创云原生"
-featured_image: '/images/hero.png'
-description: "专业的本地化云原生服务团队"
+title: Introduction
+type: docs
 ---
-欢迎访问如创科技，这里有我们最新的工作进度。我们专注于降低云原生技术落地成本，做你身边的云原生服务专家。
+
+# Acerbo datus maxime
+
+{{< columns >}}
+## Astris ipse furtiva
+
+Est in vagis et Pittheus tu arge accipiter regia iram vocatur nurus. Omnes ut
+olivae sensit **arma sorori** deducit, inesset **crudus**, ego vetuere aliis,
+modo arsit? Utinam rapta fiducia valuere litora _adicit cursu_, ad facies
+
+<--->
+
+## Suis quot vota
+
+Ea _furtique_ risere fratres edidit terrae magis. Colla tam mihi tenebat:
+miseram excita suadent es pecudes iam. Concilio _quam_ velatus posset ait quod
+nunc! Fragosis suae dextra geruntur functus vulgata.
+{{< /columns >}}
+
+
+## Tempora nisi nunc
+
+Lorem **markdownum** emicat gestu. Cannis sol pressit ducta. **Est** Idaei,
+tremens ausim se tutaeque, illi ulnis hausit, sed, lumina cutem. Quae avis
+sequens!
+
+    var panel = ram_design;
+    if (backup + system) {
+        file.readPoint = network_native;
+        sidebar_engine_device(cell_tftp_raster,
+                dual_login_paper.adf_vci.application_reader_design(
+                graphicsNvramCdma, lpi_footer_snmp, integer_model));
+    }
+
+## Locis suis novi cum suoque decidit eadem
+
+Idmoniae ripis, at aves, ali missa adest, ut _et autem_, et ab?
