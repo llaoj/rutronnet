@@ -3,14 +3,12 @@ title: Introduction
 type: docs
 ---
 
-# Acerbo datus maxime
+# 您身边的云原生伙伴
 
 {{< columns >}}
-## Astris ipse furtiva
+## OAuth2.0和SSO服务 
 
-Est in vagis et Pittheus tu arge accipiter regia iram vocatur nurus. Omnes ut
-olivae sensit **arma sorori** deducit, inesset **crudus**, ego vetuere aliis,
-modo arsit? Utinam rapta fiducia valuere litora _adicit cursu_, ad facies
+[llaoj/oauth2](https://github.com/llaoj/oauth2)项目是基于 go-oauth2 打造的独立的 Oauth2 & SSO 服务，开源一年多，获得了社区很多用户的关注，该项目多公司线上在用，其中包含上市公司。轻又好用。稳的一P。
 
 <--->
 

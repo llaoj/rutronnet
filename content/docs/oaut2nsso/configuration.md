@@ -3,6 +3,12 @@ weight: 1
 title: "配置"
 ---
 
+该项目的配置修改都是在`app.yaml`配置文件中完成的。
+
+### HTTP 相关
+
+### OAuth2.0 相关
+
 1. implicit 和 client credentials 模式是不会生成refresh token的, 刷新token时会删除原有的token重新发布新的token.
 2. 每一种模式的配置详情如下:
 
@@ -16,3 +22,10 @@ var (
   DefaultRefreshTokenCfg = &RefreshingConfig{IsGenerateRefresh: true, IsRemoveAccess: true, IsRemoveRefreshing: true}
 )
 ```
+
+### Client 相关
+
+### [可选] Mysql 相关
+
+
+#### 
