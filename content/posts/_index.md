@@ -2,6 +2,6 @@
 menu:
   after:
     name: article
-    weight: 1
+    weight: 5
 title: "文章"
 ---
