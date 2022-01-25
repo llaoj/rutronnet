@@ -3,6 +3,8 @@ weight: 2
 title: "API列表"
 ---
 
+# API列表
+
 ## 1 authorization_code
 
 ### 1-1 获取授权code
@@ -15,25 +17,21 @@ title: "API列表"
 
 |参数|类型|说明|
 |-|-|-|
-|client_id|string|在oauth2 server 注册的client_id|
-|response_type|string|固定值`code`|
-|scope|string|权限范围,`str1,str2,str3`, 如果没有特殊说明,填`all` |
-|state|string|验证请求的标志字段|
-|redirect_uri|string|发放`code`用的回调uri,回调时会在uri后面跟上`?code=**&state=###`|
+|client_id|string|在oauth2 server注册的client_id,见配置文件[oauth2.client.id](/docs/oaut2nsso/configuration)|
+|response_type|string|固定值:`code`|
+|scope|string|权限范围,如:`str1,str2,str3`,str为配置文件中[oauth2.client.scope.id](/docs/oaut2nsso/configuration)的值 |
+|state|string|表示客户端的当前状态,可以指定任意值,认证服务器会原封不动地返回这个值|
+|redirect_uri|string|回调uri,会在后面添加query参数`?code=xxx&state=xxx`,发放的code就在其中|
 
 **请求示例**
 
 ```
+# 浏览器请求
 http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope=all&state=xyz&redirect_uri=http://localhost:9093/cb
+
+# 302跳转,返回code
+http://localhost:9093/cb?code=XUNKO4OPPROWAPFKEWNZWA&state=xyz
 ```
-
-**返回示例**
-
-`302 http://localhost:9093/cb?code=XUNKO4OPPROWAPFKEWNZWA&state=xyz`
-
-**注意**
-
-这里会返回请求时设置的`state`, 请在进行下一步之前验证它, 防止请求被劫持或者篡改
 
 ### 1-2 使用`code`交换`token`
 
@@ -86,7 +84,7 @@ http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope
 |-|-|-|
 |client_id|string|在 oauth2 server 注册的client_id|
 |response_type|string|固定值`token`|
-|scope|string|权限范围,`str1,str2,str3`, 如果没有特殊说明,填`all` |
+|scope|string|权限范围,同1-1中说明|
 |state|string|验证请求的标志字段|
 |redirect_uri|string|发放`code`用的回调uri,回调时会在uri后面跟上`?code=**&state=###`|
 
@@ -137,7 +135,7 @@ http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhd
 |grant_type|string|固定值`password`|
 |username|string|用户名|
 |password|string|用户密码|
-|scope|string|权限范围,`str1,str2,str3`, 如果没有特殊说明,填`all` |
+|scope|string|权限范围,同1-1中说明|
 
 **Response返回示例**  
 
@@ -176,7 +174,7 @@ http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhd
 |参数|类型|说明|
 |-|-|-|
 |grant_type|string|固定值`client_credentials`|
-|scope|string|权限范围,`str1,str2,str3`, 如果没有特殊说明,填`all`, `scope` 需要提前在oauth2服务注册 |
+|scope|string|权限范围,同1-1中说明|
 
 **返回示例**  
 
@@ -198,7 +196,7 @@ http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhd
 
 **请求方式**
 
-`GET`  `/test`
+`GET`  `/verify`
 
 **请求头 Authorization**
 
@@ -206,6 +204,8 @@ http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhd
 - Token: `access_token`
 
 **返回示例**  
+
+正确
 
 ```
 Status Code: 200
@@ -218,6 +218,7 @@ Response Body
   "user_id": ""
 }
 ```
+错误
 
 ```
 Status Code: 400
@@ -248,6 +249,7 @@ Response Body
 `Content-Type: application/x-www-form-urlencoded`
 
 **Body参数说明**
+
 
 |参数|类型|说明|
 |-|-|-|
