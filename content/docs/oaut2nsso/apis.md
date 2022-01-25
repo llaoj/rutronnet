@@ -25,7 +25,7 @@ title: "API列表"
 
 **请求示例**
 
-```
+```sh
 # 浏览器请求
 http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope=all&state=xyz&redirect_uri=http://localhost:9093/cb
 
@@ -58,7 +58,7 @@ http://localhost:9093/cb?code=XUNKO4OPPROWAPFKEWNZWA&state=xyz
 
 **Response返回示例**  
 
-```
+```json
 {
     "access_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIyMjIyMjIiLCJleHAiOjE1ODU3MTU1NTksInN1YiI6InRlc3QifQ.ZMgIDQMW7FGxbF1V8zWOmEkmB7aLH1suGYjhDdrT7aCYMEudWUoiCkWHSvBmJahGm0RDXa3IyDoGFxeMfzlDNQ",
     "expires_in": 7200,
@@ -90,24 +90,22 @@ http://localhost:9093/cb?code=XUNKO4OPPROWAPFKEWNZWA&state=xyz
 
 **请求示例**
 
-```
+```sh
 http://localhost:9096/authorize?client_id=test_client_1&response_type=token&scope=all&state=xyz&redirect_uri=http://localhost:9093/cb
 ```
 
 **返回示例**
 
-```
-http status code 302
+```sh
+# 302 跳转,返回 access_token
 http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ0ZXN0X2NsaWVudF8xIiwiZXhwIjoxNTkxNDI3OTMwLCJzdWIiOiJhZG1pbiJ9.RBYns9UnNYDHINSBzvHWHRzuKCpzKmsxUnKt30lntmGvXmVDoByZtlB0RHAVB59PHBlJNO_YUBZzC2odwCa8Tg
 &expires_in=3600&scope=all&state=xyz&token_type=Bearer
-
 ```
 
 **注意**
 
 1. 这里会返回请求时设置的`state`, 请在进行下一步之前验证它, 防止请求被劫持或者篡改
 2. 这种方式把令牌直接传给前端，是很不安全的。因此，只能用于一些安全要求不高的场景，并且令牌的有效期必须非常短，通常就是会话期间（session）有效，浏览器关掉，令牌就失效了
-
 
 ## 3 password
 
@@ -137,9 +135,9 @@ http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhd
 |password|string|用户密码|
 |scope|string|权限范围,同1-1中说明|
 
-**Response返回示例**  
+**返回示例**  
 
-```
+```json
 {
     "access_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ0ZXN0X2NsaWVudF8xIiwiZXhwIjoxNTkxNDMyNzA3LCJzdWIiOiJhZG1pbiJ9.ECfUkCMUZE8I6GH3XTDcJnQgDryiRyyBhEHBW-dCxzFWaR-mvU5dsx3XV2bx-LWZzPJTBAQ3rB5QOb4BHjnBXw",
     "expires_in": 7200,
@@ -178,14 +176,13 @@ http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhd
 
 **返回示例**  
 
-```
+```json
 {
     "access_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJlbWJlZGVkLWg1LWFwaSIsImV4cCI6MTU4OTk3NzQyNn0.Pu93fy0-gyiFqExBkCFAKTVJ1on_RpOSexzkHqczA6n6kB2_mOHbTMOyGK_Di7bHxZ3JqpZeyDoKQBtUe_T7jw",
     "expires_in": 7200,
     "token_type": "Bearer"
 }
 ```
-
 
 ## 5 验证token
 
@@ -205,11 +202,11 @@ http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhd
 
 **返回示例**  
 
-正确
+正确 Status Code: 200
 
-```
-Status Code: 200
-Response Body
+Response Body:
+
+```json
 {
   "client_id": "test_client_1",
   "domain": "http://127.0.0.1:9093",
@@ -218,17 +215,11 @@ Response Body
   "user_id": ""
 }
 ```
-错误
+> **注意:** 接口还会一起返回权限范围`scope` 和 client 的注册 domain, 这里推荐验证下, 请求方的身份和权限
 
-```
-Status Code: 400
-Response Body
-   invalid access token
-```
+错误 Status Code: 400
 
-**注意** 
-
-如果token正确, 接口还会一起返回权限范围`scope` client的注册domain, 这里推荐验证下, 请求方的身份和权限.
+Response Body: `invalid access token`
 
 ## 6 刷新token
 
@@ -258,7 +249,7 @@ Response Body
 
 **返回示例**
 
-```
+```json
 {
     "access_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIyMjIyMjIiLCJleHAiOjE1ODU4MTc2MTMsInN1YiI6IjEifQ.yNpQIbklhtsSr5KEkJMAR4I30c85OEriYwAOpL_ukRBJ1qsSziT05HFN-kxVN1-qM18TzVEf8beCvugyhpgpsg",
     "expires_in": 7200,
@@ -267,7 +258,6 @@ Response Body
     "token_type": "Bearer"
 }
 ```
-
 
 ## 7 logout
 
@@ -286,6 +276,6 @@ Response Body
 
 **请求示例**  
 
-```
+```sh
 http://localhost:9096/logout?redirect_uri=http%3a%2f%2flocalhost%3a9096%2fauthorize%3fclient_id%3dtest_client_1%26response_type%3dcode%26scope%3dall%26state%3dxyz%26redirect_uri%3dhttp%3a%2f%2flocalhost%3a9093%2fcb
 ```

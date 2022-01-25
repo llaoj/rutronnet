@@ -4,6 +4,8 @@ bookCollapseSection: false
 title: "OAuth2&SSO"
 ---
 
+# OAuth2&SSO
+
 ## 项目介绍
 
 [llaoj/oauth2](https://github.com/llaoj/oauth2) 项目是基于 go-oauth2 打造的**独立**的 OAuth2.0 和 SSO 服务，提供了开箱即用的 OAuth2.0服务和单点登录SSO服务。开源一年多，获得了社区很多用户的关注，该项目多公司线上在用，其中包含上市公司。轻又好用，稳的一P。
@@ -20,8 +22,6 @@ title: "OAuth2&SSO"
 
 ## 主要功能
 
-详情见[API说明]()
-
 **实现了oauth2的四种工作流程**
 
 1. authorization_code
@@ -34,3 +34,5 @@ title: "OAuth2&SSO"
 5. 资源端用的验证 access_token 接口 `/validate`
 6. 刷新 token 接口 `/refresh`
 7. 专门为 SSO 开发的客户端登出接口 `/logout`
+
+详情见[API说明](/docs/oaut2nsso/apis/)

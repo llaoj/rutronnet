@@ -3,7 +3,9 @@ weight: 1
 title: "配置"
 ---
 
-该项目的配置修改都是在配置文件中完成的，配置文件在启动应用的时候通过`-config=`标签进行配置。比如：`oauth2 -config=/etc/oauth2/app.yaml`
+# 配置
+
+该项目的配置修改都是在配置文件中完成的，配置文件在启动应用的时候通过`--config=`标签进行配置。比如：`oauth2 --config=/etc/oauth2/app.yaml`
 
 配置文件介绍如下：
 
@@ -11,7 +13,7 @@ title: "配置"
 # session 相关配置
 session:
   name: session_id
-  secret_key: abc123
+  secret_key: "kkoiybh1ah6rbh0"
   # 过期时间
   # 单位秒
   # 默认20分钟
@@ -29,6 +31,7 @@ db:
     password: abc
     dbname: oauth2
 
+# 可选
 # redis 相关配置
 # 可以提供:
 # - 统一回话存储
@@ -52,7 +55,7 @@ oauth2:
   # 数组类型
   # 可配置多客户端
   client:
-  
+
       # 客户端id 必须全局唯一
     - id: test_client_1
       # 客户端 secret
@@ -67,10 +70,10 @@ oauth2:
       # 可以配置多个权限 
       # 颁发的 access_token 中会包含该值 资源方可以对该值进行验证
       scope:
-
           # 权限范围 id 唯一
         - id: all
           # 权限范围名称
           # 会在页面（登录页面）进行展示
           title: "用户账号、手机、权限、角色等信息"
+
 ```

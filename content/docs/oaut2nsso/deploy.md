@@ -9,7 +9,7 @@ title: "部署"
 
 克隆到代码之后，首先需要进行配置文件的修改和部分代码逻辑的编写：
 
-```
+```sh
 # 克隆源码
 git clone git@github.com:llaoj/oauth2.git
 cd oauth2
@@ -30,7 +30,7 @@ vi /etc/oauth2/config.yaml
 
 **[推荐]** 容器化部署比较方便进行大规模部署，是当下的趋势。需要本地有 docker 环境。
 
-```
+```sh
 # 构建镜像
 docker build -t <image:tag> -f build/Dockerfile .
 
@@ -43,7 +43,7 @@ docker run --rm --name=oauth2 --restart=always -d \
 
 ## 基于源码部署
 
-```
+```sh
 # 在仓库根目录
 # 编译
 go build -mod=vendor
