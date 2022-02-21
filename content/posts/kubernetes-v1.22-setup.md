@@ -125,7 +125,7 @@ ansible-playbook -i inventory/mycluster/hosts.yaml cluster.yml
 
 ```sh
 # 提前定义节点:
-declare -a IPS=(10.206.65.152 10.206.65.153 10.206.65.154 10.206.65.155 10.206.65.156 10.206.65.157)
+declare -a IPS=(10.10.1.3 10.10.1.4 10.10.1.5)
 
 # 下载离线文件压缩包
 wget https://rutron.oss-cn-beijing.aliyuncs.com/k8s-setup/kubernetes-v1.22.5-amd64-packages.tar.gz
