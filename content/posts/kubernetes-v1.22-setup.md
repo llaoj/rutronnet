@@ -61,7 +61,7 @@ cp -rfp inventory/sample/. inventory/mycluster
 
 # 使用 inventory_builder 工具生成 ansible inventory 文件
 CONFIG_FILE=inventory/mycluster/hosts.yaml \
-  HOST_PREFIX=hde-ceno \
+  HOST_PREFIX=hde-ceno- \
   python3 contrib/inventory_builder/inventory.py ${IPS[@]}
 ```
 
@@ -149,6 +149,22 @@ for ip in ${IPS[@]}; do ssh $ip "ls /tmp/releases/images | awk '{print \"ctr -n 
 ```
 
 至此, 完成~
+
+## 问题列表
+
+1. 报错: No package matching 'container-selinux' found available, installed or updated
+
+```sh
+fatal: [hde-ceno1]: FAILED! => {"attempts": 4, "changed": false, "msg": "No package matching 'container-selinux' found available, installed or updated", "rc": 126, "results": ["libselinux-python-2.5-15.el7.x86_64 providing libselinux-python is already installed", "7:device-mapper-libs-1.02.170-6.el7.x86_64 providing device-mapper-libs is already installed", "nss-3.44.0-7.el7_7.x86_64 providing nss is already installed", "No package matching 'container-selinux' found available, installed or updated"]}
+```
+
+解决办法: [打开链接](http://mirror.centos.org/centos/7/extras/x86_64/Packages/)找到服务器所需要的 container-selinux 包, 选择最新的包复制链接地址, 执行:
+
+```sh
+for ip in ${IPS[@]}; do ssh $ip "yum install -y http://mirror.centos.org/centos/7/extras/x86_64/Packages/container-selinux-2.119.2-1.911c772.el7_8.noarch.rpm"; done
+```
+
+> 替换命令中的 centos 包地址即可, 执行完毕之后再次执行部署.
 
 ## 离线文件列表
 
