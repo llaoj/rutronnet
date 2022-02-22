@@ -33,7 +33,7 @@ categories:
 
 > 这里介绍了[大集群配置指南](https://kubernetes.io/docs/setup/best-practices/cluster-large/#size-of-master-and-master-components).
 
-## 下载 kubespray:v2.18.0 镜像
+## 运行 kubespray:v2.18.0 容器
 
 因为国内网络限制, 将官方镜像 `quay.io/kubespray/kubespray:v2.18.0` 下载并传至阿里云 `registry.cn-beijing.aliyuncs.com/llaoj/kubespray:v2.18.0`. 该镜像已经安装配置好了依赖软件包以及 kubespray 项目源文件. 放心使用
 

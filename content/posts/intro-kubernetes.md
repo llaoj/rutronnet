@@ -18,10 +18,6 @@ categories:
 
 ---
 
-![ppt-page-2](/posts/intro-kubernetes/2.jpg)
-
----
-
 ![ppt-page-3](/posts/intro-kubernetes/3.jpg)
 
 ---
