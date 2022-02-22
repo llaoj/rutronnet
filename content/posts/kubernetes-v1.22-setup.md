@@ -125,6 +125,9 @@ tar -xvf kubernetes-v1.22.5-amd64-packages.tar.gz
 由于这一步不依赖其他软件包, 在安装开始就执行. 将上面下载的离线文件拷贝到目标服务器`/tmp/releases/`文件夹中.
 
 ```sh
+# 创建文件夹 /tmp/releases/
+for ip in ${IPS[@]}; do ssh $ip "mkdir /tmp/releases/"; done
+# 拷贝文件
 for ip in ${IPS[@]}; do scp -r kubernetes-v1.22.5-amd64-packages/* $ip:/tmp/releases/; done
 ```
 
