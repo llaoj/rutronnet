@@ -1,6 +1,6 @@
 ---
-title: "golang 项目中集成 ldap 服务"
-description: "openldap 容器化安装 golang 项目中集成 ldap 服务"
+title: "容器化部署 openldap"
+description: "openldap 容器化安装部署"
 date: "2022-03-03"
 menu: "main"
 tags:
