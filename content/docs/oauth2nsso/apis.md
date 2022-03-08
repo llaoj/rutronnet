@@ -17,9 +17,9 @@ title: "API列表"
 
 |参数|类型|说明|
 |-|-|-|
-|client_id|string|在oauth2 server注册的client_id,见配置文件[oauth2.client.id](/docs/oaut2nsso/configuration/)|
+|client_id|string|在oauth2 server注册的client_id,见配置文件[oauth2.client.id](http://rutron.net/docs/oauth2nsso/configuration/)|
 |response_type|string|固定值:`code`|
-|scope|string|权限范围,如:`str1,str2,str3`,str为配置文件中[oauth2.client.scope.id](/docs/oaut2nsso/configuration/)的值 |
+|scope|string|权限范围,如:`str1,str2,str3`,str为配置文件中[oauth2.client.scope.id](http://rutron.net/docs/oauth2nsso/configuration/)的值 |
 |state|string|表示客户端的当前状态,可以指定任意值,认证服务器会原封不动地返回这个值|
 |redirect_uri|string|回调uri,会在后面添加query参数`?code=xxx&state=xxx`,发放的code就在其中|
 
@@ -106,6 +106,7 @@ http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhd
 
 1. 这里会返回请求时设置的`state`, 请在进行下一步之前验证它, 防止请求被劫持或者篡改
 2. 这种方式把令牌直接传给前端，是很不安全的。因此，只能用于一些安全要求不高的场景，并且令牌的有效期必须非常短，通常就是会话期间（session）有效，浏览器关掉，令牌就失效了
+
 
 ## 3 password
 

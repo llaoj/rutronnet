@@ -5,7 +5,7 @@ title: "配置"
 
 # 配置
 
-该项目的配置修改都是在配置文件中完成的，配置文件在启动应用的时候通过`--config=`标签进行配置。比如：`oauth2 --config=/etc/oauth2/app.yaml`
+该项目的配置修改都是在配置文件中完成的，配置文件在启动应用的时候通过`--config=`标签进行配置.
 
 配置文件介绍如下：
 
@@ -33,7 +33,7 @@ db:
     port: 3306
     user: 123
     password: abc
-    dbname: oauth2
+    dbname: oauth2nsso
 
 ldap:
   # 服务地址
@@ -99,5 +99,13 @@ oauth2:
           # 权限范围名称
           # 会在页面（登录页面）进行展示
           title: "用户账号、手机、权限、角色等信息"
+
+    - id: test_client_2
+      secret: test_secret_2
+      name: 测试应用2 
+      domain: http://localhost:9094
+      scope:
+        - id: all
+          title: 用户账号, 手机, 权限, 角色等信息
 
 ```

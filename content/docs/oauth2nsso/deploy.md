@@ -11,12 +11,12 @@ title: "部署"
 
 ```sh
 # 克隆源码
-git clone git@github.com:llaoj/oauth2.git
-cd oauth2
+git clone git@github.com:llaoj/oauth2nsso.git
+cd oauth2nsso
 
 # 根据实际情况修改配置
-cp config.example.yaml /etc/oauth2/config.yaml
-vi /etc/oauth2/config.yaml
+cp config.example.yaml /etc/oauth2nsso/config.yaml
+vi /etc/oauth2nsso/config.yaml
 ...
 
 # 如果使用 LDAP方式 验证用户, 直接修改配置文件即可
@@ -37,9 +37,9 @@ vi /etc/oauth2/config.yaml
 docker build -t <image:tag> .
 
 # 运行
-docker run --rm --name=oauth2 --restart=always -d \
+docker run --rm --name=oauth2nsso --restart=always -d \
 -p 9096:9096 \
--v <path to config.yaml>:/etc/oauth2/config.yaml \
+-v <path to config.yaml>:/etc/oauth2nsso/config.yaml \
 <image:tag>
 ```
 
@@ -51,5 +51,5 @@ docker run --rm --name=oauth2 --restart=always -d \
 go build -mod=vendor
 
 # 运行
-./oauth2 -config=/etc/oauth2/config.yaml
+./oauth2nsso -config=/etc/oauth2nsso/config.yaml
 ```
