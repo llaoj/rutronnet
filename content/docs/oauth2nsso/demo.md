@@ -14,7 +14,7 @@ title: "示例"
 {{< button href="http://oauth2nssodemo.p.rutron.net/authorize?client_id=test_client_1&response_type=code&scope=all&state=xyz&redirect_uri=http://localhost:9093/cb" >}}测试应用1{{< /button >}}
 {{< button href="http://oauth2nssodemo.p.rutron.net/authorize?client_id=test_client_2&response_type=code&scope=all&state=xyz&redirect_uri=http://localhost:9094/cb" >}}测试应用2{{< /button >}}
 
-点击其中一个应用, **要求登录**, 输入`admin/admin`实完成登录, OAuth2NSSO会回掉返回`code`, 使用`code`该应用可以调用 [接口1-2](/docs/oauth2nsso/apis/) 获取`access_token`.
+点击其中一个应用, **要求登录**, 输入`admin/admin`实完成登录, OAuth2NSSO会回掉返回`code`, 使用`code`该应用可以调用 [接口1-2](/docs/oauth2nsso/apis) 获取`access_token`.
 
 再次点击另外一个应用, **无需登录**, 直接回掉返回`code`. 同样, 使用`code`该应用可以调用 [接口1-2](/docs/oauth2nsso/apis) 获取`access_token`.
 
