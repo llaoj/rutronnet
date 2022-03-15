@@ -1,7 +1,7 @@
 ---
 menu:
-  after:
+  before:
     name: article
-    weight: 5
+    weight: 3
 title: "文章"
 ---

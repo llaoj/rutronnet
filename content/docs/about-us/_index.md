@@ -1,7 +1,7 @@
 ---
-weight: 2
+weight: 8
 bookCollapseSection: false
-title: "关于我们"
+title: "关于"
 ---
 
 {{< columns >}}
