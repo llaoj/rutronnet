@@ -7,16 +7,10 @@
 }
 
 .highlight pre {
-    padding-right: 75px;
+    padding-right: 10px;
     background-color:#f8f8f8 !important;
 }
 
-.highlight .ln {
-    width: 20px;
-    display: block;
-    float: left;
-    text-align: right;
+.highlight td:first-child {
     user-select: none;
-    padding-right: 8px;
-    color: #ccc;
 }
