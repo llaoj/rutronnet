@@ -21,6 +21,15 @@ enableGitInfo = true
   url = "https://www.cncf.io/"
   weight = 20
 
+[markup]
+  [markup.highlight]
+    guessSyntax = true
+    lineNoStart = 1
+    lineNos = true
+    lineNumbersInTable = true
+    style = "monokailight"
+    tabWidth = 4
+
 [params]
   # (Optional, default light) Sets color theme: light, dark or auto.
   # Theme 'auto' switches between dark and light modes based on browser/os preferences
