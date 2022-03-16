@@ -29,9 +29,9 @@ pygmentsUseClasses = true
     hl_Lines = ""
     lineNoStart = 1
     lineNos = true
-    lineNumbersInTable = false
+    lineNumbersInTable = true
     noClasses = true
-    style = "github"
+    style = "monokailight"
     tabWidth = 4
 
 [params]
