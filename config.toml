@@ -23,6 +23,7 @@ enableGitInfo = true
 
 [markup]
   [markup.highlight]
+    codeFences = true
     guessSyntax = true
     lineNoStart = 1
     lineNos = true

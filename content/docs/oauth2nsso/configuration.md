@@ -109,5 +109,4 @@ oauth2:
       scope:
         - id: all
           title: 用户账号, 手机, 权限, 角色等信息
-
 ```
