@@ -1,6 +1,7 @@
 ---
 title: "Linux 常见错误码"
 description: "Linux 常见错误码"
+summary: "下表是 Linux 操作系统一些常见的错误代码和对应的错误描述 1 EPERM Operation not permitted 2 ENOENT No such file or directory"
 date: "2022-03-15"
 menu: "main"
 tags:

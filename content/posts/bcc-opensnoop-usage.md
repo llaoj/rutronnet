@@ -1,6 +1,7 @@
 ---
 title: "bcc 之 opensnoop 工具的使用"
-description: "bcc 之 opensnoop 工具的使用文档 "
+description: "bcc 之 opensnoop 工具的使用文档"
+summary: "这篇文档主要演示了 opensnoop(Linux eBPF/bcc) 工具的使用. opensnoop 在系统范围内跟踪 open() 系统调用，并打印各种详细信息."
 date: "2022-03-16"
 menu: "main"
 tags:
@@ -14,7 +15,7 @@ categories:
 
 ## 示例
 
-opensnoop 在系统范围内跟踪 open() 系统调用，并打印各种详细信息。
+opensnoop 在系统范围内跟踪 open() 系统调用，并打印各种详细信息.
 
 示例输出:
 
@@ -222,7 +223,7 @@ PID    COMM               FD ERR FLAGS    PATH
 # ./opensnoop --cgroupmap /sys/fs/bpf/test01
 ```
 
-更多信息, 查看 [docs/special_filtering.md0(https://github.com/iovisor/bcc/blob/master/docs/special_filtering.md)
+更多信息, 查看 [docs/special_filtering.md](https://github.com/iovisor/bcc/blob/master/docs/special_filtering.md)
 
 
 ## USAGE 说明

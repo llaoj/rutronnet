@@ -1,6 +1,7 @@
 ---
 title: "bcc 之 tcplife 工具的使用"
 description: "bcc 之 tcplife 工具的使用文档 "
+summary: "这篇文档主要演示了 tcplife(Linux eBPF/bcc) 工具的使用. tcplife 总结了在跟踪期间打开和关闭的 TCP 会话. 比如"
 date: "2022-03-16"
 menu: "main"
 tags:
