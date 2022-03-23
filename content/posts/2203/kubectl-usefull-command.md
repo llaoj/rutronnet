@@ -18,7 +18,7 @@ categories:
 使用 [jq](https://stedolan.github.io/jq/) (一个轻量级的灵活的命令行JSON解析器) 获取上一个状态
 
 ```sh
-kubectl get pods -A -ojson | jq -c '.items[] | {name: .metadata.name,reasons: [{reason: .status.containerStatuses[]?.lastState.terminated.reason, finishedAt: .status.containerStatuses[].lastState.terminated.finishedAt}]}' | grep OOMKilled
+kubectl get pods -A -ojson | jq -c '.items[] | {name: .metadata.name,reasons: [{reason: .status.containerStatuses[]?.lastState.terminated.reason, finishedAt: .status.containerStatuses[]?.lastState.terminated.finishedAt}]}' | grep OOMKilled
 ```
 
 pod 信息以行为单位显示, 方便进行筛选:
