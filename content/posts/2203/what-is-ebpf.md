@@ -59,7 +59,7 @@ eBPF 程序是事件驱动的, 能在内核或应用程序执行到一个特定�
 
 ### 验证
 
-验证这一步是为了确保 eBPF 程序安全执行. 它验证程序是否满足一些条件, 比如:
+这一步是为了确保 eBPF 程序安全执行. 它验证程序是否满足一些条件, 比如:
 
 - 加载 eBPF 程序的进程拥有所需的能力(特权). 除非启用非特权 eBPF, 否则只有特权进程才能加载 eBPF 程序.
 - 该程序不能崩溃或者以其他方式伤害操作系统.
@@ -75,7 +75,7 @@ eBPF 程序一个重要能力是: 能够共享收集的信息, 能够存储状�
 
 ![map_architecture](/posts/what-is-ebpf/map_architecture.png)
 
-为了解 map 类型的多样性, 下面是不完整的 map 类型列表. 对于不同的 map 类型, 它们同时是 共享变量 和 per-CPU变量 类型.
+为了解 map 类型的多样性, 下面是不完整的 map 类型列表. 这些类型的变量同时是 共享变量 和 per-CPU 变量.
 
 - Hash tables, Arrays 哈希表, 数组
 - LRU (Least Recently Used) 最近最少使用
@@ -86,7 +86,7 @@ eBPF 程序一个重要能力是: 能够共享收集的信息, 能够存储状�
 
 ### 帮助函数
 
-eBPF 程序不能随意调用内核函数. 如果允许的话, 将会把 eBPF 程序绑定到特定的内核版本, 这会使程序的兼容性复杂化. 所以, eBPF 程序可以转而使用帮助函数, 它是内核提供的大家熟知的稳定的 API.
+eBPF 程序不能随意调用内核函数. 如果允许的话, 将会把 eBPF 程序绑定到特定的内核版本, 这会使程序的兼容性复杂化. 所以, eBPF 程序转而使用帮助函数, 它是内核提供的大家熟知的稳定的 API.
 
 ![helper](/posts/what-is-ebpf/helper.png)
 
@@ -110,7 +110,7 @@ _权利越大, 责任越大_
 
 eBPF 是一项伟大的技术, 当下在很多关键软件中都扮演了核心的角色. 在 eBPF 程序开发过程中, 当 eBPF 进入 Linux 内核时, eBPF 的安全性就变得异常重要. eBPF 的安全性通过下面几点来保证:
 
-#### 所需权限
+#### 要求特权
 
 除非开启非特权 eBPF, 所有企图加载 eBPF 程序到内核的进程必须在特权模式（root）下运行，或者必须获得 CAP_BPF 能力. 这意味着非授信的程序不能加载 eBPF 程序.
 
@@ -129,11 +129,11 @@ eBPF 是一项伟大的技术, 当下在很多关键软件中都扮演了核心�
 
 完成验证之后, 根据 eBPF 程序是从特权进程还是非特权进程加载, 来决定是否加固的 eBPF 程序. 这包括:
 
-- **程序执行保护**: 存有 eBPF 程序的内核内存是收到保护的并且是只读的. 不管是内核 bug 或者是恶意操纵, 内核将崩溃, 而不是允许它继续执行损坏/被操纵的程序.
+- **程序执行保护**: 存有 eBPF 程序的内核内存是被保护的并且是只读的. 不管是内核 bug 或者是被恶意操纵, 内核都将崩溃, 而不是允许它继续执行损坏/被操纵的程序.
 - **Mitigation against Spectre**: Under speculation CPUs may mispredict branches and leave observable side effects that could be extracted through a side channel. To name a few examples: eBPF programs mask memory access in order to redirect access under transient instructions to controlled areas, the verifier also follows program paths accessible only under speculative execution and the JIT compiler emits Retpolines in case tail calls cannot be converted to direct calls.
 - **Constant blinding**: All constants in the code are blinded to prevent JIT spraying attacks. This prevents attackers from injecting executable code as constants which in the presence of another kernel bug, could allow an attacker to jump into the memory section of the eBPF program to execute code.
 
-#### 受限的运行时上下文
+#### 抽象的运行时上下文
 
 eBPF 程序不能直接访问任意内核内存. 必须通过 **eBPF 助手函数**访问位于程序上下文之外的数据和数据结构. 这保证了一致性的数据访问, 并使任何此类访问均受制于 eBPF 程序的权限, 例如如果可以保证修改是安全的, 则允许运行的 eBPF 程序修改某些数据结构的数据. eBPF 程序不能随机修改内核中的数据结构.
 
