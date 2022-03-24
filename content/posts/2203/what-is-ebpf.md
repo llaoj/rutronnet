@@ -130,8 +130,8 @@ eBPF 是一项伟大的技术, 当下在很多关键软件中都扮演了核心�
 完成验证之后, 根据 eBPF 程序是从特权进程还是非特权进程加载, 来决定是否加固的 eBPF 程序. 这包括:
 
 - **程序执行保护**: 存有 eBPF 程序的内核内存是被保护的并且是只读的. 不管是内核 bug 或者是被恶意操纵, 内核都将崩溃, 而不是允许它继续执行损坏/被操纵的程序.
-- **Mitigation against Spectre**: Under speculation CPUs may mispredict branches and leave observable side effects that could be extracted through a side channel. To name a few examples: eBPF programs mask memory access in order to redirect access under transient instructions to controlled areas, the verifier also follows program paths accessible only under speculative execution and the JIT compiler emits Retpolines in case tail calls cannot be converted to direct calls.
-- **Constant blinding**: All constants in the code are blinded to prevent JIT spraying attacks. This prevents attackers from injecting executable code as constants which in the presence of another kernel bug, could allow an attacker to jump into the memory section of the eBPF program to execute code.
+- **Mitigation against Spectre**: Under speculation CPUs may mispredict branches and leave observable side effects that could be extracted through a side channel. 举几个例子: eBPF programs mask memory access in order to redirect access under transient instructions to controlled areas, the verifier also follows program paths accessible only under speculative execution and the JIT compiler emits Retpolines in case tail calls cannot be converted to direct calls.
+- **常量 blinding**: 代码中的所有常量都被 blinded, 以防止 JIT spraying 攻击. 这可以避免: 当存在某种内核 bug 的情况下, 攻击者可以把可执行代码作为常量注入, 从而让攻击者跳转到 eBPF 程序的内存区域来执行代码.
 
 #### 抽象的运行时上下文
 
@@ -227,50 +227,50 @@ libbpf 库是一个基于 C/C++ 的通用 eBPF 库. 它提供给应用程序一�
 
 #### 基础
 
-- eBPF and Kubernetes: Little Helper Minions for Scaling Microservices (Slides)  
+- [eBPF and Kubernetes: Little Helper Minions for Scaling Microservices (Slides)]()  
   Daniel Borkmann, KubeCon EU, Aug 2020
-- eBPF - Rethinking the Linux Kernel (Slides)  
+- [eBPF - Rethinking the Linux Kernel (Slides)]()  
   Thomas Graf, QCon London, April 2020
-- BPF as a revolutionary technology for the container landscape (Slides)  
+- [BPF as a revolutionary technology for the container landscape (Slides)]()  
   Daniel Borkmann, FOSDEM, Feb 2020
-- BPF at Facebook  
+- [BPF at Facebook]()  
   Alexei Starovoitov, Performance Summit, Dec 2019
-- BPF: A New Type of Software (Slides)  
+- [BPF: A New Type of Software (Slides)]()  
   Brendan Gregg, Ubuntu Masters, Oct 2019
-- The ubiquity but also the necessity of eBPF as a technology  
+- [The ubiquity but also the necessity of eBPF as a technology]()  
   David S. Miller, Kernel Recipes, Oct 2019
 
 #### 深入
 
-- BPF and Spectre: Mitigating transient execution attacks (Slides)  
+- [BPF and Spectre: Mitigating transient execution attacks (Slides)]()  
   Daniel Borkmann, eBPF Summit, Aug 2021
-- BPF Internals (Slides)  
+- [BPF Internals (Slides)]()  
   Brendan Gregg, USENIX LISA, Jun 2021
 
 #### Cilium
 
-- Advanced BPF Kernel Features for the Container Age (Slides)  
+- [Advanced BPF Kernel Features for the Container Age (Slides)]()  
   Daniel Borkmann, FOSDEM, Feb 2021
-- Kubernetes Service Load-Balancing at Scale with BPF & XDP (Slides)  
+- [Kubernetes Service Load-Balancing at Scale with BPF & XDP (Slides)]()  
   Daniel Borkmann & Martynas Pumputis, Linux Plumbers, Aug 2020
-- Liberating Kubernetes from kube-proxy and iptables (Slides)  
+- [Liberating Kubernetes from kube-proxy and iptables (Slides)]()  
   Martynas Pumputis, KubeCon US 2019
-- Understanding and Troubleshooting the eBPF Datapath in Cilium (Slides)  
+- [Understanding and Troubleshooting the eBPF Datapath in Cilium (Slides)]()  
   Nathan Sweet, KubeCon US 2019
-- Transparent Chaos Testing with Envoy, Cilium and BPF (Slides)  
+- [Transparent Chaos Testing with Envoy, Cilium and BPF (Slides)]()  
   Thomas Graf, KubeCon EU 2019
-- Cilium - Bringing the BPF Revolution to Kubernetes Networking and Security (Slides)  
+- [Cilium - Bringing the BPF Revolution to Kubernetes Networking and Security (Slides)]()  
   Thomas Graf, All Systems Go!, Berlin, Sep 2018
-- How to Make Linux Microservice-Aware with eBPF (Slides)  
+- [How to Make Linux Microservice-Aware with eBPF (Slides)]()  
   Thomas Graf, QCon San Francisco, 2018
-- Accelerating Envoy with the Linux Kernel  
+- [Accelerating Envoy with the Linux Kernel]()  
   Thomas Graf, KubeCon EU 2018
-- Cilium - Network and Application Security with BPF and XDP (Slides)  
+- [Cilium - Network and Application Security with BPF and XDP (Slides)]()  
   Thomas Graf, DockerCon Austin, Apr 2017
 
 #### Hubble
 
-- Hubble - eBPF Based Observability for Kubernetes  
+- [Hubble - eBPF Based Observability for Kubernetes]()  
   Sebastian Wicki, KubeCon EU, Aug 2020
 
 ### 图书
