@@ -1,7 +1,7 @@
 ---
-title: "[译]什么是eBPF?"
-description: "bcc 之 tcplife 工具的使用文档 "
-summary: "这篇文档主要演示了 tcplife(Linux eBPF/bcc) 工具的使用. tcplife 总结了在跟踪期间打开和关闭的 TCP 会话. 比如"
+title: "[译]什么是 eBPF?"
+description: "关于 eBPF 的入门介绍文章, 讲了其架构和原理等."
+summary: "eBPF 程序是事件驱动的, 能在内核或应用程序执行到一个特定的 hook 点时执行. 预定义的 hooks 包含系统调用, 函数出/入口, 内核追踪点, 网络事件等等. 如果预定义 hook 不能满足需求, 也可以创建内核探针(kprobe)或者用户探针(uprobe), 在内核/用户应用程序的任何位置, 把探针附加到 eBPF 程序上."
 date: "2022-03-23"
 menu: "main"
 tags:
