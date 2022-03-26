@@ -1,5 +1,5 @@
 title = "如创云原生"
-baseURL = "https://rutron.net/"
+baseURL = "https://www.rutron.net/"
 theme = "hugo-book"
 defaultContentLanguage = 'zh'
 
