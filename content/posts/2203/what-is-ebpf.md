@@ -207,20 +207,20 @@ libbpf 库是一个基于 C/C++ 的通用 eBPF 库. 它提供给应用程序一�
 
 ### 文档
 
-- [BPF & XDP Reference Guide]()  
+- [BPF & XDP Reference Guide](https://docs.cilium.io/en/stable/bpf/)  
   Cilium 文档, 2020年8月
-- [BPF Documentation]()  
+- [BPF Documentation](https://www.kernel.org/doc/html/latest/bpf/index.html)  
   Linux 内核中的 BPF 介绍文档
-- [BPF Design Q&A]()  
+- [BPF Design Q&A](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/bpf/bpf_design_QA.rst)  
   内核相关的 eBPF 问答
 
 ### 教程
 
-- [Learn eBPF Tracing: Tutorial and Examples]()  
+- [Learn eBPF Tracing: Tutorial and Examples](https://www.brendangregg.com/blog/2019-01-01/learn-ebpf-tracing.html)  
   Brendan Gregg 的博客, 2019年1月
-- [XDP Hands-On Tutorials]()  
+- [XDP Hands-On Tutorials](https://github.com/xdp-project/xdp-tutorial)  
   很多作者, 2019年
-- [BCC, libbpf and BPF CO-RE Tutorials]()  
+- [BCC, libbpf and BPF CO-RE Tutorials](https://facebookmicrosites.github.io/bpf/blog/)  
   Facebook 的 BPF 博客, 2020年
 
 ### 发言
@@ -288,7 +288,7 @@ libbpf 库是一个基于 C/C++ 的通用 eBPF 库. 它提供给应用程序一�
   Sean Kerner, LWN, Jun 2019
 - [Linux Technology for the New Year: eBPF]()  
   Joab Jackson, Dec 2018
-- [A thorough introduction to eBPF]()  
+- [A thorough introduction to eBPF](https://lwn.net/Articles/740157/)  
   Matt Fleming, LWN, Dec 2017
 - [Cilium, BPF and XDP]()  
   Google Open Source Blog, Nov 2016
