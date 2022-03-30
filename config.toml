@@ -21,18 +21,11 @@ enableGitInfo = true
   url = "https://www.cncf.io/"
   weight = 20
 
-pygmentsUseClasses = true
 [markup]
   [markup.highlight]
     codeFences = true
     guessSyntax = true
-    # hl_Lines = ""
-    # lineNoStart = 1
-    # lineNos = true
-    # lineNumbersInTable = true
-    noClasses = true
-    style = "monokailight"
-    tabWidth = 4
+    style = "github"
 
 [params]
   # (Optional, default light) Sets color theme: light, dark or auto.
