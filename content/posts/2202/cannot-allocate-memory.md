@@ -1,7 +1,7 @@
 ---
 title: "解决 kubelet cannot allocate memory 错误"
 description: "mkdir /sys/fs/cgroup/memory/kubepods/burstable/podxxx: cannot allocate memory"
-date: "2022-01-27"
+date: "2022-02-27"
 menu: "main"
 tags:
 - "kubelet"

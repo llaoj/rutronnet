@@ -40,7 +40,7 @@ categories:
 
 |组件|配置/版本|说明|
 |:-|:-|:-|
-|docker-ce|||
+|docker-ce|20.10.14||
 |docker-compose|1.29.2|最新稳定版|
 |harbor|v2.2.4|离线版|
 
@@ -54,9 +54,9 @@ categories:
 
 安装 `yum-utils` 包, 它能提供 `yum-config-manager` 配置工具, 然后用工具来配置安装稳定的 yum 仓库.
 
-```sh
-sudo yum install -y yum-utils
-sudo yum-config-manager \
+```shell
+yum install -y yum-utils
+yum-config-manager \
     --add-repo \
     http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
 ````
@@ -66,16 +66,23 @@ sudo yum-config-manager \
 
 安装最新稳定版 Docker 引擎和 containerd
 
-```sh
-yum install docker-ce docker-ce-cli containerd.io
+```shell
+yum install -y docker-ce docker-ce-cli containerd.io
 ```
 
-### 优化配置
+启动 docker 实例并配置开机自动启动
+
+```shell
+systemctl start docker
+systemctl enable docker
+```
+
+### 优化 docker 配置
 
 做一些 docker 相关的配置优化:
 
-```sh
-cat <<EOF | sudo tee /etc/docker/daemon.json
+```shell
+cat <<EOF | tee /etc/docker/daemon.json
 {
   "exec-opts": ["native.cgroupdriver=systemd"],
   "log-driver": "json-file",
@@ -90,32 +97,33 @@ cat <<EOF | sudo tee /etc/docker/daemon.json
 EOF
 ```
 
-### 启动&开机启动
+重启启动 docker 实例
 
-```sh
-sudo systemctl daemon-reload
-sudo systemctl restart docker
-sudo systemctl enable docker
+```shell
+systemctl daemon-reload
+systemctl restart docker
 ```
 
 ### 安装 docker-compose
 
 harbor 使用 docker-compose 进行部署, 当前最新稳定版本是 1.29.2, 使用下面命令进行安装:
 
-```sh
-sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
+```shell
+curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+# 如果你的服务器也是 Linux-x86_64, 可以用这个国内的地址下载
+curl -L "https://rutron.oss-cn-beijing.aliyuncs.com/tools/docker-compose-Linux-x86_64" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
 ```
 
 ## 安装 Harbor 实例
 
 打开 [Harbor 下载页面](https://github.com/goharbor/harbor/releases), 下载离线安装器. 因为之前使用的是 `v2.2.0` 版本, 有不少应用已经对接了 harbor 的 api, 为了兼容性, 我选择了 `v2.2.4`.
 
-```sh
+```shell
 # 使用 root 用户 ~ 目录
 cd /root
 curl -O https://rutron.oss-cn-beijing.aliyuncs.com/harbor/harbor-offline-installer-v2.2.4.tgz
-tar xzvf harbor-offline-installer-version.tgz
+tar xzvf harbor-offline-installer-v2.2.4.tgz
 cd harbor
 ```
 
@@ -125,7 +133,7 @@ cd harbor
 
 拷贝示例配置文件, 进行修改:
 
-```sh
+```shell
 cp harbor.yml.tmpl harbor.yml
 vi harbor.yml
 ```
@@ -140,9 +148,9 @@ vi harbor.yml
 - **database.paasword:** 数据库密码, 线上环境必须修改
 - **data_volume:** 这是 harbor 的数据目录, 默认是 `/data`, 因为我服务器的数据盘就挂的 `/data` 目录, 这里就不需要修改了.
 
-下面是默认配置文件, 重点配置我都做了翻译:
+下面是默认配置文件, 重点配置我都做了翻译。别看配置文件这么长，重要的都在前 50 行:
 
-```yaml
+```yaml {linenos=table}
 # Harbor 配置文件
 
 # 访问管理端 UI 和容器镜像服务使用的 IP 地址或者 hostname
@@ -355,30 +363,60 @@ proxy:
 
 默认安装不含 Notary, Trivy, 或者 Chart 仓库服务, 执行下面的命令:
 
-```sh
-sudo ./install.sh
+```shell
+./install.sh
 ```
 
 查看安装状态:
 
-```sh
-$ docker ps
+```shell
+docker ps
 ```
 
-如果看到所有的容器都已经 Running 说明安装成功~   
+如果所有的容器的状态 STATUS 都为 `Up About a minute (healthy)` 说明安装成功~  
 打开 harbor admin ui 验证下吧! 别忘了修改 admin 的密码. 使用同样的方式将两台虚拟机的 docker、docker-compose 和 harbor 都安装好.
+
+### 更改配置
+
+如果需要更改 harbor 的配置, 请按照如下步骤操作:
+
+1. 停止 harbor
+
+```shell
+# 首先进入工作目录
+cd ~/harbor/
+docker-compose down -v
+```
+
+2. 更新配置文件
+
+```shell
+vim harbor.yml
+```
+
+3. 运行脚本生成最终配置
+
+```shell
+./prepare
+```
+
+4. 重新启动 harbor 实例
+
+```shell
+docker-compose up -d
+```
 
 ### 为 Admin UI 增加权限控制
 
 在我们单位内部, harbor 仅作为自研镜像服务的后端使用. 所以 admin ui 是不允许用户访问的. 为此, 我需要修改 harbor nginx 的配置, 变更默认配置, 增加一些权限的控制. 首先需要关闭 harbor 服务:
 
-```sh
+```shell
 docker-compose down -v
 ```
 
 修改 harbor nginx 配置文件, 因为 `nginx.conf` 配置文件篇幅过长, 我仅将修改部分贴出:
 
-```nginx
+```nginx {hl_lines=["5-6"]}
 $ vi common/config/nginx/nginx.conf
 ...
 location / {
@@ -405,8 +443,8 @@ location / {
 
 因为我们没有修改 `harbor.yml`, 无需运行 `prepare` 命令, 再次启动 harbor:
 
-```sh
-sudo docker-compose up -d
+```shell
+docker-compose up -d
 ```
 
 因为是双主, 使用同样的方式将两台虚拟机都配置好.

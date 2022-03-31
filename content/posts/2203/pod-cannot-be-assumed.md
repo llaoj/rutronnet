@@ -4,7 +4,6 @@ summary: "pod is in the cache, so can't be assumed, 这是调度器 scheduler �
 date: "2022-03-21"
 menu: "main"
 tags:
-- "scheduler"
 - "kubernetes"
 categories:
 - "技术"

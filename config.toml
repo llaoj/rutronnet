@@ -1,4 +1,4 @@
-title = "如创云原生"
+title = "Rutron Cloud Native"
 baseURL = "https://www.rutron.net/"
 theme = "hugo-book"
 defaultContentLanguage = 'zh'
@@ -20,6 +20,10 @@ enableGitInfo = true
   name = "CNCF"
   url = "https://www.cncf.io/"
   weight = 20
+[[menu.after]]
+    name = "eBPF"
+    url = "https://ebpf.io/"
+    weight = 21
 
 [markup]
   [markup.highlight]

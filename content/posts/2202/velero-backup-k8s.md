@@ -1,7 +1,7 @@
 ---
 title: "使用 velero 备份 kubernetes 指引"
 description: "velero 是一款优秀的 kubernetes 备份程序，它通过 apiserver api 进行资源的备份和恢复。"
-date: "2021-04-02"
+date: "2022-02-02"
 menu: "main"
 tags:
 - "backup"
