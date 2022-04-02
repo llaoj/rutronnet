@@ -406,49 +406,95 @@ vim harbor.yml
 docker-compose up -d
 ```
 
-### 为 Admin UI 增加权限控制
-
-在我们单位内部, harbor 仅作为自研镜像服务的后端使用. 所以 admin ui 是不允许用户访问的. 为此, 我需要修改 harbor nginx 的配置, 变更默认配置, 增加一些权限的控制. 首先需要关闭 harbor 服务:
-
-```shell
-docker-compose down -v
-```
-
-修改 harbor nginx 配置文件, 因为 `nginx.conf` 配置文件篇幅过长, 我仅将修改部分贴出:
-
-```nginx {hl_lines=["5-6"]}
-$ vi common/config/nginx/nginx.conf
-...
-location / {
-      # 增加 basic auth 登录
-      auth_basic "Restricted";
-      auth_basic_user_file /etc/nginx/conf.d/htpasswd;
-      
-      proxy_pass http://portal/;
-      proxy_set_header Host $http_host;
-      proxy_set_header X-Real-IP $remote_addr;
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      
-      # 当 harbor 在其他代理后面时, 如 nginx
-      # 如果他们有类似的配置, 可以将下面这行删除
-      proxy_set_header X-Forwarded-Proto $scheme;
-
-      proxy_cookie_path / "/; HttpOnly; Secure";
-
-      proxy_buffering off;
-      proxy_request_buffering off;
-    }
-...
-```
-
-因为我们没有修改 `harbor.yml`, 无需运行 `prepare` 命令, 再次启动 harbor:
-
-```shell
-docker-compose up -d
-```
-
-因为是双主, 使用同样的方式将两台虚拟机都配置好.
-
 ## 配置双主复制
 
-未完待续~
+在其中一台 harbor 实例上配置，我以 10.206.99.58 为例，另一实例同理，首先需要创建仓库，点击`系统管理>仓库管理>新建目标`，按照如下填写：
+
+![add-harbor-instance](/posts/2203/harbor-dual-master-replication-ha/add-harbor-instance.png)
+
+然后，创建复制规则，点击`系统管理>复制管理>新建规则`，按照如下填写：
+
+![add-replication-rule](/posts/2203/harbor-dual-master-replication-ha/add-replication-rule.png)
+
+这样，当用户往 10.206.99.58 中推送/删除镜像时，10.206.99.57 也会同步发生变化。
+
+## 增加反向代理
+
+现在两个 harbor 实例都已经配置好了。用户看到的是两个完全独立的 harbor，他们的用户独立，访问地址不同。当然有些场景下这样已经可以满足需求了，比如异地办公的团队（可以按照地域区分使用访问地址）。如果我们想统一访问地址，可以在前面增加一个反向代理。而且可以将 ssl 证书部署在代理上。还是比较推荐的。所以我希望这个代理能实现：
+1. **统一的访问入口：** 将两个 harbor 地址统一为一个。
+2. **卸载 ssl 证书：** 这将简化 harbor 实例的配置，更易于证书的管理。
+3. **会话保持：** 因为 harbro 之间复制是有时间差的，用户往一个实例中推送镜像之后不可能立即在另一实例中拉取到，所以要将客户端的请求固定到一个实例上。
+
+> 但是很遗憾，harbor 实例之间用户和相关权限是无法同步的。这可能需要需要一些外在的机制实现了。
+
+我假设提供给用户的域名是：registry.example.com，我使用 nginx 作为这个反向代理，它的配置文件`/etc/nginx/conf.d/registry.example.com.conf`是这样的。
+
+```nginx {linenos=table}
+upstream harbor{
+    ip_hash;
+    server 10.206.99.57;
+    server 10.206.99.58;
+}
+
+server {
+    listen 80;
+    server_name registry.example.com;
+    rewrite ^(.*)$ https://$host$1;
+}
+
+server {
+    listen 443 ssl;
+    server_name registry.example.com;
+
+    charset utf-8;
+    client_max_body_size 0;
+    client_header_timeout 180;
+    client_body_timeout 180;
+    send_timeout 180;;
+    
+    ssl_certificate /etc/nginx/conf.d/cert/registry_example_com.pem;
+    ssl_certificate_key /etc/nginx/conf.d/cert/registry_example_com.key;
+    ssl_session_timeout 5m;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4:!DH:!DHE;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+
+    location / {
+        proxy_connect_timeout 180;
+        proxy_send_timeout 180;
+        proxy_read_timeout 180;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        # 注意这两行不要加
+        # proxy_set_header Host $host;
+        # proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://harbor;
+    }
+}
+```
+
+运行 nginx 反向代理：
+
+```shell
+# 将证书和配置文件都放在 /etc/nginx/conf.d 路径下
+docker run -d --restart=always \
+    --name=nginx \
+    -p 80:80 -p 443:443 \
+    -v /etc/nginx/conf.d:/etc/nginx/conf.d \
+    nginx
+```
+
+测试对 registry.example.com 进行`push/pull`镜像均正常，检查两个 harbor 实例也同步正常。至此，完成～
+
+## 总结
+
+至此，所有的安装/配置就结束了，通过体验测试我发现：
+
+1. **用户是独立的**  
+两个实例之间的项目、镜像、标签相关资源是可以同步的，但是用户不可以。如果用户要在两个实例直接切换使用的话，需要为用户创建两个账号
+2. **镜像同步有一定的时间差**  
+我的两个实例是所在虚拟机在一个网段内的，测试了一个约 900M 的镜像，从开始同步到结束大概是10秒种。如果用户在一台实例上推送之后，立马去另一台实例上拉去是不行的。所以如果两个实例前面要增加 http 代理的话，需要使用 ip_hash 负载均衡策略，将用户请求固定到其中一台实例上。
+3. **实例 url 地址不一致**  
+这个问题不严重，因为是两个实例，如果我们在他们前面再部署 http 代理的话，就是三个地址。所以，两个实例对应 admin ui 上的 url 地址和用户使用的（如果有代理）url 均地址不一样。 比如：
+![harbor-url.jpg](/posts/2203/harbor-dual-master-replication-ha/harbor-url.jpg)
+
