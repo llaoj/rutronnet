@@ -56,7 +56,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	pods, err := clientset.CoreV1().Pods("default").List(context.TODO(), metav1.ListOptions{
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{
 		FieldSelector: "status.phase=Running",
 	})
 	if err != nil {
