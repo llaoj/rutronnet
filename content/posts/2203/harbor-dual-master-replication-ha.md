@@ -1,6 +1,6 @@
 ---
-title: "Harbor 双主复制高可用解决方案实践"
-description: "一步步部署 Harbor 双主复制高可用解决方案"
+title: "Harbor 双主复制解决方案实践"
+description: "一步步部署 Harbor 双主复制解决方案"
 summary: ""
 date: "2022-03-29"
 menu: "main"
@@ -16,9 +16,9 @@ categories:
 
 ![Active-Active with scale out ability](/posts/2203/harbor-dual-master-replication-ha/solution-1.png)
 
-从图中可以看到, 这种方案基于外部共享存储、外部数据库和 Redis 服务, 构建其两个/以上的 harbor 实例. 既然使用了外部的服务, 那么高可用的压力自然而然的转移到了外部服务上. 我们一开始采用的外部的 NFS 共享存储服务, 由于我们团队实际情况, 我们暂时还不能保证外部存储的高可用. 同时, 鉴于我们对镜像服务高可用的迫切需求, 决定更换 Harbor 的高可用方案.
+从图中可以看到, 这种方案基于外部共享存储、外部数据库和 Redis 服务, 构建其两个/以上的 harbor 实例. 既然使用了外部的服务, 那么高可用的压力自然而然的转移到了外部服务上. 我们一开始采用的外部的 NFS 共享存储服务, 由于我们团队实际情况, 我们暂时还不能保证外部存储的高可用. 同时, 鉴于我们对镜像服务高可用的迫切需求, 决定调研新的 Harbor 的高可用方案.
 
-最终选择了 Solution 4 (双主复制方案), 这个解决方案, 使用复制来实现高可用, 它不需要共享存储、外部数据库服务、外部 Redis 服务. 这种方案可以有效的解决镜像服务的单点故障. 架构图如下:
+选择了 Solution 4 (双主复制方案), 这个解决方案, 使用复制来实现高可用, 它不需要共享存储、外部数据库服务、外部 Redis 服务. 这种方案可以有效的解决镜像服务的单点故障. 架构图如下:
 
 ![harbor-dual-master-replication-ha-solution](/posts/2203/harbor-dual-master-replication-ha/solution-4.png)
 
@@ -406,6 +406,15 @@ vim harbor.yml
 docker-compose up -d
 ```
 
+5. 其他命令
+
+```shell
+# 重装前清理历史数据
+rm -rf /data/database
+rm -rf /data/registry
+rm -rf /data/redis
+```
+
 ## 配置双主复制
 
 在其中一台 harbor 实例上配置，我以 10.206.99.58 为例，另一实例同理，首先需要创建仓库，点击`系统管理>仓库管理>新建目标`，按照如下填写：
@@ -423,7 +432,7 @@ docker-compose up -d
 现在两个 harbor 实例都已经配置好了。用户看到的是两个完全独立的 harbor，他们的用户独立，访问地址不同。当然有些场景下这样已经可以满足需求了，比如异地办公的团队（可以按照地域区分使用访问地址）。如果我们想统一访问地址，可以在前面增加一个反向代理。而且可以将 ssl 证书部署在代理上。还是比较推荐的。所以我希望这个代理能实现：
 1. **统一的访问入口：** 将两个 harbor 地址统一为一个。
 2. **卸载 ssl 证书：** 这将简化 harbor 实例的配置，更易于证书的管理。
-3. **会话保持：** 因为 harbro 之间复制是有时间差的，用户往一个实例中推送镜像之后不可能立即在另一实例中拉取到，所以要将客户端的请求固定到一个实例上。
+3. **会话保持：** 因为 harbor 之间复制是有时间差的，用户往一个实例中推送镜像之后不可能立即在另一实例中拉取到，所以要将客户端的请求固定到一个实例上。
 
 > 但是很遗憾，harbor 实例之间用户和相关权限是无法同步的。这可能需要需要一些外在的机制实现了。
 
@@ -450,7 +459,7 @@ server {
     client_max_body_size 0;
     client_header_timeout 180;
     client_body_timeout 180;
-    send_timeout 180;;
+    send_timeout 180;
     
     ssl_certificate /etc/nginx/conf.d/cert/registry_example_com.pem;
     ssl_certificate_key /etc/nginx/conf.d/cert/registry_example_com.key;
@@ -459,15 +468,16 @@ server {
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
     ssl_prefer_server_ciphers on;
 
+    proxy_connect_timeout 180;
+    proxy_send_timeout 180;
+    proxy_read_timeout 180;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    # 注意这两行不要加
+    # proxy_set_header Host $host;
+    # proxy_set_header X-Forwarded-Proto $scheme;
+
     location / {
-        proxy_connect_timeout 180;
-        proxy_send_timeout 180;
-        proxy_read_timeout 180;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        # 注意这两行不要加
-        # proxy_set_header Host $host;
-        # proxy_set_header X-Forwarded-Proto $scheme;
         proxy_pass http://harbor;
     }
 }
@@ -484,14 +494,14 @@ docker run -d --restart=always \
     nginx
 ```
 
-测试对 registry.example.com 进行`push/pull`镜像均正常，检查两个 harbor 实例也同步正常。至此，完成～
+测试对 registry.example.com 进行`login/push/pull`镜像均正常，检查两个 harbor 实例也同步正常。至此，完成～
 
 ## 总结
 
 至此，所有的安装/配置就结束了，通过体验测试我发现：
 
 1. **用户是独立的**  
-两个实例之间的项目、镜像、标签相关资源是可以同步的，但是用户不可以。如果用户要在两个实例直接切换使用的话，需要为用户创建两个账号
+两个实例之间的项目、镜像、标签相关资源是可以同步的，但是用户不可以。如果用户要在两个实例直接切换使用的话，需要分别登录两个 harbor admin ui 为用户创建两个相同的账号。所以说该方案比较适合异地办公团队，仅做镜像数据的同步。
 2. **镜像同步有一定的时间差**  
 我的两个实例是所在虚拟机在一个网段内的，测试了一个约 900M 的镜像，从开始同步到结束大概是10秒种。如果用户在一台实例上推送之后，立马去另一台实例上拉去是不行的。所以如果两个实例前面要增加 http 代理的话，需要使用 ip_hash 负载均衡策略，将用户请求固定到其中一台实例上。
 3. **实例 url 地址不一致**  
