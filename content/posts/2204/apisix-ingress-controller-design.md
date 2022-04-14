@@ -11,18 +11,16 @@ categories:
 - "技术"
 ---
 
-## 架构设计
-
 Apache APISIX - 专门为 kubernetes 研发的入口控制器。
-
-apisix-ingress-controller 需要的所有配置都是通过 Kubernetes CRDs (Custom Resource Definitions) 定义的。支持在 Apache APISIX 中配置插件、上游的服务注册发现机制、负载均衡等。  
-apisix-ingress-controller 是 Apache APISIX 的控制面组件. 当前服务于 Kubernetes 集群. 未来, 计划分离出子模块以适配更多的部署模式，比如虚拟机集群部署。架构图如下  
-
-![architecture](/posts/2204/apisix-ingress-controller-design/arch.png)
 
 ## 状态
 
 该项目目前是 general availability 级别
+
+## 先决条件
+
+apisix-ingress-controller 要求 kubernetes 版本 1.16+. 因为使用了 CustomResourceDefinition v1 stable 版本的 API.
+从 1.0.0 版本开始，APISIX-ingress-controller 要求 Apache APISIX 版本 2.7+.
 
 ## 功能特性
 
@@ -50,16 +48,22 @@ apisix-ingress-controller 是 Apache APISIX 的控制面组件. 当前服务于 
 - 支持 APISIX 自定义资源和原生 kubernetes ingress 资源
 - 更活跃的社区
 
-## 内部架构
+## 设计原理
+
+### 架构
+
+apisix-ingress-controller 需要的所有配置都是通过 Kubernetes CRDs (Custom Resource Definitions) 定义的。支持在 Apache APISIX 中配置插件、上游的服务注册发现机制、负载均衡等。  
+apisix-ingress-controller 是 Apache APISIX 的控制面组件. 当前服务于 Kubernetes 集群。 未来, 计划分离出子模块以适配更多的部署模式，比如虚拟机集群部署。
+
+整体架构图如下：
+
+![architecture](/posts/2204/apisix-ingress-controller-design/arch.png)
+
+这是一张内部架构图：
 
 ![internal-arch](/posts/2204/apisix-ingress-controller-design/internal-arch.png)
 
-## 先决条件
-
-apisix-ingress-controller 要求 kubernetes 版本 1.16+. 因为使用了 CustomResourceDefinition v1 stable 版本的 API. 
-从 1.0.0 版本开始，APISIX-ingress-controller 要求 Apache APISIX 版本 2.7+.
-
-## 时序图
+### 时序/流程图
 
 apisix-ingress-controller 负责和 Kubernetes Apiserver 交互, 申请可访问资源权限（RBAC），监控变化，在 Ingress 控制器中实现对象转换，比较变化，然后同步到 Apache APISIX。
 
@@ -68,6 +72,8 @@ apisix-ingress-controller 负责和 Kubernetes Apiserver 交互, 申请可访问
 这是一张流程图，介绍了ApisixRoute和其他CRD在同步过程中的主要逻辑
 
 ![sync-logic-controller](/posts/2204/apisix-ingress-controller-design/sync-logic-controller.png)
+
+
 
 ## ApisixRoute 介绍
 
@@ -306,6 +312,156 @@ spec:
 进入 apisix-ingress-controller 9200 端口的 TCP 流量会路由到后端 udp-server 服务。
 
 **注意：** APISIX不支持动态监听，所以需要在APISIX[配置文件](https://github.com/apache/apisix/blob/master/conf/config-default.yaml#L111)中预先定义9200端口。
+
+## ApisixUpstream 介绍
+
+ApisixUpstream 是 kubernetes service 的装饰器。它设计成与其关联的 kubernetes service 的名字一致，将其变得更加强大，使该 kubernetes service 能够配置负载均衡策略、健康检查、重试、超时参数等。  
+通过 ApisixUpstream 和 kubernetes service，apisix-ingress-controller 会生成 APISIX Upstream(s).  
+
+### 配置负载均衡
+
+需要适当的负载均衡算法来合理地分散 Kubernetes Service 的请求
+
+```yaml
+apiVersion: apisix.apache.org/v1
+kind: ApisixUpstream
+metadata:
+  name: httpbin
+spec:
+  loadbalancer:
+    type: ewma
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpbin
+spec:
+  selector:
+    app: httpbin
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+```
+上面这个例子给 httpbin 服务配置了 ewma 负载均衡算法。有时候可能会需要会话保持，你可以配置一致性哈希负载均衡算法
+
+```yaml
+apiVersion: apisix.apache.org/v1
+kind: ApisixUpstream
+metadata:
+  name: httpbin
+spec:
+  loadbalancer:
+    type: chash
+    hashOn: header
+    key: "user-agent"
+```
+
+这样 apisix 就会根据 user-agent header 来分发流量。
+
+### 配置健康检查
+
+尽管 kubelet 已经提供了检测 pod 健康的探针机制。你可能还需要更加丰富的健康检查机制，比如被动健康检查机制。
+
+```yaml
+apiVersion: apisix.apache.org/v1
+kind: ApisixUpstream
+metadata:
+  name: httpbin
+spec:
+  healthCheck:
+    passive:
+      unhealthy:
+        httpCodes:
+          - 500
+          - 502
+          - 503
+          - 504
+        httpFailures: 3
+        timeout: 5s
+    active:
+      type: http
+      httpPath: /healthz
+      timeout: 5s
+      host: www.foo.com
+      healthy:
+        successes: 3
+        interval: 2s
+        httpCodes:
+          - 200
+          - 206
+```
+
+上面的yaml片段定义了被动健康检查器来检查endpoints的健康状况。一旦连续三次请求的响应状态码是错误（500 502 503 504 中的一个），这个endpoint就会被标记成不健康并不会再给它分配流量了，直到它再次健康。  
+所以，主动健康检查器就出现了。endpoint 可能掉线一段时间又回复健康，主动健康检查器主动探测这些不健康的endpoints，一旦满足健康条件就将其恢复为健康（条件：连续三次请求响应状态码为200或206）  
+> 注意：主动健康检查器在某种程度上与 liveness/readiness 探针重复，但如果使用被动健康检查机制，则它是必需的。因此，一旦您使用了 ApisixUpstream 中的健康检查功能，主动健康检查器是强制性的。
+
+### 配置重试和超时
+
+当请求出现错误，比如网络问题或者服务不可用当时候，你可能想重试请求。默认重试次数是1，通过定义`retries`字段可以改变这个值。  
+下面这个例子将`retries`定义为3，表明会对kubernetes service/httpbin的endpoints最多请求3次。  
+> 注意：只有在尚未向客户端响应任何内容的情况下，才有可能将请求重试传递到下一个端点。也就是说，如果在传输响应的过程中发生错误或超时，就不会重试了。
+
+```yaml
+apiVersion: apisix.apache.org/v1
+kind: ApisixUpstream
+metadata:
+  name: httpbin
+spec:
+  retries: 3
+```
+
+默认，connect、send 和 read 的超时时间是60s，这可能对有些应用不合适，修改`timeout`字段来改变默认值。
+
+```yaml
+apiVersion: apisix.apache.org/v1
+kind: ApisixUpstream
+metadata:
+  name: httpbin
+spec:
+  timeout:
+    connect: 5s
+    read: 10s
+    send: 10s
+```
+上面例子将connect、read 和 send 分别设置为 5s、10s、10s。
+
+### 端口级别配置
+
+有时，单个 kubernetes service 可能会暴露多个端口，这些端口提供不同的功能并且需要不同的上游配置。在这种情况下，您可以为单个端口创建配置。
+
+```yaml
+apiVersion: apisix.apache.org/v1
+kind: ApisixUpstream
+metadata:
+  name: foo
+spec:
+  loadbalancer:
+    type: roundrobin
+  portLevelSettings:
+  - port: 7000
+    scheme: http
+  - port: 7001
+    scheme: grpc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: foo
+spec:
+  selector:
+    app: foo
+  portLevelSettings:
+  - name: http
+    port: 7000
+    targetPort: 7000
+  - name: grpc
+    port: 7001
+    targetPort: 7001
+```
+
+foo 服务暴露的两个端口，一个使用http协议，另一个使用grpc协议。同时，ApisixUpstream/foo 为7000端口配置http协议，为7001端口配置grpc协议（所有端口都是service端口），两个端口都共享使用同一个负载均衡算法。  
+如果服务仅公开一个端口，则 PortLevelSettings 不是必需的，但在定义多个端口时很有用。
 
 ## 用户故事
 [思必驰：为什么我们重新写了一个 k8s ingress controller？](https://mp.weixin.qq.com/s/bmm2ibk2V7-XYneLo9XAPQ)  
