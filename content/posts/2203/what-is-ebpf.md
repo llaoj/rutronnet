@@ -19,7 +19,7 @@ eBPF 是革命性技术, 起源于 linux 内核, 能够在操作系统内核中�
 
 历史上, 由于内核拥有全局查看并控制整个操作系统的特权, 操作系统一直被认为是实现可观察性, 安全, 网络功能的理想地方. 同时, 由于其核心角色和对于稳定和安全的高要求, 操作系统很难演进. 因此, 传统上与在操作系统之外实现的功能相比, 操作系统级别的创新率较低.
 
-![overview](/posts/what-is-ebpf/overview.png)
+![overview](/posts/2203/what-is-ebpf/overview.png)
 
 eBPF 从根本上改变了这种一成不变的状态. 通过允许在操作系统中执行沙盒程序, 开发者可以通过执行 eBPF 程序, 来给运行中的操作系统添加额外的能力. 就像在本地使用即时编译器(JIT)和验证引擎一样, 操作系统可以保证安全性和执行效率. 这催生了不少基于 eBPF 的项目, 涵盖了广泛的用例, 包括下一代网络、可观察性和安全功能.
 
@@ -37,7 +37,7 @@ eBPF.io 是以 eBPF 为主题, 每个人学习和协作的地方. eBPF 是一个
 
 eBPF 程序是事件驱动的, 能在内核或应用程序执行到一个特定的 hook 点时执行. 预定义的 hooks 包含系统调用, 函数出/入口, 内核追踪点, 网络事件等等.
 
-![syscall_hook](/posts/what-is-ebpf/syscall_hook.png)
+![syscall_hook](/posts/2203/what-is-ebpf/syscall_hook.png)
 
 如果预定义 hook 不能满足需求, 也可以创建内核探针(kprobe)或者用户探针(uprobe), 在内核/用户应用程序的任何位置, 把探针附加到 eBPF 程序上.
 
@@ -45,7 +45,7 @@ eBPF 程序是事件驱动的, 能在内核或应用程序执行到一个特定�
 
 在很多场景中, 用户不需要直接使用 eBPF, 而是通过一些项目, 比如 [cilium](https://ebpf.io/projects/#cilium), [bcc](https://ebpf.io/projects/#bcc) 或 [bpftrace](https://ebpf.io/projects/#bpftrace), 它们是 eBPF 上层的抽象, 提供了使用 eBPF 实现的特定功能, 用户无需直接编写 eBPF 程序.
 
-![clang](/posts/what-is-ebpf/clang.png)
+![clang](/posts/2203/what-is-ebpf/clang.png)
 
 如果没有高级抽象, 就需要直接编写 eBPF 程序. Linux 内核要器加载字节码形式的 eBPF 程序. 虽然可以直接编写字节码, 但是更普遍的开发实践是借用像 [LLVM](https://llvm.org/) 这样的编译器, 把伪 C 代码编译成字节码.
 
@@ -53,7 +53,7 @@ eBPF 程序是事件驱动的, 能在内核或应用程序执行到一个特定�
 
 当所需的钩子被识别后, 可以使用 bpf 系统调用将 eBPF 程序加载到 Linux 内核中. 这通常使用一个可用的 eBPF 工具库来完成. 下一节将介绍一些可用的开发工具链.
 
-![go](/posts/what-is-ebpf/go.png)
+![go](/posts/2203/what-is-ebpf/go.png)
 
 当程序加载到 Linux 内核中时, 它在附加到请求的钩子之前要经过两个步骤:
 
@@ -73,7 +73,7 @@ eBPF 程序是事件驱动的, 能在内核或应用程序执行到一个特定�
 
 eBPF 程序一个重要能力是: 能够共享收集的信息, 能够存储状态. 为了实现该能力, eBPF 程序借用 Maps 来存储/获取数据, 它支持丰富的数据结构. 通过系统调用, 可以从 eBPF 程序或者用户空间应用访问 maps.
 
-![map_architecture](/posts/what-is-ebpf/map_architecture.png)
+![map_architecture](/posts/2203/what-is-ebpf/map_architecture.png)
 
 为了解 map 类型的多样性, 下面是不完整的 map 类型列表. 这些类型的变量同时是 共享变量 和 per-CPU 变量.
 
@@ -88,7 +88,7 @@ eBPF 程序一个重要能力是: 能够共享收集的信息, 能够存储状�
 
 eBPF 程序不能随意调用内核函数. 如果允许的话, 将会把 eBPF 程序绑定到特定的内核版本, 这会使程序的兼容性复杂化. 所以, eBPF 程序转而使用帮助函数, 它是内核提供的大家熟知的稳定的 API.
 
-![helper](/posts/what-is-ebpf/helper.png)
+![helper](/posts/2203/what-is-ebpf/helper.png)
 
 可用的帮助函数还在持续发展中, 例如:
 
@@ -102,7 +102,7 @@ eBPF 程序不能随意调用内核函数. 如果允许的话, 将会把 eBPF �
 
 eBPF 程序可以组合使用尾调用和函数调用(tail & function calls). 函数调用允许在 eBPF 程序中定义和调用函数. 尾调用可以调用执行其他 eBPF 程序, 并替换执行上下文, 类似于 `execve()` 系统调用对常规进程的操作方式.
 
-![tailcall](/posts/what-is-ebpf/tailcall.png)
+![tailcall](/posts/2203/what-is-ebpf/tailcall.png)
 
 ### eBPF 安全
 
@@ -143,7 +143,7 @@ eBPF 程序不能直接访问任意内核内存. 必须通过 **eBPF 助手函�
 
 还记得 GeoCities 吗? 20年前, 网页几乎全都是用静态标记语言(HTML)写的, 网页基本上是一种应用程序(浏览器)能打开的文件. 再看今天, 网页已经变成了非常成熟的应用, 并且 WEB 已经取代了绝大部分编译语言写的应用. 是什么成就了这次革命?
 
-![geocities](/posts/what-is-ebpf/geocities.png)
+![geocities](/posts/2203/what-is-ebpf/geocities.png)
 
 简单来说, 就是引入 JavaScript 之后的可编程性. 它开启了一场大规模的革命, 几乎将浏览器变成了独立的操作系统.
 
@@ -161,7 +161,7 @@ eBPF 程序不能直接访问任意内核内存. 必须通过 **eBPF 助手函�
 
 现在我们回到 eBPF. 为了理解 eBPF 可编程性在 Linux 内核上的影响, 我们来看张图片, 它有助于我们对 Linux 内核的架构进行理解, 并且能了解它是如何与应用程序和硬件进行交互的.
 
-![kernel_arch](/posts/what-is-ebpf/kernel_arch.png)
+![kernel_arch](/posts/2203/what-is-ebpf/kernel_arch.png)
 
 Linux 内核的主要目的是抽象硬件或虚拟硬件, 并提供一致的 API(系统调用), 允许应用程序运行和共享资源. 为了实现这一点, 维护了大量的子系统和层来分配这些职责. 每个子系统通常允许某种级别的配置来满足不同的用户需求. 如果没办法通过配置满足某种需求, 则需要更改内核. 从历史上看, 有两种选择:
  
@@ -181,25 +181,25 @@ Linux 内核的主要目的是抽象硬件或虚拟硬件, 并提供一致的 AP
 
 BCC 是一个框架, 能够让用户编写嵌入了 eBPF 程序的 python 程序. 该框架主要用来分析和跟踪应用/系统, eBPF 在其中主要负责收集统计数据或生成事件, 然后, 对应的用户空间程序会收集这些数据并以易读的方式进行展示. 运行 python 程序会生成 eBPF 字节码并将其加载进内核.
 
-![bcc](/posts/what-is-ebpf/bcc.png)
+![bcc](/posts/2203/what-is-ebpf/bcc.png)
 
 ### bpftrace
 
 bpftrace 是 Linux eBPF 的高级跟踪语言, 可用于最新的 Linux 内核(4.x). bpftrace 使用 LLVM 作为后端将脚本编译为 eBPF 字节码，并利用 BCC 与 Linux eBPF 子系统以及现有的 Linux 跟踪功能进行交互: 内核动态跟踪(kprobes)、用户级动态跟踪(uprobes)和跟踪点(tracepoints). bpftrace 语言的灵感来自 awk、C 和以前的跟踪器(如 DTrace 和 SystemTap).
 
-![bpftrace](/posts/what-is-ebpf/bpftrace.png)
+![bpftrace](/posts/2203/what-is-ebpf/bpftrace.png)
 
 ### eBPF Go 类库
 
 eBPF Go 库提供了一个通用的 eBPF 库, 它将获取 eBPF 字节码的过程与 eBPF 程序的加载和管理分离. eBPF 程序通常是通过编写高级语言创建的, 然后使用 clang/LLVM 编译器编译为 eBPF 字节码.
 
-![go](/posts/what-is-ebpf/go.png)
+![go](/posts/2203/what-is-ebpf/go.png)
 
 ### libbpf C/C++ 类库
 
 libbpf 库是一个基于 C/C++ 的通用 eBPF 库. 它提供给应用程序一种易用的 API 来抽象化 BPF 系统调用, 并将 eBPF 字节码(clang/LLVM 编译器生成)加载到内核的过程与之分离.
 
-![libbpf](/posts/what-is-ebpf/libbpf.png)
+![libbpf](/posts/2203/what-is-ebpf/libbpf.png)
 
 ## 阅读更多
 
