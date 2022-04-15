@@ -73,7 +73,46 @@ apisix-ingress-controller 负责和 Kubernetes Apiserver 交互, 申请可访问
 
 ![sync-logic-controller](/posts/2204/apisix-ingress-controller-design/sync-logic-controller.png)
 
+### 结构转换
 
+apisix-ingress-controller 给 CRDs 提供了外部配置方法。它旨在务于需要日常操作和维护的运维人员，他们需要经常处理大量路由配置，希望在一个配置文件中处理所有相关的服务，同时还希望能具备便捷和易于理解的管理能力。但是，Apache APISIX 则是从网关的角度设计的，并且所有的路由都是独立的。这就导致了两者在数据结构上存在差异。一个注重批量定义，一个注重离散实现。  
+考虑到不同人群的使用习惯，CRDs 的数据结构借鉴了 Kubernetes Ingress 的数据结构，数据结构基本一致。
+关于这两者的差别，请看下面这张图：
+
+![struct-compare](/posts/2204/apisix-ingress-controller-design/struct-compare.png)
+
+可以看到，它们是多对多的关系。因此，apisix-ingress-controller 必须对 CRD 做一些转换，以适应不同的网关。
+
+### 规则比较
+
+seven 模块内部保存了内存数据结构，目前与Apache APISIX资源对象非常相似。当 Kubernetes 资源对象有新变化时，seven 会比较内存对象，并根据比较结果进行增量更新。  
+目前的比较规则是根据route/service/upstream资源对象的分组，分别进行比较，发现差异后做出相应的广播通知。
+
+![diff-rules](/posts/2204/apisix-ingress-controller-design/diff-rules.png)
+
+### 服务发现
+
+根据 `ApisixUpstream` 中定义的 `namespace` `name` `port` 字段，apisix-ingress-controller 会在 Apache APISIX Upstream 中注册 处于 running 状态的 endpoints 节点，并且根据 kubernetes endpoints 状态进行实时同步。  
+基于服务发现，apisix-ingress-controller 可以直接访问后端 pod，绕过 Kubernetes Service，可以实现自定义的负载均衡策略。
+
+### Annotation 实现
+
+不像 Kubernetes Nginx Ingress Controller，apisix-ingress-controller 的 annotation 实现是基于 Apache APISIX 的插件机制的。  
+比如，可以通过在`ApisixRoute`资源对象中设置`k8s.apisix.apache.org/whitelist-source-range`annotation来配置白名单。
+
+```yaml
+apiVersion: apisix.apache.org/v2beta3
+kind: ApisixRoute
+metadata:
+  annotations:
+    k8s.apisix.apache.org/whitelist-source-range: 1.2.3.4,2.2.0.0/16
+  name: httpserver-route
+spec:
+    ...
+```
+
+黑/白名单功能是通过[ip-restriction](https://github.com/apache/apisix/blob/master/docs/en/latest/plugins/ip-restriction.md)插件来实现的。  
+为方便的定义一些常用的配置，未来会有更多的 annotation 实现，比如CORS。
 
 ## ApisixRoute 介绍
 
