@@ -468,9 +468,12 @@ server {
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
     ssl_prefer_server_ciphers on;
 
-    proxy_connect_timeout 180;
-    proxy_send_timeout 180;
-    proxy_read_timeout 180;
+    proxy_http_version 1.1;
+    proxy_connect_timeout 900;
+    proxy_send_timeout 900;
+    proxy_read_timeout 900;
+    proxy_buffering off;
+    proxy_request_buffering off;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     # 注意这两行不要加
