@@ -476,8 +476,13 @@ server {
     proxy_request_buffering off;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    # 注意这两行不要加
+
+    # 如果harbor实例仅配置了ip类型的hostname这里就不用配置了
+    # 如果配置了可解析的hostname/external_url需要打开注释
     # proxy_set_header Host $host;
+
+    # 如果external_url中使用https但是代理访问harbor使用http需要打开注释
+    # 同时去掉harbor实例内部的nginx相关的$scheme配置
     # proxy_set_header X-Forwarded-Proto $scheme;
 
     location / {
