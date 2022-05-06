@@ -1,7 +1,8 @@
 ---
 title: "Apisxi Ingress Controller 设计说明"
 description: "Apisxi Ingress Controller 设计说明"
-summary: "Grafana Mimir 是目前最具扩展性、性能最好的开源时序数据库，Mimir 允许你将指标扩展到 1 亿。它部署简单、高可用、多租户支持、持久存储、查询性能超高，比 Cortex 快 40 倍。 Mimir 托管在 https://github.com/grafana/mimir 并在 AGPLv3 下获得许可。"
+summary: "apisix-ingress-controller 要求 kubernetes 版本 1.16+. 因为使用了 CustomResourceDefinition v1 stable 版本的 API.
+从 1.0.0 版本开始，APISIX-ingress-controller 要求 Apache APISIX 版本 2.7+."
 date: "2022-04-14"
 menu: "main"
 tags:
