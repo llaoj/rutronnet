@@ -134,8 +134,8 @@ cpu 使用率报告，对于多核心系统，这里的值是全局平均值。�
 当前进程信息快照，通过下面的命令找出存在大量 io 的进程
 
 ```shell
-$ ps -e -L o state,pid,ppid,cmd | grep "^[R|D]" | sort | uniq -c | sort -k 1nr
-41 R 75319 75259 /bin/node_exporter...
+$ ps -e -L o state,pid,cmd | grep "^[R|D]" | sort | uniq -c | sort -k 1nr
+41 R 75319 /bin/node_exporter...
 ```
 
 命令解释：
@@ -156,15 +156,15 @@ o 自定义输出列 逗号分割
 - l 是多线程的
 ```
 
-使用下面的命令找出占用 io 的 pod
+使用下面的命令找出占用 io 的 pod uid
 
 ```shell
-# output: podid
-$ ps -e o pid,cmd | grep "^75259" | awk '{print $6}' | cut -c1-13
-e2f08c6c3b427
+$ cat /proc/75319/cgroup | awk -F "/" '{print $4}'
+pode0c67fad-9fab-4f35-87b3-d918b5f09882
+...
 
-# output: namespace pod
-$ crictl pods | grep e2f08c6c3b427 | awk '{print $(NF-1)" "$(NF-2)}'
-monitoring node-exporter-j2g8d
+$ kubectl get pods --all-namespaces \
+  -ocustom-columns=NS:metadata.namespace,Name:metadata.name,UID:metadata.uid \
+  | grep e0c67fad-9fab-4f35-87b3-d918b5f09882
 ```
 
