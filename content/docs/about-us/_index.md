@@ -21,6 +21,7 @@ _水善利万物而不争, 处众人之所恶, 故几于道_. 我们会用认真
 有任何问题欢迎你联系我们, 我们努力做好您身边的技术服务伙伴. 
 
 > 青岛如创科技有限公司 (Qingdao Rutron Technology Co., Ltd)  
-> 备案：[鲁ICP备2021035257号-1](https://beian.miit.gov.cn/#/Integrated/index)  
-> 地址：青岛市崂山区海尔路31号  
-> 邮箱：qustwwy@163.com
+> 地址: 青岛市崂山区海尔路31号  
+> 电话: 18561967780 (微信同号)  
+> 邮箱: [rutronnet@163.com](mailto:rutronnet@163.com)  
+> 备案: [鲁ICP备2021035257号-1](https://beian.miit.gov.cn/#/Integrated/index)
