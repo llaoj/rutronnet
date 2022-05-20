@@ -2,6 +2,7 @@
 weight: 8
 bookCollapseSection: false
 title: "关于"
+bookComments: false
 ---
 
 {{< columns >}}

@@ -1,6 +1,7 @@
 ---
 title: "首页"
 type: docs
+bookComments: false
 ---
 
 # 为云原生做一点贡献!
