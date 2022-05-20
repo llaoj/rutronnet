@@ -8,7 +8,7 @@ tags:
 - "golang"
 - "kubernetes"
 categories:
-- "技术"
+- "technology"
 ---
 
 我们知道, 在 kubernetes 中, namespace 的资源限制在 ResourceQuota 中定义, 比如我们控制 default 名称空间使用 64核80G 的资源:

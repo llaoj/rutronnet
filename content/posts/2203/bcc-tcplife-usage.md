@@ -8,7 +8,7 @@ tags:
 - "bcc"
 - "ebpf"
 categories:
-- "技术"
+- "technology"
 ---
 
 这篇文档主要演示了 tcplife(Linux eBPF/bcc) 工具的使用.

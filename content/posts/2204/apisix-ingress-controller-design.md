@@ -9,7 +9,7 @@ tags:
 - apisix
 - kubernetes
 categories:
-- "技术"
+- "technology"
 ---
 
 Apache APISIX - 专门为 kubernetes 研发的入口控制器。

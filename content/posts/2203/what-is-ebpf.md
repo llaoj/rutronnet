@@ -8,7 +8,7 @@ tags:
 - "bcc"
 - "ebpf"
 categories:
-- "技术"
+- "technology"
 ---
 
 点击查看[原文](https://ebpf.io/what-is-ebpf)

@@ -6,7 +6,7 @@ tags:
 - "kubespray"
 - "kubernetes"
 categories:
-- "技术"
+- "technology"
 ---
 
 本文使用 kubespray 容器部署 kubernetes v1.22.5, 提供了预先下载的离线软件包/容器镜像. 仅需要几步即可部署高可用集群. 所有离线文件都来自官方下载 kubespray 安装过程会进行软件包验证, 放心使用.

@@ -8,7 +8,7 @@ tags:
 - "golang"
 - "kubernetes"
 categories:
-- "技术"
+- "technology"
 ---
 
 ## 一个漏洞

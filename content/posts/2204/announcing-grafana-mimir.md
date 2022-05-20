@@ -8,7 +8,7 @@ tags:
 - prometheus
 - grafana mimir
 categories:
-- "技术"
+- "technology"
 ---
 
 ## Mimir 简介

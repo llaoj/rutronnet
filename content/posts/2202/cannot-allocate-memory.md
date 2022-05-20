@@ -7,7 +7,7 @@ tags:
 - "kubelet"
 - "kubernetes"
 categories:
-- "技术"
+- "technology"
 ---
 
 ## 问题描述

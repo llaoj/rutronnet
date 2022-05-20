@@ -7,7 +7,7 @@ tags:
 - "prometheus"
 - "kubernetes"
 categories:
-- "技术"
+- "technology"
 ---
 
 ## 设计

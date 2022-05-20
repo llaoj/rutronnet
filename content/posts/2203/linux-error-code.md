@@ -7,7 +7,7 @@ menu: "main"
 tags:
 - "linux"
 categories:
-- "技术"
+- "technology"
 ---
 
 下表是 Linux 操作系统一些常见的错误代码和对应的错误描述:

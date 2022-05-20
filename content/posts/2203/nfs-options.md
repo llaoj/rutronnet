@@ -7,7 +7,7 @@ tags:
 - "nfs"
 - "kubernetes"
 categories:
-- "技术"
+- "technology"
 ---
 
 周末, 有一台服务器告警: 系统负载过高, 最高的时候都已经到 100 +, 以下是排查&处理的具体过程.

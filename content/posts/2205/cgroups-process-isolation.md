@@ -8,7 +8,7 @@ tags:
 - cgroups
 - kubernetes
 categories:
-- "技术"
+- "technology"
 ---
 
 每个人都听过容器，但它究竟是什么？

@@ -7,7 +7,7 @@ tags:
 - "ppt"
 - "kubernetes"
 categories:
-- "技术"
+- "technology"
 ---
 
 ## PPT 分享

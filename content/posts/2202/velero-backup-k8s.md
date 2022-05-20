@@ -7,7 +7,7 @@ tags:
 - "backup"
 - "kubernetes"
 categories:
-- "技术"
+- "technology"
 ---
 
 ## 要求

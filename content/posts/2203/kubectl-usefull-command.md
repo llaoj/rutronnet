@@ -8,7 +8,7 @@ tags:
 - "kubectl"
 - "kubernetes"
 categories:
-- "技术"
+- "technology"
 ---
 
 以下冷门命令能实现某种具体的功能, 都是在实际工作中摸索总结的经验, 获取到相关的资源名称之后, 就可以配合常用的 kubectl 命令获取其他详细信息.

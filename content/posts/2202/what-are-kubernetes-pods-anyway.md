@@ -7,7 +7,7 @@ tags:
 - "pod"
 - "kubernetes"
 categories:
-- "技术"
+- "technology"
 ---
 
 ## 前言

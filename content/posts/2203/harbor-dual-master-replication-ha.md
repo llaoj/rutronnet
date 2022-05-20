@@ -7,7 +7,7 @@ menu: "main"
 tags:
 - "harbor"
 categories:
-- "技术"
+- "technology"
 ---
 
 ## 方案的选择

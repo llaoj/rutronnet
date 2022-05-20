@@ -8,7 +8,7 @@ bookToC: false
 tags:
 - kubernetes
 categories:
-- "技术"
+- "technology"
 ---
 
 ## 负载过高分析

@@ -7,7 +7,7 @@ tags:
 - "ldap"
 - "golang"
 categories:
-- "技术"
+- "technology"
 ---
 
 使用容器化安装非常便捷, 参考[osixia/openldap](https://github.com/osixia/docker-openldap)仓库使用说明安装即可, 如下:

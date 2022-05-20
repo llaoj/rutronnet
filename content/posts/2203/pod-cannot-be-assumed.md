@@ -6,7 +6,7 @@ menu: "main"
 tags:
 - "kubernetes"
 categories:
-- "技术"
+- "technology"
 ---
 
 ## 现象&分析
