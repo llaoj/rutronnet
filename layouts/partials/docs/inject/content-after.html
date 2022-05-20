@@ -1,0 +1,16 @@
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+const gitalk = new Gitalk({
+  clientID: 'bfce3cb09a7fdc3261f6',
+  clientSecret: 'a199a994cc1b2fc98f5a5b8766218e3e4a3d8dd9',
+  repo: 'rutronnet',
+  owner: 'llaoj',
+  admin: ['llaoj'],
+  id: location.pathname,
+  distractionFreeMode: false
+})
+
+gitalk.render('gitalk-container')
+</script>
