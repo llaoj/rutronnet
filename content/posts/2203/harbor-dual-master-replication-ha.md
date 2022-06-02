@@ -10,6 +10,8 @@ categories:
 - "technology"
 ---
 
+> 本文已参与「开源摘星计划」，欢迎正在阅读的你加入。活动链接：https://github.com/weopenprojects/WeOpen-Star
+
 ## 方案的选择
 
 分析了 [官方 Github: Harbor 高可用方案讨论](https://github.com/goharbor/harbor/issues/3582), 一开始我们选择了 Solution 1 (双激活共享存储方案), 在公司内部大概运行了一年多的时间, 架构图如下:

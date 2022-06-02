@@ -41,6 +41,18 @@ kubelet 大量使用了 pod-uid 来为 pod 创建相关的资源, 获取 pod-uid
 kubectl get pods -A -o custom-columns=NAME:.metadata.name,UID:.metadata.uid
 ```
 
+## 列出集群所有 ContainerID
+
+集群中所有的 containerID，方便排查问题
+
+```sh
+kubectl get pods --all-namespaces -ojson | jq -c '.items[] | {
+    name:.metadata.name,
+    c1: [.status.containerStatuses[]?.containerID],
+    c2: [.status.containerStatuses[]?.lastState.terminated.containerID]
+}'
+```
+
 ## 列出集群中所有镜像
 
 有时候为了统计分析镜像，可能需要导出所有在用的镜像
