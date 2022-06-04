@@ -4,6 +4,7 @@ description: ""
 summary: ""
 date: "2022-05-30"
 menu: "main"
+draft: true
 tags:
 - kubernetes
 categories:
@@ -25,4 +26,3 @@ categories:
 负载平衡的确切行为取决于您的特定路由器型号和配置，但常见的行为是基于 `packet hash` 对 `per-connection` 进行平衡。这是什么意思？  
 `per-connection`意味着单个 TCP 或 UDP 会话的所有数据包将被定向到集群中的单个机器。流量传播只发生在不同的连接之间，而不是一个连接内的数据包。  
 这是一件好事，因为在多个集群节点上传播数据包会导致一些问题：  
-- 
