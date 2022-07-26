@@ -17,48 +17,50 @@ categories:
 
 ### 使用BGP模式
 
-在 BGP 模式下，集群中的每个节点都会与您的网络路由器建立 BGP 对等会话，并使用该对等会话来通告外部集群服务的 IP。  
-假设您的路由器配置为支持多路径，这将实现真正的负载平衡：MetalLB 发布的路由彼此等效。这意味着路由器将使用所有下一跳，并在它们之间进行负载平衡。  
-数据包到达节点后，kube-proxy 负责流量路由的最后一跳，将数据包送到服务中的特定 pod。
+在 BGP 模式下，集群中的每个节点都会与您的网络路由器建立 BGP 对等会话，并使用该对等会话来通告外部集群服务的 IP.
+
+假设您的路由器配置为支持多路径，这将实现真正的负载平衡: MetalLB 发布的路由彼此等效。这意味着路由器将使用所有下一跳，并在它们之间进行负载平衡.
+
+数据包到达节点后，kube-proxy 负责流量路由的最后一跳，将数据包送到服务中的特定 pod.
 
 #### 负载均衡行为
 
-负载均衡的确切行为取决于您的特定路由器型号和配置，但常见的行为是基于 `packet-hash` 对 `per-connection` 进行平衡。这是什么意思？  
-`per-connection`意味着单个 TCP 或 UDP 会话的**所有数据包**将被定向到集群中的单个机器。流量传播只发生在不同的连接之间，而不是一个连接内的数据包。  
-这是一件好事，因为在多个集群节点上传播数据包会导致一些问题：  
+负载均衡的确切行为取决于您的特定路由器型号和配置，但常见的行为是基于 `packet-hash` 方法在连接层面 `per-connection` 进行平衡。这是什么意思?
+
+这个`per-connection`意味着单个 TCP 或 UDP 会话的**所有数据包**将被定向到集群中的单个机器。流量传播只发生在不同的连接之间，而不是一个连接内的数据包. 这是一件好事，因为在多个集群节点上传播数据包会导致一些问题：  
 
 - 跨多个传输路径传播单个连接会导致数据包(packet)在线路上重新排序，这会极大地影响终端主机的性能。
 - 在 Kubernetes 中, 不能保证节点之间流量的路由保持一致。这意味着两个不同的节点可以将同一连接的数据包(packet)路由到不同的 Pod，这将导致连接失败。
 
+高性能路由器能够以一种无状态的方式在多个后端之间使用数据包哈希的方法散布数据包. 对于每一个数据包, 它们拥有一些属性, 并能用它作为 “种子” 来决定选择哪一个后端. 如果, 所有的属性都一样, 它们就会选择同一个后端. 
+
+具体使用哪种哈希方法取决于路由器的硬件和软件. 典型的方法是: `3-tuple` 和 `5-tuple`. 3-tuple 哈希法使用数据包中的协议、源IP、目的IP作为哈希键, 这意味着来自不同ip的数据包会进入同一个后端. 5-tuple 哈希法又在其中加入了源端口和目的端口, 所有来自相同客户端的不同连接将会在集群中散布. 
+
+通常, 我们推荐加入尽可能多的属性来参与数据包哈希, 也就是说使用更多的属性是非常好的. 因为这样会更加接近理想的负载均衡状态, 每一个节点都会收到相同数量的数据包. 但是我们永远不会达到这种理想状态, 因为上述原因, 但是我们能做的就是尽可能的均匀的传播连接, 以防止出现主机热点.
+
 > 一个连接(connection)由多个连续的数据包(packet)构成
-
-Packet hashing is how high-performance routers can statelessly spread connections across multiple backends. For each packet, they extract some of the fields, and use those as a “seed” to deterministically pick one of the possible backends. If all the fields are the same, the same backend will be chosen.
-
-The exact hashing methods available depend on the router hardware and software. Two typical options are 3-tuple and 5-tuple hashing. 3-tuple uses (protocol, source-ip, dest-ip) as the key, meaning that all packets between two unique IPs will go to the same backend. 5-tuple hashing adds the source and destination ports to the mix, which allows different connections from the same clients to be spread around the cluster.
-
-In general, it’s preferable to put as much entropy as possible into the packet hash, meaning that using more fields is generally good. This is because increased entropy brings us closer to the “ideal” load-balancing state, where every node receives exactly the same number of packets. We can never achieve that ideal state because of the problems we listed above, but what we can do is try and spread connections as evenly as possible, to try and prevent hotspots from forming.
 
 #### 局限性
 
-Using BGP as a load-balancing mechanism has the advantage that you can use standard router hardware, rather than bespoke load balancers. However, this comes with downsides as well.
+使用 BGP 作为负载均衡机制可以让你使用标准的路由器硬件, 而不是定制的负载均衡器. 但是, 这也带来的一些缺点:
 
-The biggest downside is that BGP-based load balancing does not react gracefully to changes in the backend set for an address. What this means is that when a cluster node goes down, you should expect all active connections to your service to be broken (users will see “Connection reset by peer”).
+最大的缺点是基于 BGP 的负载平衡不能优雅地响应后端设置的地址更改. 也就是说, 当集群的一个节点下线了, 到你服务的所有成功的连接都会损坏(用户会看到报错:`Connection reset by peer`)
 
-BGP-based routers implement stateless load balancing. They assign a given packet to a specific next hop by hashing some fields in the packet header, and using that hash as an index into the array of available backends.
+基于 BGP 的路由器实现无状态负载均衡。 他们通过哈希数据包头中的一些字段并将该哈希用作可用后端数组的索引，将给定数据包分配给特定的下一跳。
 
-The problem is that the hashes used in routers are usually not stable, so whenever the size of the backend set changes (for example when a node’s BGP session goes down), existing connections will be rehashed effectively randomly, which means that the majority of existing connections will end up suddenly being forwarded to a different backend, one that has no knowledge of the connection in question.
+问题是路由器中使用的哈希值通常*不稳定*，所以每当后端集的大小发生变化时（例如，当一个节点的 BGP 会话关闭时），现有的连接将被有效地随机重新哈希，这意味着大多数现有的 连接最终会突然被转发到不同的后端，一个不知道相关连接的后端。
 
-The consequence of this is that any time the IP→Node mapping changes for your service, you should expect to see a one-time hit where most active connections to the service break. There’s no ongoing packet loss or blackholing, just a one-time clean break.
+结果是每当你的服务的 `IP > Node` 映射发生变化时, 你希望看到一次性干净的切换出现, 到该服务的大部分所有可用连接中断. 没有持续的丢包或者黑洞, 只是一次很干净的中断而已.
 
-Depending on what your services do, there are a couple of mitigation strategies you can employ:
+根据您的服务的用途，您可以采用几种缓解策略：
 
-Your BGP routers might have an option to use a more stable ECMP hashing algorithm. This is sometimes called “resilient ECMP” or “resilient LAG”. Using such an algorithm hugely reduces the number of affected connections when the backend set changes.
-Pin your service deployments to specific nodes, to minimize the pool of nodes that you have to be “careful” about.
-Schedule changes to your service deployments during “trough”, when most of your users are asleep and your traffic is low.
-Split each logical service into two Kubernetes services with different IPs, and use DNS to gracefully migrate user traffic from one to the other prior to disrupting the “drained” service.
-Add transparent retry logic on the client side, to gracefully recover from sudden disconnections. This works especially well if your clients are things like mobile apps or rich single-page web apps.
-Put your services behind an ingress controller. The ingress controller itself can use MetalLB to receive traffic, but having a stateful layer between BGP and your services means you can change your services without concern. You only have to be careful when changing the deployment of the ingress controller itself (e.g. when adding more NGINX pods to scale up).
-Accept that there will be occasional bursts of reset connections. For low-availability internal services, this may be acceptable as-is.
+- 你的 BGP 路由器可能有更加稳定的ECMP哈希算法. 有时候可能叫: `弹性ECMP` 或 `弹性LAG`. 使用这样的算法, 在后端集合发生变化的时候, 能有效的减少受影响的连接数量.
+- 把你的服务部署到特定的节点上, 来减小节点池的大小, 它需要你小心的照顾.
+- 把服务的变更安排在流量的低谷时候, 此时你的用户在睡觉流量很低.
+- 把每一个逻辑上的服务拆分成两个有着不同 IP 的 kubernetes 服务, 使用DNS服务优雅的将用户流量从将要中断的服务迁移到另一个服务上.
+- 在客户端添加重试逻辑, 以优雅地从突然断开连接中恢复. 如果您的客户是移动应用程序或丰富的单页网络应用程序, 这尤其适用.
+- 将您的服务放在 ingress 控制器后面. ingress 控制器本身可以使用 MetalLB 来接收流量, 但是在 BGP 和您的服务之间有一个状态层意味着您可以毫无顾虑地更改您的服务。 您只需在更改 ingress 控制器本身的部署时小心(例如, 在添加更多 NGINX pod 时).
+- 接受偶尔会出现重置连接的情况. 对于低可用性的内部服务, 这可能是可以接受的.
 
 #### FRR 模式
 
@@ -71,9 +73,17 @@ MetalLB 提供了一个实验模式: 使用 FRR 作为 BGP 层的后端.
 
 #### FRR 模式的局限性
 
-Compared to the native implementation, the FRR mode has the following limitations:
+相比与原生实现, FRR 模式有以下局限性:
 
-- The RouterID field of the BGPAdvertisement can be overridden, but it must be the same for all the advertisements (there can’t be different advertisements with different RouterIDs).
-- The myAsn field of the BGPAdvertisement can be overridden, but it must be the same for all the advertisements (there can’t be different advertisements with different myAsn).
-- In case a eBGP Peer is multiple hops away from the nodes, the ebgp-multihop flag must be set to true.
+- BGPAdvertisement 的 RouterID 字段可以被覆盖，但它必须对所有的 advertisements 都相同（不能有不同的 advertisements 具有不同的 RouterID）。
+- BGPAdvertisement 的 myAsn 字段可以被覆盖，但它必须对所有 advertisements 都相同(不能有不同的 advertisements 具有不同的 myAsn)
+- 如果 eBGP Peer 是距离节点多跳的, 则 ebgp-multihop 标志必须设置为 true
 
+## 安装
+
+安装之前, 确保满足所有[要求](). 尤其是, 你要注意[网络附加组件的兼容性]()
+
+```
+Copyright © The MetalLB Contributors.
+Copyright © 2021 The Linux Foundation ®. All rights reserved. Linux 基金会已注册商标并使用商标.
+```
