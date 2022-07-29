@@ -114,7 +114,7 @@ kube_network_node_prefix: 24
 
 ```sh
 # 下载离线文件压缩包
-curl -O https://rutron.oss-cn-beijing.aliyuncs.com/k8s-setup/kubernetes-v1.22.5-amd64-packages.tar.gz
+curl -O https://rutron.oss-cn-beijing.aliyuncs.com/kubernetes/kubernetes-v1.22.5-amd64-packages.tar.gz
 tar -xvf kubernetes-v1.22.5-amd64-packages.tar.gz
 ````
 
