@@ -4,6 +4,7 @@ description: ""
 summary: ""
 date: "2022-07-31"
 menu: "main"
+bookToC: false
 draft: false
 tags:
 - kubernetes
