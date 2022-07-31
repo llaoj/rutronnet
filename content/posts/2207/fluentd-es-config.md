@@ -83,7 +83,7 @@ data:
     </filter>
 
     # 防止ES中出现重复数据
-    <filter collect_logs.**>
+    <filter collect-logs.**>
       @type elasticsearch_genid
       hash_id_key _hash # storing generated hash id key (default is _hash)
     </filter>
@@ -91,17 +91,17 @@ data:
   output.conf: |-
     # 根据pod.metadata.labels来判断是否收集日志
     # collect-logs: true
-    # 添加标识集群ID的tag: collect_logs.<clustername> 
+    # 添加标识集群ID的tag: collect-logs.<clustername> 
     <match kubernetes.**>
       @type rewrite_tag_filter
       <rule>
         key $.kubernetes.labels.collect-logs
         pattern /^true$/
-        tag collect_logs.<clustername>
+        tag collect-logs.<clustername>
       </rule>
     </match>
 
-    <match collect_logs.**>
+    <match collect-logs.**>
       @type elasticsearch
       @log_level info
       hosts 10.138.1.51:9200,10.138.1.52:9200,10.138.1.53:9200
