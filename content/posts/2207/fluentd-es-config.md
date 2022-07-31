@@ -15,7 +15,7 @@ categories:
 
 Fluentd负责Kubernetes中容器日志的收集工作, 以Daemonset形式运行在每一个节点上. 下面这个配置是在多个生产集群使用的配置, 经过多次调优的. 有一些关键的配置增加了配置解释说明. 目前使用问题不大. 持续更新配置中...
 
-```
+```yaml
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -89,7 +89,6 @@ data:
     </filter>
 
   output.conf: |-
-
     # 根据pod.metadata.labels来判断是否收集日志
     # collect-logs: true
     # 添加标识集群ID的tag: collect_logs.<clustername> 
