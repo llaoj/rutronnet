@@ -1,0 +1,8 @@
+- id: bookSearchConfig
+  translation: |
+    {
+      encode: false,
+      tokenize: function(str) {
+        return str.split('');
+      }
+    }
