@@ -13,7 +13,45 @@ categories:
 
 [参考文章](https://metallb.universe.tf/)
 
+## 为什么使用?
+
+Kubernetes没有提供裸适用于金属集群的网络负载均衡器实现, 也就是LoadBalancer类型的Service. Kubernetes 附带的网络负载均衡器的实现都是调用各种 IaaS 平台（GCP、AWS、Azure ……）的胶水代码。 如果您没有在受支持的 IaaS 平台（GCP、AWS、Azure...）上运行，LoadBalancers 在创建时将一直保持在`pending`状态。
+
+裸金属集群的运维人员只剩下两个较小的工具来将用户流量引入集群内: `NodePort`和`externalIPs`类型Service. 这两种在生产环境使用有很大的缺点, 这让裸金属集群成为Kubernetes生态中的第二类选择, 并不是首选.
+
+MetalLB的目的是实现一个网络负载均衡器来与标准的网络设备集成, 这样外部服务就可以尽可能的正常工作了.
+
+## 要求
+
+MetalLB 要求如下:
+
+
+- 一个 Kubernetes 集群, Kubernetes 版本 1.13.0+, 没有网络负载均衡器功能.
+- 可以与 MetalLB 共存的集群网络配置。
+- 一些供 MetalLB 分发的 IPv4 地址。
+- 当使用 BGP 操作模式时，您将需要一台或多台能够广播 BGP 的路由器。
+- 使用 L2 操作模式时，节点之间必须允许 7946 端口（TCP 和 UDP，可配置其他端口）上的流量，这是 [memberlist](https://github.com/hashicorp/memberlist) 的要求。
+
+## 向后兼容性
+
+之前版本的 MetalLB 是通过 configmap 来配置的. 但是, 从 v0.13.0 版本之后, 只能通过 CRs 来配置. 这是 configmaps 转 CRs 的工具(容器镜像): `quay.io/metallb/configmaptocrs`
+
+为了使用这个工具, 必须把源 config.yaml 文件映射到容器中的 `/var/input` 目录, 然后它就会生成一个 `resources.yaml` 文件, 包含了和源 yaml 文件中一样的配置.
+
+```
+docker run -d -v $(pwd):/var/input quay.io/metallb/configmaptocrs -source config.yaml 
+```
+
 ## 概念
+
+### 使用2层模式
+
+#### 负载均衡行为
+
+#### 局限性
+
+#### 和 keepalive 比较
+
 
 ### 使用BGP模式
 
