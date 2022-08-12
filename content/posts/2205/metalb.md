@@ -4,7 +4,7 @@ description: ""
 summary: ""
 date: "2022-05-30"
 menu: "main"
-draft: true
+draft: false
 tags:
 - kubernetes
 categories:
@@ -15,11 +15,11 @@ categories:
 
 ## 为什么使用?
 
-Kubernetes没有提供裸适用于金属集群的网络负载均衡器实现, 也就是LoadBalancer类型的Service. Kubernetes 附带的网络负载均衡器的实现都是调用各种 IaaS 平台（GCP、AWS、Azure ……）的胶水代码。 如果您没有在受支持的 IaaS 平台（GCP、AWS、Azure...）上运行，LoadBalancers 在创建时将一直保持在`pending`状态。
+Kubernetes没有提供适用于裸金属集群的网络负载均衡器实现, 也就是`LoadBalancer`类型的Service. Kubernetes 附带的网络负载均衡器的实现都是调用各种 IaaS 平台（GCP、AWS、Azure ……）的胶水代码。 如果您没有在受支持的 IaaS 平台（GCP、AWS、Azure...）上运行，LoadBalancers 在创建时将一直保持在`pending`状态。
 
-裸金属集群的运维人员只剩下两个较小的工具来将用户流量引入集群内: `NodePort`和`externalIPs`类型Service. 这两种在生产环境使用有很大的缺点, 这让裸金属集群成为Kubernetes生态中的第二类选择, 并不是首选.
+裸金属集群的运维人员只剩下两个方式来将用户流量引入集群内: `NodePort`和`externalIPs`. 这两种在生产环境使用有很大的缺点, 这样, 裸金属集群也就成了 Kubernetes 生态中的第二类选择, 并不是首选.
 
-MetalLB的目的是实现一个网络负载均衡器来与标准的网络设备集成, 这样外部服务就可以尽可能的正常工作了.
+MetalLB 的目的是实现一个网络负载均衡器来与标准的网络设备集成, 这样这些外部服务就能尽可能的正常工作了.
 
 ## 要求
 
@@ -29,12 +29,12 @@ MetalLB 要求如下:
 - 一个 Kubernetes 集群, Kubernetes 版本 1.13.0+, 没有网络负载均衡器功能.
 - 可以与 MetalLB 共存的集群网络配置。
 - 一些供 MetalLB 分发的 IPv4 地址。
-- 当使用 BGP 操作模式时，您将需要一台或多台能够广播 BGP 的路由器。
-- 使用 L2 操作模式时，节点之间必须允许 7946 端口（TCP 和 UDP，可配置其他端口）上的流量，这是 [memberlist](https://github.com/hashicorp/memberlist) 的要求。
+- 当使用 BGP 操作模式时，您将需要一台或多台能够发布 BGP 的路由器。
+- 使用 L2 操作模式时，节点之间必须允许 7946 端口（TCP 和 UDP，可配置其他端口）上的流量，这是 [hashicorp/memberlist](https://github.com/hashicorp/memberlist) 的要求。
 
 ## 功能
 
-MetalLB 是作为 Kubernetes 中的一个组件, 提供了一个中网络负载均衡器的实现. 简单来说, 在非公有云环境搭建的集群上, 不能使用公有云的负载均衡器, 它可以让你在集群中创建 LoadBalancer 类型的 Service.
+MetalLB 是作为 Kubernetes 中的一个组件, 提供了一个网络负载均衡器的实现. 简单来说, 在非公有云环境搭建的集群上, 不能使用公有云的负载均衡器, 它可以让你在集群中创建 LoadBalancer 类型的 Service.
 
 为了提供这样的服务, 它具备两个功能: 地址分配、对外发布
 
@@ -46,9 +46,9 @@ MetalLB 不能凭空造 IP, 所以你需要提供供它使用的 IP 地址池. �
 
 如何获取 MetalLB 的 IP 地址池取决于您的环境。 如果您在托管设施中运行裸机集群，您的托管服务提供商可能会提供 IP 地址供出租。 在这种情况下，您将租用例如 /26 的 IP 空间（64 个地址），并将该范围提供给 MetalLB 以用于集群服务。
 
-同样, 如果你的集群是纯私有的, 可以提供一个没有暴露到网络中的相邻的 LAN 网段. 这种情况下, 你可以抽取私有地址空间( RFC1918 地址)中的一段 IPs 地址, 分配给 MetalLB. 这种地址是免费的, 只要你只把它提供给当前 LAN 内的集群 Services, 它们就能正常工作.
+同样, 如果你的集群是纯私有的, 可以提供一个没有暴露到网络中的相邻的 LAN 网段. 这种情况下, 你可以抽取私有地址空间中的一段 IP 地址, 分配给 MetalLB. 这种地址是免费的, 只要你把它提供给当前 LAN 内的集群服务, 它们就能正常工作.
 
-或者你可以两者都用! MetalLB 可以让你定义多个地址池, 不需要关心这些地址的`类别`.
+或者你可以两者都用! MetalLB 可以让你定义多个地址池, 它很方便.
 
 ### 对外发布
 
@@ -66,41 +66,45 @@ MetalLB 不能凭空造 IP, 所以你需要提供供它使用的 IP 地址池. �
 
 ### 2层模式
 
-在2层工作模式下, 一个节点负责向本地网络发布服务. 从网络的角度看, 更像是这台服务器的网卡有多个 IP 地址. 在底层, MetalLB 会响应适用于 IPv4 的 ARP 请求和适用于 IPv6 的 NDP 请求. 这个工作模式的最大的优势就是适应性强: 它能工作在任何以太网内, 没有特殊的硬件要求, 不需要花哨的路由器.
+在2层工作模式下, 一个节点负责向本地网络发布服务. 从网络的角度看, 更像是这台服务器的网卡有多个 IP 地址. 在底层, MetalLB 会响应ARP请求(IPv4)和NDP请求(IPv6). 这个工作模式的最大的优势就是适应性强: 它能工作在任何以太网内, 没有特殊的硬件要求, 不需要花哨的路由器.
 
 #### 负载均衡行为
 
-在2层模式下, 一个 Service IP 的流量都会到一个节点上. 在该节点上, `kube-proxy` 将流量分发到服务具体的 pods 上. L2 并没有实现负载均衡. 但是, 它实现了一个错误转移机制, 这样当领袖节点故障之后, 另一个节点就会接管这些 IP 地址. 如果领袖节点因为某些原因故障了, 故障转移是自动的: 使用 [memberlist](https://github.com/hashicorp/memberlist) 检测到节点发生故障, 同时新的节点会从故障节点上接管这些 IP.
+在2层模式下, 发给 Service IP 的流量都会到一个节点上. 在该节点上, `kube-proxy` 将流量分发到服务具体的 pods 上. L2 并没有实现负载均衡. 
+
+但是, 它实现了一个错误转移机制, 当领袖节点因为某些原因故障了, 另一个节点就会接管这些 IP 地址. 故障转移是自动的: 使用 [hashicorp/memberlist](https://github.com/hashicorp/memberlist) 检测到节点发生故障, 同时新的节点会从故障节点上接管这些 IP.
 
 #### 局限性
 
 L2模式有两个主要局限性: 单点的瓶颈、潜在的缓慢故障转移.
 
-如上面说的, 在 L2 模式下, 一个被选举的单一的领袖节点会接收所有的 Service IPs 的流量. 这意味着, 你服务的入口带宽受限与这个单一节点的带宽. 如果使用 ARP/NDP 引导流量, 这是一个基本限制.
+如上面说的, 在 L2 模式下, 选举产生的单一的领袖节点会接收所有的服务流量. 这意味着, 你服务的入口带宽受限与这个单一节点的带宽. 如果使用 ARP/NDP 引导流量, 这是一个基本限制.
 
 当前的实现, 节点之间的故障转移依赖客户端之间的配合. 当故障发生时, MetalLB 会不经请求的发送出一些2层的数据包, 来通知其他客户端 Service IP 所对应的 MAC 地址已经更改.
 
-大多数操作系统能正确处理这种数据包, 同时更新“邻居”的缓存. 这种情况下, 故障转移也就几秒钟. 但是, 有一些系统要么没有实现这种报文的处理, 要么实现了, 但是更新缓存很慢.
+大多数操作系统能正确处理这种数据包, 同时更新“邻居”的地址缓存. 这种情况下, 故障转移也就几秒钟. 但是, 还是有个别系统要么没有实现这种报文的处理, 要么实现了, 但是更新缓存很慢.
 
-所有现代版本的操作系统都正确实现了 L2 故障转移, 比如 Windows、Mac、Linux. 所以, 出问题的仅仅是很老或者不常见的操作系统.
+好在所有现代版本的操作系统都正确实现了 L2 故障转移, 比如 Windows、Mac、Linux. 所以, 出问题的仅仅是很老或者不常见的操作系统.
 
-为了最大限度地减少计划内的故障转移对有故障的客户端的影响，您应该让旧的领袖节点多运行几分从, 以便它可以继续为旧客户端转发流量，直到它们的缓存刷新。
+为了最大限度地减少计划内的故障转移对客户端的影响，应该让旧的领袖节点多运行几分钟, 以便它可以继续为旧客户端转发流量，直到它们的缓存刷新。
 
-当一个计划之外的故障出现时. 在访问出错的客户端刷新它们的缓存之前, Service IPs 将不可达.
+当一个计划之外的故障出现时, 在访问出错的客户端刷新它们的缓存之前, 这些 Service IPs 将不可达.
 
 #### 和 keepalive 比较
 
 MetalLB 的2层模式和 keepalived 有很多相似之处. 所以, 如果你熟悉 keepalived, 我说的很多你应该很熟悉. 但是和它也有一些不同的地方需要说一下.
 
-Keepalived 使用虚拟路由器冗余协议(VRRP). Keepalived 的各实例之间不断地相互交换 VRRP 消息，以选择领袖并监控该领导者何时离开。
+Keepalived 使用虚拟路由器冗余协议(VRRP). 为了选举领袖并监控该领导者何时离开, keepalived 的各实例之间不断地相互交换 VRRP 消息。
 
-但是, MetalLB 却是依赖 memberlist 项目来知道什么时候集群中的节点不可达, 什么时候这个节点的 Service IPs 需要移动到别处.
+不一样的是, MetalLB 通过 memberlist 来知道什么时候集群中的节点不可达, 什么时候这个节点的 Service IPs 需要移动到别处.
 
-Keepalived 和 MetalLB 从客户端的角度“看起来”是一样的：当发生故障转移时，Service IP 地址从一台机器迁移到另一台机器，之后该机器就会有多个 IP 地址。
+Keepalived 和 MetalLB 从客户端的角度看起来是一样的: 当发生故障转移时，Service IP 地址从一台机器迁移到另一台机器，之后该机器就会有多个 IP 地址。
 
-因为它不用 VRRP, MetalLB 并不会有这个协议本身的局限性. 比如: VRRP协议限制每个网络只能用255个负载负载均衡器, 但是 MetalLB 就没有这个限制. 你可以有很多负载均衡的 IPs, 只要你网络中有空闲 IPs. MetalLB 的配置比 Keepalived 少, 比如, 它不需要 `Virtual Router IDs`.
+因为它不用 VRRP, MetalLB 并不会有这个协议本身的局限性. 比如: VRRP协议限制每个网络只能有255个负载均衡器实例, 但是 MetalLB 就没有这个限制. 只要你网络中有空闲IP, 你可以有很多负载均衡器实例. 
 
-另一方面，由于 MetalLB 依赖于 memberlist 来获取集群成员信息，它无法与第三方 VRRP 感知路由器和基础设施进行互操作。 这是设计之初规定好的: MetalLB 专门设计**用于在 Kubernetes 集群内**提供负载平衡和故障转移.
+还有, 配置上 MetalLB 比 Keepalived 少, 比如它不需要 `Virtual Router IDs`.
+
+另一方面，由于 MetalLB 依赖于 memberlist 来获取集群成员信息，它无法与第三方 VRRP 感知路由器和基础设施进行互操作。 这是MetalLB的定位: MetalLB 专门设计**用于在 Kubernetes 集群内**提供负载平衡和故障转移.
 
 ### BGP模式
 
@@ -267,7 +271,7 @@ metallb/metallb/v0.13.4/config/manifests/metallb-native.yaml
 
 当然, 如果你没有把 MetalLB 部署到 `metallb-system` 名称空间下, 你可能需要修改下面的配置清单.
 
-### 给定义LoadBalancer类型的Services可分配的IPs地址
+### 为`LoadBalancer`类型服务定义可分配的IP地址
 
 为了能给 Services 分配 IPs, MetalLB 通过 `IPAddressPool` 自定义资源来定义.
 
@@ -445,9 +449,9 @@ spec:
 
 ## 如何使用
 
-After MetalLB is installed and configured, to expose a service externally, simply create it with spec.type set to LoadBalancer, and MetalLB will do the rest.
+当安装并配置完 MetalLB 之后, 为了对外暴露 Service, 非常简单, 将 Service 的 `spec.type` 配置为 `LoadBalancer`, 剩下的就交给 MetalLB 就好了.
 
-MetalLB attaches informational events to the services that it’s controlling. If your LoadBalancer is misbehaving, run kubectl describe service <service name> and check the event log.
+MetalLB 会给它控制的 Service 添加一些事件, 如果你的 `LoadBalancer` 类型的 service 表现的不符合预期, 可以执行`kubectl describe service <service name>`查看事件日志.
 
 ### 请求特定的IPs
 
@@ -455,7 +459,7 @@ MetalLB 尊重`spec.loadBalancerIP`参数, 所以, 如果你想要使用一个�
 
 MetalLB不仅支持`spec.loadBalancerIP`参数, 还支持一个自定义 annotation 参数: `metallb.universe.tf/loadBalancerIPs`. 对于有些双栈的 Service 需要多个IPs, 这个 annotation 也支持使用逗号分隔指定多个IPs
 
-**请注意**: 在 kubernetes 的API中, `spec.LoadBalancerIP`参数未来计划会被废弃.
+**请注意**: 在 kubernetes 的API中, `spec.LoadBalancerIP`参数未来计划会被废弃. [请看这](https://github.com/kubernetes/kubernetes/pull/107235)
 
 如果你想使用特定的类型的IP, 但是不在乎具体是什么地址, MetalLB同样也支持请求一个特定的IP地址池. 为能能使用特定的地址池, 你需要在 Service 中添加一个 annotation: `metallb.universe.tf/address-pool`, 来指定IP地址池的名称. 比如:
 
@@ -477,54 +481,60 @@ spec:
 
 ### 流量策略
 
-MetalLB understands and respects the service’s externalTrafficPolicy option, and implements different announcements modes depending on the policy and announcement protocol you select.
+MetalLB 理解并尊重服务的 `externalTrafficPolicy` 选项，并根据您选择的策略和公告协议实现不同的公告模式。
 
 #### Layer2
-When announcing in layer2 mode, one node in your cluster will attract traffic for the service IP. From there, the behavior depends on the selected traffic policy.
 
-##### “Cluster”流量策略
-With the default Cluster traffic policy, kube-proxy on the node that received the traffic does load balancing, and distributes the traffic to all the pods in your service.
+当使用2层模式公布的时候, 集群中的一个节点会接收给 Service IP 的流量. 从那开始, 行为就取决于选择的流量策略.
 
-This policy results in uniform traffic distribution across all pods in the service. However, kube-proxy will obscure the source IP address of the connection when it does load balancing, so your pod logs will show that external traffic appears to be coming from the service’s leader node.
+##### `Cluster`流量策略
 
-##### “Local”流量策略
-With the Local traffic policy, kube-proxy on the node that received the traffic sends it only to the service’s pod(s) that are on the same node. There is no “horizontal” traffic flow between nodes.
+使用默认的`Cluster`流量策略, 节点上的`kube-proxy`接收流量并负载均衡, 并且将流量分发给 Service 对应的 Pod.
 
-Because kube-proxy doesn’t need to send traffic between cluster nodes, your pods can see the real source IP address of incoming connections.
+这种策略下 pods 之间的流量是均匀分布的. 但是`kube-proxy`在进行负载均衡的时候会隐藏真实的源IP地址, 因此, 在 pod 的日志中会看到外部流量来自 MetalLB 的领袖节点.
 
-The downside of this policy is that incoming traffic only goes to some pods in the service. Pods that aren’t on the current leader node receive no traffic, they are just there as replicas in case a failover is needed.
+##### `Local`流量策略
+
+使用`Local`流量策略, 节点上的`kube-proxy`接收流量, 同时将流量发送给当前节点的 pod. 因为 kube-proxy 不会跨集群节点分发流量, 你的 pod 可以看到真实的源IP地址. 
+
+这个策略的缺点是, 流量仅能流向 Service 对应的某些 pod. 那些不在领袖节点上的 Pod 是无法接收到任何流量的, 他们可以暂时当作副本存在, 当 MetalLB 发生故障转移的时候他们或许可以接收流量.
 
 #### BGP
-When announcing over BGP, MetalLB respects the service’s externalTrafficPolicy option, and implements two different announcement modes depending on what policy you select. If you’re familiar with Google Cloud’s Kubernetes load balancers, you can probably skip this section: MetalLB’s behaviors and tradeoffs are identical.
 
-##### “Cluster”流量策略
-With the default Cluster traffic policy, every node in your cluster will attract traffic for the service IP. On each node, the traffic is subjected to a second layer of load balancing (provided by kube-proxy), which directs the traffic to individual pods.
+当通过 BGP 发布时, MetalLB尊重Service的`externalTrafficPolicy`选项, 按照用户选择的策略实现了两种不同的发布模式.
 
-This policy results in uniform traffic distribution across all nodes in your cluster, and across all pods in your service. However, it results in two layers of load balancing (one at the BGP router, one at kube-proxy on the nodes), which can cause inefficient traffic flows. For example, a particular user’s connection might be sent to node A by the BGP router, but then node A decides to send that connection to a pod running on node B.
+##### `Cluster`流量策略
 
-The other downside of the “Cluster” policy is that kube-proxy will obscure the source IP address of the connection when it does its load balancing, so your pod logs will show that external traffic appears to be coming from your cluster’s nodes.
+使用默认的`Cluster`流量策略, 集群中的每个节点都会接收服务 IP 的流量。 在每个节点上，流量都经过第二次负载均衡（由 kube-proxy 提供），它将流量引导到各个 pod。
 
-##### “Local”流量策略
-With the Local traffic policy, nodes will only attract traffic if they are running one or more of the service’s pods locally. The BGP routers will load balance incoming traffic only across those nodes that are currently hosting the service. On each node, the traffic is forwarded only to local pods by kube-proxy, there is no “horizontal” traffic flow between nodes.
+此策略会在集群中的所有节点以及服务中的所有 Pod 之间实现统一的流量分布。 但是，因为存在两次负载均衡（一次在 BGP 路由器上，一次在节点上的 `kube-proxy` 上），这会导致流量低效。 例如，特定用户的连接可能由 BGP 路由器发送到节点 A，但随后节点 A 决定将该连接发送到运行在节点 B 上的 pod。
 
-This policy provides the most efficient flow of traffic to your service. Furthermore, because kube-proxy doesn’t need to send traffic between cluster nodes, your pods can see the real source IP address of incoming connections.
+`Cluster`策略的另一个缺点是 `kube-proxy` 在进行负载平衡时会隐藏连接的源 IP 地址，因此在 pod 日志中会看到外部流量来自集群的节点。
 
-The downside of this policy is that it treats each cluster node as one “unit” of load balancing, regardless of how many of the service’s pods are running on that node. This may result in traffic imbalances to your pods.
+##### `Local`流量策略
 
-For example, if your service has 2 pods running on node A and one pod running on node B, the Local traffic policy will send 50% of the service’s traffic to each node. Node A will split the traffic it receives evenly between its two pods, so the final per-pod load distribution is 25% for each of node A’s pods, and 50% for node B’s pod. In contrast, if you used the Cluster traffic policy, each pod would receive 33% of the overall traffic.
+使用`Local`流量策略，只有在本地运行了一个或多个 Services 的 Pod 时, 该节点才会吸引流量。 同时 BGP 路由器仅在托管服务的那些节点之间, 对传入流量进行负载平衡。在每个节点上，流量仅通过 `kube-proxy` 转发到本地 Pod，节点之间没有“水平”流量。
 
-In general, when using the Local traffic policy, it’s recommended to finely control the mapping of your pods to nodes, for example using node anti-affinity, so that an even traffic split across nodes translates to an even traffic split across pods.
+此策略为你的服务提供最有效的流量。此外，由于 `kube-proxy` 不需要在集群节点之间发送流量，因此您的 pod 可以看到传入连接的真实源 IP 地址。
 
-In future, MetalLB might be able to overcome the downsides of the Local traffic policy, in which case it would be unconditionally the best mode to use with BGP announcements. See issue 1 for more information.
+该策略的缺点是: 节点作为负载均衡的一个单元，它不管该节点上运行了多少服务的 pod。所以, 这可能会导致你的 pod 流量不平衡。
 
-### IPv6和双栈Services
-IPv6 and dual stack services are supported in L2 mode, and in BGP mode only via the experimental FRR mode.
+比如，如果你有一个服务, 它在节点 A 上运行 2 个 pod，在节点 B 上运行1个 pod，则`Local`流量策略会将到该服务的流量平分到这两个节点(A&B节点各50%)。在节点A上, 又会将到达A的流量平分给2个 pod, 因此节点A上的每个 pod 的负载分配为 25%，节点B的 pod 为 50%。相反，如果您使用`Cluster`流量策略，每个 pod 将接收到总流量的 33%。
 
-In order for MetalLB to allocate IPs to a dual stack service, there must be at least one address pool having both addresses of version v4 and v6.
+一般来说，在使用 `Local` 流量策略时，建议对 Pod 在节点上的调度进行精细控制，例如使用节点反亲和性，从而实现 Pod 之间的流量均匀.
 
-Note that in case of dual stack services, it is not possible to use spec.loadBalancerIP as it does not allow to request for multiple IPs, so the annotation metallb.universe.tf/loadBalancerIPs must be used.
+将来，MetalLB 或许会解决这种流量策略的缺点，那时, 它无疑会成为 BGP 模式一起使用的最佳模式。
+
+### IPv6和双协议栈Services
+
+在 L2 模式下同时支持 IPv6 和双协议栈Services，但在 BGP 模式下仅通过实验性 FRR 模式来提供支持.
+
+为了让 MetalLB 将 IP 分配给双栈服务，必须至少有一个IP地址池同时具有 v4 和 v6 版本的地址。
+
+请注意，在双协议栈Services的情况下，不能使用`spec.loadBalancerIP`，因为它不允许请求多个IP，因此必须使用注解 `metallb.universe.tf/loadBalancerIPs`。
 
 ### IP地址共享
+
 默认, Services 之间不能共享IP地址. 如果你希望多个Service使用一个IP地址. 你可以在 service 上配置 annotation `metallb.universe.tf/allow-shared-ip` 来开启优选择的IP地址共享.
 
 这个 annotation 的值是一个共享 key. 下面几种情况下, Services 可以共享IP:
@@ -576,18 +586,17 @@ spec:
   selector:
     app: dns
 ```
+[目前 kubernetes 不支持多协议的 LoadBalancer Service](https://github.com/kubernetes/kubernetes/issues/23880). 通常, 像DNS这样的服务, 会同时监听TCP和UDP. 为了规避这个限制. 创建两个 Service(一个使用TCP, 一个使用UDP), 它们使用同样的pod选择器. 然后给他们配置相同的共享Key和`spec.loadBalancerIP`, 这样就可以在同一个IP地址上同时使用TCP和UDP.
 
-Kubernetes does not currently allow multiprotocol LoadBalancer services. This would normally make it impossible to run services like DNS, because they have to listen on both TCP and UDP. To work around this limitation of Kubernetes with MetalLB, create two services (one for TCP, one for UDP), both with the same pod selector. Then, give them the same sharing key and `spec.loadBalancerIP` to colocate the TCP and UDP serving ports on the same IP address.
-
-The second reason is much simpler: if you have more services than available IP addresses, and you can’t or don’t want to get more addresses, the only alternative is to colocate multiple services per IP address.
+第二个原因很简单, 如果你的Service数量比IP地址数量多, 并且也搞不来更多的IP地址. 那么只能共享IP地址了.
 
 ## 一些例子
 
-As an example of how to use all of MetalLB’s options, consider an ecommerce site that runs a production environment and multiple developer sandboxes side by side. The production environment needs public IP addresses, but the sandboxes can use private IP space, routed to the developer offices through a VPN.
+假如, 一个电子商务平台由一个生产环境和很多沙箱环境. 生产环境需要公网IP地址, 但是沙箱环境使用私有的IP地址, 开发者通过VPN可以访问沙箱环境.
 
-Additionally, because the production IPs end up hardcoded in various places (DNS, security scans for regulatory compliance…), we want specific services to have specific addresses in production. On the other hand, sandboxes come and go as developers bring up and tear down environments, so we don’t want to manage assignments by hand.
+另外, 生产的IP已经在很多地方写死了(比如, DNS、安全扫描等), 所以在生产环境中, 我们希望特定的服务使用特定的IP地址. 因为沙箱环境是由开发者开启和关闭的, 所以我们不想手动管理.
 
-We can translate these requirements into MetalLB. First, we define two address pools, and set BGP attributes to control the visibility of each set of addresses:
+我们可以使用 MetalLB 来满足上面的要求, 我们定义两个IP地址池, 通过定义BGP属性来控制每一个IP地址池的可见性.
 
 ```yaml
 apiVersion: metallb.io/v1beta1
