@@ -1,5 +1,5 @@
 ---
-title: "MetalLB"
+title: "MetalLB概念安装配置和使用"
 description: ""
 summary: ""
 date: "2022-05-30"
@@ -132,8 +132,8 @@ Keepalived 和 MetalLB 从客户端的角度看起来是一样的: 当发生故�
 ```shell
 # 一个连接(connection)由多个连续的数据包(packet)构成
 # 比如: 
-connection 1 : source[ip:port] -packet N->...-packet 2-> -packet 1-> target[ip:port]
-connection 2 : source[ip:port] -packet N->...-packet 2-> -packet 1-> target[ip:port]
+connection 1 : source[ip:port] -packet N->...-packet 1-> target[ip:port]
+connection 2 : source[ip:port] -packet N->...-packet 1-> target[ip:port]
 ```
 
 #### 局限性
@@ -672,5 +672,6 @@ spec:
 ---
 ```
 Copyright © The MetalLB Contributors.
-Copyright © 2021 The Linux Foundation ®. All rights reserved. Linux 基金会已注册商标并使用商标.
+Copyright © 2021 The Linux Foundation ®. 
+All rights reserved. Linux 基金会已注册商标并使用商标.
 ```
