@@ -168,16 +168,495 @@ MetalLB 提供了一个实验模式: 使用 FRR 作为 BGP 层的后端.
 
 ## 安装
 
-安装之前, 确保满足所有[要求](). 尤其是, 你要注意[网络附加组件的兼容性]()
+安装之前, 确保满足所有[要求](#要求). 尤其是, 你要注意[网络附加组件的兼容性](#网络附加组件的兼容性)
+
+如果你在云平台环境运行 MetalLB, 你最好先看看[云环境兼容性](https://metallb.universe.tf/installation/clouds/)页面, 确保你选择的云平台可以和 MetalLB 一起正常工作(大多数情况下都不好用).
+
+MetalLB 支持4种安装方式: 
+
+- 使用 Kubernetes 部署清单安装
+- 使用 Kustomize 安装
+- 使用 Helm 安装
+- 使用 MetalLB Operator 安装
+
+### 准备
+
+如果您在 IPVS 模式下使用 kube-proxy，则从 Kubernetes v1.14.2 开始，您必须启用严格的 ARP 模式。
+
+> 请注意，如果您使用 kube-router 作为服务代理，则不需要这个，因为它默认启用严格的 ARP。
+
+你可以在集群中修改 kube-proxy 的配置文件:
+
+```shell
+kubectl edit configmap -n kube-system kube-proxy
+```
+
+这样配置:
+
+```yaml
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+mode: "ipvs"
+ipvs:
+  strictARP: true
+```
+
+你也可以把这个配置片段加入到你的 `kubeadm-config` 中, 在主配置后面使用 `---` 附加上它就行.
+
+如果你想自动更改配置, 下面的 shell 脚本可以用:
+
+```shell
+# 查看将会发生什么样的配置变化, 如果存在不同则返回非零返回值
+kubectl get configmap kube-proxy -n kube-system -o yaml | \
+sed -e "s/strictARP: false/strictARP: true/" | \
+kubectl diff -f - -n kube-system
+
+# 实际应用变更, 仅在遇到错误的时候返回非零返回值
+kubectl get configmap kube-proxy -n kube-system -o yaml | \
+sed -e "s/strictARP: false/strictARP: true/" | \
+kubectl apply -f - -n kube-system
+```
+
+### 使用部署清单安装
+
+使用下面的部署清单, 来安装 MetalLB:
+
+```shell
+kubectl apply -f https://raw.githubusercontent.com/
+metallb/metallb/v0.13.4/config/manifests/metallb-native.yaml
+```
+> 如果你想开启使用实验性的FRR模式, 使用下面的部署清单
+> `kubectl apply -f https://raw.githubusercontent.com`
+> `/metallb/metallb/v0.13.4/config/manifests/metallb-frr.yaml`
+> 注意: 这些部署清单来自开发分支. 如果应用在生产环境, 强烈推荐你使用稳定的发布版本.
+
+这样, 在 `metallb-system` 名称空间下就部署了 MetalLB. 主要组件是:
+
+- Deployment: `metallb-system/controller`, 这是集群级别的控制器, 负责处理 IP 分配.
+- Daemonset: `metallb-system/speaker`, 这个组件使用你选择的协议对外发送信息, 使你的 Service 可以被访问.
+- ServiceAccount: controller 和 speaker 所使用的, 同时配置好了组件所需要的 RBAC 权限.
+
+该安装清单并不包含配置文件, 但是 MetalLB 组件仍会启动, 在你[部署配置相关资源](#配置)之前, 它保持空闲状态.
+
+### 其他安装方式
+
+另外的三种安装方式(Kustomize, Helm, MetalLB Operator)请查看[官方文档](https://metallb.universe.tf/installation/)
+
+### 网络附加组件的兼容性
+
+通常来说, MetalLB 并不关心你集群用什么网络附件组件, 只要它能满足 Kubernetes 要求的标准就可以.
+
+下面是一些网络附加组件与 MetalLB 一起测试的结果, 可以供你参考. 列表是按照附加组件的字母先后顺序排序, 我并没有任何倾向性.
+
+列表中没有的附加组件可能也可以正常工作, 只是我们没有测试.
+
+|网络附加组件|兼容性|
+|-|-|
+|Antrea|可以 1.4和1.5版本测试通过|
+|Calico|大部分可以 查看[与Calico一起部署](#与Calico一起部署)|
+|Canal|可以|
+|Cilium|可以|
+|Flannel|可以|
+|Kube-ovn|可以|
+|Kube-router|大部分可以 [已知问题](https://metallb.universe.tf/configuration/kube-router/)|
+|Weave Net|大部分可以 [已知问题](https://metallb.universe.tf/configuration/weave/)|
 
 ## 配置
 
-...
+配置之前 MetalLB 一直保持空闲状态. 想要配置 MetalLB, 需要在 MetalLB 所在的名称空间(通常是 `metallb-system`)部署很多和配置相关的资源.
 
-## 使用
+当然, 如果你没有把 MetalLB 部署到 `metallb-system` 名称空间下, 你可能需要修改下面的配置清单.
 
-...
+### 给定义LoadBalancer类型的Services可分配的IPs地址
 
+为了能给 Services 分配 IPs, MetalLB 通过 `IPAddressPool` 自定义资源来定义.
+
+通过 `IPAddressPools` 定义好 IPs 地址池之后, MetalLB 就会使用这些地址给 Services 分配 IP.
+
+```yaml
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: first-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 192.168.10.0/24
+  - 192.168.9.1-192.168.9.5
+  - fc00:f853:0ccd:e799::/124
+```
+
+可以同时定义多个 `IPAddressPools` 资源. 可以使用 CIDR 定义地址, 也可以使用范围区间定义, 也可以定义 IPv4 和 IPv6 地址用于分配.
+
+### 对外公布 Service IPs
+
+一旦给 Service 分配IPs之后, 它们必须要公布出去. 具体的配置要根据你想使用的协议来定, 下面会一一介绍:
+
+*注意: 也可以同时将一个 service 同时通过 L2 和 BGP 对外公布.*
+
+### 使用 L2 模式的配置
+
+配置2层模式最简单, 在多数情况下, 你不需要任何关于协议的配置, 只配置IP地址就行.
+
+使用2层模式**不需要将IP地址绑定到工作节点的网络接口上**. 它直接响应本地网络上的ARP请求，将机器的MAC地址提供给客户端。
+
+为了公布来自 `IPAddressPool` 的 IP, `L2Advertisement` 资源必须与 `IPAddressPool` 资源一起使用.
+
+比如, 下面的例子配置了 MetalLB 可以分配从 192.168.1.240 到 192.168.1.250 之间的地址, 并配置它使用2层模式:
+
+```yaml
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: first-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 192.168.1.240-192.168.1.250
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: example
+  namespace: metallb-system
+```
+
+上面的例子, 在 `L2Advertisement` 中没有配置 `IPAddressPool` 选择器, 这样它能使用所有的 IP 地址.
+
+所以, 为了只将一部分 `IPAddressPool`s 使用 L2 对外公布, 我们就需要声明一下(或者, 使用标签选择器). 
+
+```yaml
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: example
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - first-pool
+```
+
+### 使用 BGP 模式的配置
+
+需要告诉 MetalLB 如何与外部一个或多个 BGP 路由器建立会话.
+
+所以, 需要给每一个 MetalLB 需要连接到路由器建一个 `BGPPeer` 资源.
+
+为了能提供一个基础的 BGP 路由器配置和一个 IP 地址范围, 你需要定义4段信息.
+
+- MetalLB 需要连接的路由器地址
+- 路由器的AS编号
+- MetalLB 使用的AS编号
+- 使用CIDR前缀表示IP地址范围
+
+比如给MetalLB分配的AS编号为64500, 并且将它连接到地址为 `10.0.0.1` 且AS编号为 64501 的路由器，您的配置将如下所示：
+
+```yaml
+apiVersion: metallb.io/v1beta2
+kind: BGPPeer
+metadata:
+  name: sample
+  namespace: metallb-system
+spec:
+  myASN: 64500
+  peerASN: 64501
+  peerAddress: 10.0.0.1
+```
+
+提供一个IP地址池 `IPAddressPool` 像这样:
+
+```yaml
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: first-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 192.168.1.240-192.168.1.250
+```
+
+使用自定义资源`BGPAdvertisement`来配置MetalLB使用BGP来公布IPs:
+
+```yaml
+apiVersion: metallb.io/v1beta1
+kind: BGPAdvertisement
+metadata:
+  name: example
+  namespace: metallb-system
+```
+
+在`BGPAdvertisement`的定义中, 如果没有配置`IPAddressPool`选择器, 默认使用所有可用的IP地址池`IPAddressPools`
+
+如果仅需要使用特定的IP地址池通过BGP进行地址公布, 则需要声明一个IP地址池列表`ipAddressPools`(或者使用标签选择器):
+
+```yaml
+apiVersion: metallb.io/v1beta1
+kind: BGPAdvertisement
+metadata:
+  name: example
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - first-pool
+```
+
+### 为 BGP 会话开启 BFD 支持
+
+在实验的FRR模式下, BGP会话可以由BFD会话取代，从而能实现比单纯使用BGP更快的路径故障检测的能力.
+
+想要开启BFD, 你必须定义个BFD配置`BFDProfile`, 并且和BGP会话对等方配置`BGPPeer`关联起来:
+
+```yaml
+apiVersion: metallb.io/v1beta1
+kind: BFDProfile
+metadata:
+  name: testbfdprofile
+  namespace: metallb-system
+spec:
+  receiveInterval: 380
+  transmitInterval: 270
+```
+
+```yaml
+apiVersion: metallb.io/v1beta2
+kind: BGPPeer
+metadata:
+  name: peersample
+  namespace: metallb-system
+spec:
+  myASN: 64512
+  peerASN: 64512
+  peerAddress: 172.30.0.3
+  bfdProfile: testbfdprofile
+```
+
+### 配置验证
+
+部署时 MetalLB 会安装配置验证的钩子程序 `validatingwebhook`, 用来检查用户部署的自定义资源的有效性.
+
+但是, 因为 MetalLB 的整体配置被分隔成很多分片, 不是所有的无效配置都能被钩子程序避免. 所以, 一旦无效的 MetalLB 配置资源被成功部署了, MetalLB 会忽略它, 并使用最新的有效配置.
+
+未来的版本中, MetalLB 会把错误的配置暴露到 Kubernetes 资源中. 但是, 目前来说, 如果需要知道为什么配置没有生效, 就需要去查看一下控制器的日志.
+
+### 更多高级配置
+
+关于地址分配、BGP、L2、calico等相关的高级配置, 请参考[官方文档](https://metallb.universe.tf/configuration/_advanced_ipaddresspool_config/)
+
+## 如何使用
+
+After MetalLB is installed and configured, to expose a service externally, simply create it with spec.type set to LoadBalancer, and MetalLB will do the rest.
+
+MetalLB attaches informational events to the services that it’s controlling. If your LoadBalancer is misbehaving, run kubectl describe service <service name> and check the event log.
+
+### 请求特定的IPs
+
+MetalLB 尊重`spec.loadBalancerIP`参数, 所以, 如果你想要使用一个特定的IP地址, 你可以通过配置这个参数来指定. 如果MetalLB没有你申请的IP地址, 或者如果你申请的IP地址已经被其他的服务占用了, 地址分配就会失败, MetalLB会记录一个Warning级别的事件, 你通过`kubectl describe service <service name>`就能看到.
+
+MetalLB不仅支持`spec.loadBalancerIP`参数, 还支持一个自定义 annotation 参数: `metallb.universe.tf/loadBalancerIPs`. 对于有些双栈的 Service 需要多个IPs, 这个 annotation 也支持使用逗号分隔指定多个IPs
+
+**请注意**: 在 kubernetes 的API中, `spec.LoadBalancerIP`参数未来计划会被废弃.
+
+如果你想使用特定的类型的IP, 但是不在乎具体是什么地址, MetalLB同样也支持请求一个特定的IP地址池. 为能能使用特定的地址池, 你需要在 Service 中添加一个 annotation: `metallb.universe.tf/address-pool`, 来指定IP地址池的名称. 比如:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  annotations:
+    metallb.universe.tf/address-pool: production-public-ips
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: nginx
+  type: LoadBalancer
+```
+
+### 流量策略
+
+MetalLB understands and respects the service’s externalTrafficPolicy option, and implements different announcements modes depending on the policy and announcement protocol you select.
+
+#### Layer2
+When announcing in layer2 mode, one node in your cluster will attract traffic for the service IP. From there, the behavior depends on the selected traffic policy.
+
+##### “Cluster”流量策略
+With the default Cluster traffic policy, kube-proxy on the node that received the traffic does load balancing, and distributes the traffic to all the pods in your service.
+
+This policy results in uniform traffic distribution across all pods in the service. However, kube-proxy will obscure the source IP address of the connection when it does load balancing, so your pod logs will show that external traffic appears to be coming from the service’s leader node.
+
+##### “Local”流量策略
+With the Local traffic policy, kube-proxy on the node that received the traffic sends it only to the service’s pod(s) that are on the same node. There is no “horizontal” traffic flow between nodes.
+
+Because kube-proxy doesn’t need to send traffic between cluster nodes, your pods can see the real source IP address of incoming connections.
+
+The downside of this policy is that incoming traffic only goes to some pods in the service. Pods that aren’t on the current leader node receive no traffic, they are just there as replicas in case a failover is needed.
+
+#### BGP
+When announcing over BGP, MetalLB respects the service’s externalTrafficPolicy option, and implements two different announcement modes depending on what policy you select. If you’re familiar with Google Cloud’s Kubernetes load balancers, you can probably skip this section: MetalLB’s behaviors and tradeoffs are identical.
+
+##### “Cluster”流量策略
+With the default Cluster traffic policy, every node in your cluster will attract traffic for the service IP. On each node, the traffic is subjected to a second layer of load balancing (provided by kube-proxy), which directs the traffic to individual pods.
+
+This policy results in uniform traffic distribution across all nodes in your cluster, and across all pods in your service. However, it results in two layers of load balancing (one at the BGP router, one at kube-proxy on the nodes), which can cause inefficient traffic flows. For example, a particular user’s connection might be sent to node A by the BGP router, but then node A decides to send that connection to a pod running on node B.
+
+The other downside of the “Cluster” policy is that kube-proxy will obscure the source IP address of the connection when it does its load balancing, so your pod logs will show that external traffic appears to be coming from your cluster’s nodes.
+
+##### “Local”流量策略
+With the Local traffic policy, nodes will only attract traffic if they are running one or more of the service’s pods locally. The BGP routers will load balance incoming traffic only across those nodes that are currently hosting the service. On each node, the traffic is forwarded only to local pods by kube-proxy, there is no “horizontal” traffic flow between nodes.
+
+This policy provides the most efficient flow of traffic to your service. Furthermore, because kube-proxy doesn’t need to send traffic between cluster nodes, your pods can see the real source IP address of incoming connections.
+
+The downside of this policy is that it treats each cluster node as one “unit” of load balancing, regardless of how many of the service’s pods are running on that node. This may result in traffic imbalances to your pods.
+
+For example, if your service has 2 pods running on node A and one pod running on node B, the Local traffic policy will send 50% of the service’s traffic to each node. Node A will split the traffic it receives evenly between its two pods, so the final per-pod load distribution is 25% for each of node A’s pods, and 50% for node B’s pod. In contrast, if you used the Cluster traffic policy, each pod would receive 33% of the overall traffic.
+
+In general, when using the Local traffic policy, it’s recommended to finely control the mapping of your pods to nodes, for example using node anti-affinity, so that an even traffic split across nodes translates to an even traffic split across pods.
+
+In future, MetalLB might be able to overcome the downsides of the Local traffic policy, in which case it would be unconditionally the best mode to use with BGP announcements. See issue 1 for more information.
+
+### IPv6和双栈Services
+IPv6 and dual stack services are supported in L2 mode, and in BGP mode only via the experimental FRR mode.
+
+In order for MetalLB to allocate IPs to a dual stack service, there must be at least one address pool having both addresses of version v4 and v6.
+
+Note that in case of dual stack services, it is not possible to use spec.loadBalancerIP as it does not allow to request for multiple IPs, so the annotation metallb.universe.tf/loadBalancerIPs must be used.
+
+### IP地址共享
+默认, Services 之间不能共享IP地址. 如果你希望多个Service使用一个IP地址. 你可以在 service 上配置 annotation `metallb.universe.tf/allow-shared-ip` 来开启优选择的IP地址共享.
+
+这个 annotation 的值是一个共享 key. 下面几种情况下, Services 可以共享IP:
+
+- 他们都有一个相同的共享 key.
+- 他们使用的端口不一样(比如一个是 tcp/80 另一个是 tcp/443)
+- 他们都使用`Cluster`外部流量策略, 或者它们都指向相同的一组 pods(比如 pod 选择器是完全相同的)
+
+如果这些条件不满足, MetalLB可能会给两个 service 分配同一个IP, 但是也不一定. 如果你想确保多个 service 共享一个特定的IP, 使用上面提到的`spec.loadBalancerIP`来定义.
+
+以这样的方式来管理 Service 有两个主要原因: 1. 规避 Kubernetes 的限制; 2. 可使用的IP地址有限.
+
+下面是两个 services 共享一个IP地址的例子:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: dns-service-tcp
+  namespace: default
+  annotations:
+    metallb.universe.tf/allow-shared-ip: "key-to-share-1.2.3.4"
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 1.2.3.4
+  ports:
+    - name: dnstcp
+      protocol: TCP
+      port: 53
+      targetPort: 53
+  selector:
+    app: dns
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dns-service-udp
+  namespace: default
+  annotations:
+    metallb.universe.tf/allow-shared-ip: "key-to-share-1.2.3.4"
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 1.2.3.4
+  ports:
+    - name: dnsudp
+      protocol: UDP
+      port: 53
+      targetPort: 53
+  selector:
+    app: dns
+```
+
+Kubernetes does not currently allow multiprotocol LoadBalancer services. This would normally make it impossible to run services like DNS, because they have to listen on both TCP and UDP. To work around this limitation of Kubernetes with MetalLB, create two services (one for TCP, one for UDP), both with the same pod selector. Then, give them the same sharing key and `spec.loadBalancerIP` to colocate the TCP and UDP serving ports on the same IP address.
+
+The second reason is much simpler: if you have more services than available IP addresses, and you can’t or don’t want to get more addresses, the only alternative is to colocate multiple services per IP address.
+
+## 一些例子
+
+As an example of how to use all of MetalLB’s options, consider an ecommerce site that runs a production environment and multiple developer sandboxes side by side. The production environment needs public IP addresses, but the sandboxes can use private IP space, routed to the developer offices through a VPN.
+
+Additionally, because the production IPs end up hardcoded in various places (DNS, security scans for regulatory compliance…), we want specific services to have specific addresses in production. On the other hand, sandboxes come and go as developers bring up and tear down environments, so we don’t want to manage assignments by hand.
+
+We can translate these requirements into MetalLB. First, we define two address pools, and set BGP attributes to control the visibility of each set of addresses:
+
+```yaml
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: production
+  namespace: metallb-system
+spec:
+  # 生产使用,因为公网的IP很贵,我们只有4个
+  addresses:
+  - 42.176.25.64/30
+```
+```yaml
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: sandbox
+  namespace: metallb-system
+spec:
+  addresses:
+  # 相反, 沙箱环境使用私有IP空间
+  # 免费的而且很多, 所以我们给这个地址池分配了大量的IP
+  # 这样开发者可以根据需要启动很多沙箱环境
+  - 192.168.144.0/20
+```
+
+然后我们需要公布他们, 可以通过设置BGP的一些属性来控制每一个地址集合的可见性.
+
+```yaml
+apiVersion: metallb.io/v1beta1
+kind: BGPAdvertisement
+metadata:
+  name: external
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - production
+```
+```yaml
+apiVersion: metallb.io/v1beta1
+kind: BGPAdvertisement
+metadata:
+  name: local
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - sandbox
+  communities:
+    - vpn-only
+```
+```yaml
+# 我们数据中心路由器知道“vpn-only”的BGP社区。
+# 带有此社区标签的公告将仅通过公司VPN隧道传播回开发人员办公室。
+apiVersion: metallb.io/v1beta1
+kind: Community
+metadata:
+  name: communities
+  namespace: metallb-system
+spec:
+  communities:
+  - name: vpn-only
+    value: 1234:1
+```
+
+在我们沙箱环境的 Helm 定义 charts 中, 我们给每一个 service 都打上了annotation `metallb.universe.tf/address-pool: sandbox`. 这样, 不管开发者什么时候创建沙箱环境, 都会从`192.168.144.0/20`获得一个IP地址.
+
+对于生产环境, 我们使用`spec.loadBalancerIP`参数来给 service 定义特定的IP地址. 
+
+---
 ```
 Copyright © The MetalLB Contributors.
 Copyright © 2021 The Linux Foundation ®. All rights reserved. Linux 基金会已注册商标并使用商标.
