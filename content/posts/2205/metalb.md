@@ -123,13 +123,18 @@ Keepalived 和 MetalLB 从客户端的角度看起来是一样的: 当发生故�
 - 跨多个传输路径传播单个连接会导致数据包(packet)在线路上重新排序，这会极大地影响终端主机的性能。
 - 在 Kubernetes 中, 不能保证节点之间流量的路由保持一致。这意味着两个不同的节点可以将同一连接的数据包(packet)路由到不同的 Pod，这将导致连接失败。
 
-高性能路由器能够以一种无状态的方式在多个后端之间使用数据包哈希的方法散布数据包. 对于每一个数据包, 它们拥有一些属性, 并能用它作为 “种子” 来决定选择哪一个后端. 如果, 所有的属性都一样, 它们就会选择同一个后端. 
+高性能路由器能够以一种无状态的方式在多个后端之间使用数据包哈希的方法分发数据包. 对于每一个数据包, 它们拥有一些属性, 并能用它作为 “种子” 来决定选择哪一个后端. 如果, 所有的属性都一样, 它们就会选择同一个后端. 
 
-具体使用哪种哈希方法取决于路由器的硬件和软件. 典型的方法是: `3-tuple` 和 `5-tuple`. 3-tuple 哈希法使用数据包中的协议、源IP、目的IP作为哈希键, 这意味着来自不同ip的数据包会进入同一个后端. 5-tuple 哈希法又在其中加入了源端口和目的端口, 所有来自相同客户端的不同连接将会在集群中散布. 
+具体使用哪种哈希方法取决于路由器的硬件和软件. 典型的方法是: `3-tuple` 和 `5-tuple`. 3-tuple 哈希法使用数据包中的协议、源IP、目的IP作为哈希键, 这意味着来自不同ip的数据包会进入同一个后端. 5-tuple 哈希法又在其中加入了源端口和目的端口, 所有来自相同客户端的不同连接将会在集群中均衡分布. 
 
 通常, 我们推荐加入尽可能多的属性来参与数据包哈希, 也就是说使用更多的属性是非常好的. 因为这样会更加接近理想的负载均衡状态, 每一个节点都会收到相同数量的数据包. 但是我们永远不会达到这种理想状态, 因为上述原因, 但是我们能做的就是尽可能的均匀的传播连接, 以防止出现主机热点.
 
-> 一个连接(connection)由多个连续的数据包(packet)构成
+```shell
+# 一个连接(connection)由多个连续的数据包(packet)构成
+# 比如: 
+connection 1 : source[ip:port] -packet N->...-packet 2-> -packet 1-> target[ip:port]
+connection 2 : source[ip:port] -packet N->...-packet 2-> -packet 1-> target[ip:port]
+```
 
 #### 局限性
 
@@ -146,7 +151,7 @@ Keepalived 和 MetalLB 从客户端的角度看起来是一样的: 当发生故�
 根据您的服务的用途，您可以采用几种缓解策略：
 
 - 你的 BGP 路由器可能有更加稳定的ECMP哈希算法. 有时候可能叫: `弹性ECMP` 或 `弹性LAG`. 使用这样的算法, 在后端集合发生变化的时候, 能有效的减少受影响的连接数量.
-- 把你的服务部署到特定的节点上, 来减小节点池的大小, 它需要你小心的照顾.
+- 把这些需要外部访问的服务部署到特定的节点上, 来减小节点池的大小, 平时看好这些节点.
 - 把服务的变更安排在流量的低谷时候, 此时你的用户在睡觉流量很低.
 - 把每一个逻辑上的服务拆分成两个有着不同 IP 的 kubernetes 服务, 使用DNS服务优雅的将用户流量从将要中断的服务迁移到另一个服务上.
 - 在客户端添加重试逻辑, 以优雅地从突然断开连接中恢复. 如果您的客户是移动应用程序或丰富的单页网络应用程序, 这尤其适用.
@@ -157,18 +162,19 @@ Keepalived 和 MetalLB 从客户端的角度看起来是一样的: 当发生故�
 
 MetalLB 提供了一个实验模式: 使用 FRR 作为 BGP 层的后端.
 
-开启 FRR 模式之后, 会获得以下额外的特性:
+开启 FRR 模式之后, 会获得以下额外的特性: 
 
-- BFD 支持的 BGP 会话
-- BGP 和 BFD 支持 IPv6
+- 由BFD支持的BGP会话
+- BGP和BFD都支持IPv6
+- 多协议支持的BGP
 
-#### FRR 模式的局限性
+##### FRR 模式的局限性
 
 相比与原生实现, FRR 模式有以下局限性:
 
-- BGPAdvertisement 的 RouterID 字段可以被覆盖，但它必须对所有的 advertisements 都相同（不能有不同的 advertisements 具有不同的 RouterID）。
-- BGPAdvertisement 的 myAsn 字段可以被覆盖，但它必须对所有 advertisements 都相同(不能有不同的 advertisements 具有不同的 myAsn)
-- 如果 eBGP Peer 是距离节点多跳的, 则 ebgp-multihop 标志必须设置为 true
+- `BGPAdvertisement` 的 `RouterID` 字段可以被覆盖，但它必须对所有的 advertisements 都相同（不能有不同的 advertisements 具有不同的 RouterID）。
+- `BGPAdvertisement` 的 `myAsn` 字段可以被覆盖，但它必须对所有 advertisements 都相同(不能有不同的 advertisements 具有不同的 myAsn)
+- 如果 eBGP Peer 是距离节点多跳的, 则 `ebgp-multihop` 标志必须设置为 `true`
 
 ## 安装
 
@@ -223,7 +229,7 @@ kubectl apply -f - -n kube-system
 
 ### 使用部署清单安装
 
-使用下面的部署清单, 来安装 MetalLB:
+使用下面的部署清单, 来安装MetalLB:
 
 ```shell
 kubectl apply -f https://raw.githubusercontent.com/
@@ -240,7 +246,7 @@ metallb/metallb/v0.13.4/config/manifests/metallb-native.yaml
 - Daemonset: `metallb-system/speaker`, 这个组件使用你选择的协议对外发送信息, 使你的 Service 可以被访问.
 - ServiceAccount: controller 和 speaker 所使用的, 同时配置好了组件所需要的 RBAC 权限.
 
-该安装清单并不包含配置文件, 但是 MetalLB 组件仍会启动, 在你[部署配置相关资源](#配置)之前, 它保持空闲状态.
+该安装清单并不包含配置文件, 但是 MetalLB 组件仍会启动, 在你[部署相关配置资源](#配置)之前, 它保持空闲状态.
 
 ### 其他安装方式
 
@@ -250,24 +256,22 @@ metallb/metallb/v0.13.4/config/manifests/metallb-native.yaml
 
 通常来说, MetalLB 并不关心你集群用什么网络附件组件, 只要它能满足 Kubernetes 要求的标准就可以.
 
-下面是一些网络附加组件与 MetalLB 一起测试的结果, 可以供你参考. 列表是按照附加组件的字母先后顺序排序, 我并没有任何倾向性.
+下面是一些网络附加组件与 MetalLB 一起测试的结果, 可以供你参考. 列表中没有的附加组件可能也可以正常工作, 只是我们没有测试.
 
-列表中没有的附加组件可能也可以正常工作, 只是我们没有测试.
-
-|网络附加组件|兼容性|
-|-|-|
-|Antrea|可以 1.4和1.5版本测试通过|
-|Calico|大部分可以 查看[与Calico一起部署](#与Calico一起部署)|
-|Canal|可以|
-|Cilium|可以|
-|Flannel|可以|
-|Kube-ovn|可以|
-|Kube-router|大部分可以 [已知问题](https://metallb.universe.tf/configuration/kube-router/)|
-|Weave Net|大部分可以 [已知问题](https://metallb.universe.tf/configuration/weave/)|
+|网络附加组件|兼容性|备注|
+|-|-|-|
+|Antrea|可以|1.4和1.5版本测试通过|
+|Calico|大部分可以|Calico也提供了使用BGP公布LoadBalancer IP的能力 [详细](https://metallb.universe.tf/configuration/calico/)|
+|Canal|可以||
+|Cilium|可以||
+|Flannel|可以||
+|Kube-ovn|可以||
+|Kube-router|大部分可以|[已知问题](https://metallb.universe.tf/configuration/kube-router/)|
+|Weave Net|大部分可以|[已知问题](https://metallb.universe.tf/configuration/weave/)|
 
 ## 配置
 
-配置之前 MetalLB 一直保持空闲状态. 想要配置 MetalLB, 需要在 MetalLB 所在的名称空间(通常是 `metallb-system`)部署很多和配置相关的资源.
+在配置之前, MetalLB一直保持空闲状态. 想要配置 MetalLB, 需要在 MetalLB 所在的名称空间(通常是 `metallb-system`)部署很多和配置相关的资源.
 
 当然, 如果你没有把 MetalLB 部署到 `metallb-system` 名称空间下, 你可能需要修改下面的配置清单.
 
@@ -292,7 +296,7 @@ spec:
 
 可以同时定义多个 `IPAddressPools` 资源. 可以使用 CIDR 定义地址, 也可以使用范围区间定义, 也可以定义 IPv4 和 IPv6 地址用于分配.
 
-### 对外公布 Service IPs
+### 对外公布Service IPs
 
 一旦给 Service 分配IPs之后, 它们必须要公布出去. 具体的配置要根据你想使用的协议来定, 下面会一一介绍:
 
