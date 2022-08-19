@@ -1,5 +1,5 @@
 ---
-title: "使用Kubespray安装kubernetes v1.22.8的过程"
+title: "使用Kubespray安装kubernetes的教程"
 date: "2022-02-14"
 menu: "main"
 tags:
