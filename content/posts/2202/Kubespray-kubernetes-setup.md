@@ -85,7 +85,6 @@ cat temp/myimages.list
 ```sh
 docker run --rm -it \
   -v ${PWD}/inventory/mycluster:/kubespray/inventory/mycluster \
-  -v ${PWD}/files-images.yaml:/kubespray/inventory/mycluster/group_vars/all/files-images.yaml \
   -v ${HOME}/.ssh/id_rsa:/root/.ssh/id_rsa \
   registry.cn-beijing.aliyuncs.com/llaoj/kubespray_kubespray:v2.18.1 bash
 
@@ -181,10 +180,10 @@ kube_network_node_prefix: 24
 
 ## 更换文件/镜像地址
 
-将我们上面搬运到国内的文件包/镜像的地址配置上, 并放在`inventory/mycluster/group_vars/k8s_cluster/`文件夹下:
+将我们上面搬运到国内的文件包/镜像的地址配置上, 并放在`inventory/mycluster/group_vars/all/`文件夹下:
 
 ```
-vi inventory/mycluster/group_vars/k8s_cluster/files-images.yaml
+vi inventory/mycluster/group_vars/all/files-images.yaml
 ```
 
 将下面的内容是我搬运之后的地址, 你可以直接使用. 或者使用你的地址替换`oss_files_repo`和`acr_image_repo`两个地址
