@@ -9,3 +9,19 @@ html, body {
 .highlight pre{
     background-color: #f6f8fa!important;
 }
+
+.book-menu .book-menu-content, .book-toc .book-toc-content {
+   bottom: auto;
+}
+
+.container {
+    min-height: 95vh;
+}
+.book-body-footer {
+    border-top: #dee2e6 1px solid;
+    text-align: center;
+    margin-top: 20px;
+    width: 100%;
+    line-height: 40px;
+    color: #6c757d;
+}
