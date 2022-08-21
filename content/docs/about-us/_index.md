@@ -1,8 +1,7 @@
 ---
 weight: 8
 bookCollapseSection: false
-title: "如创科技"
-bookComments: false
+title: "关于"
 ---
 
 {{< columns >}}
