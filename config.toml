@@ -1,4 +1,4 @@
-title = "老J的博客"
+title = "如创科技"
 baseURL = "https://www.rutron.net/"
 theme = "hugo-book"
 defaultContentLanguage = 'zh'
@@ -51,7 +51,7 @@ enableGitInfo = true
 
   # Set source repository location.
   # Used for 'Last Modified' and 'Edit this page' links.
-  BookRepo = 'https://github.com/llaoj/my-blog'
+  BookRepo = 'https://github.com/llaoj/rutronnet'
 
   # Specifies commit portion of the link to the page's last modified commit hash for 'doc' page
   # type.
