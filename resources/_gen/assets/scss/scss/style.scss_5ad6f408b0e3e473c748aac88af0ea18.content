@@ -5512,7 +5512,6 @@ ol {
         .footer ul li {
           list-style: none; }
           .footer ul li a {
-            display: inline-block;
             height: 40px;
             padding: 10px 8px 10px 8px;
             font-weight: 300; } }

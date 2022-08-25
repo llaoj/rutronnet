@@ -1,6 +1,6 @@
 ---
-title: 'Contact'
+title: '联系'
 date: 2018-02-22T17:01:34+07:00
 ---
 
-We offer a free consultation for all new clients.
+有任何问题欢迎你联系我们, 我们努力做好您身边的技术服务伙伴.
