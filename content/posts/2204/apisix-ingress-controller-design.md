@@ -4,7 +4,6 @@ description: "Apisxi Ingress Controller 设计说明"
 summary: "apisix-ingress-controller 要求 kubernetes 版本 1.16+. 因为使用了 CustomResourceDefinition v1 stable 版本的 API.
 从 1.0.0 版本开始，APISIX-ingress-controller 要求 Apache APISIX 版本 2.7+."
 date: "2022-04-14"
-menu: "main"
 tags:
 - apisix
 - kubernetes
@@ -58,21 +57,21 @@ apisix-ingress-controller 是 Apache APISIX 的控制面组件. 当前服务于 
 
 整体架构图如下：
 
-![architecture](/posts/2204/apisix-ingress-controller-design/arch.png)
+![architecture](images/apisix-ingress-controller-design/arch.png)
 
 这是一张内部架构图：
 
-![internal-arch](/posts/2204/apisix-ingress-controller-design/internal-arch.png)
+![internal-arch](images/apisix-ingress-controller-design/internal-arch.png)
 
 ### 时序/流程图
 
 apisix-ingress-controller 负责和 Kubernetes Apiserver 交互, 申请可访问资源权限（RBAC），监控变化，在 Ingress 控制器中实现对象转换，比较变化，然后同步到 Apache APISIX。
 
-![flow](/posts/2204/apisix-ingress-controller-design/flow.png)
+![flow](images/apisix-ingress-controller-design/flow.png)
 
 这是一张流程图，介绍了ApisixRoute和其他CRD在同步过程中的主要逻辑
 
-![sync-logic-controller](/posts/2204/apisix-ingress-controller-design/sync-logic-controller.png)
+![sync-logic-controller](images/apisix-ingress-controller-design/sync-logic-controller.png)
 
 ### 结构转换
 
@@ -80,7 +79,7 @@ apisix-ingress-controller 给 CRDs 提供了外部配置方法。它旨在务于
 考虑到不同人群的使用习惯，CRDs 的数据结构借鉴了 Kubernetes Ingress 的数据结构，数据结构基本一致。
 关于这两者的差别，请看下面这张图：
 
-![struct-compare](/posts/2204/apisix-ingress-controller-design/struct-compare.png)
+![struct-compare](images/apisix-ingress-controller-design/struct-compare.png)
 
 可以看到，它们是多对多的关系。因此，apisix-ingress-controller 必须对 CRD 做一些转换，以适应不同的网关。
 
@@ -89,7 +88,7 @@ apisix-ingress-controller 给 CRDs 提供了外部配置方法。它旨在务于
 seven 模块内部保存了内存数据结构，目前与Apache APISIX资源对象非常相似。当 Kubernetes 资源对象有新变化时，seven 会比较内存对象，并根据比较结果进行增量更新。  
 目前的比较规则是根据route/service/upstream资源对象的分组，分别进行比较，发现差异后做出相应的广播通知。
 
-![diff-rules](/posts/2204/apisix-ingress-controller-design/diff-rules.png)
+![diff-rules](images/apisix-ingress-controller-design/diff-rules.png)
 
 ### 服务发现
 

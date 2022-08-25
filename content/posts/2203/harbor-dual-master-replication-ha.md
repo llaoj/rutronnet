@@ -3,7 +3,6 @@ title: "Harbor 双主复制解决方案实践"
 description: "一步步部署 Harbor 双主复制解决方案"
 summary: "既然使用了外部的服务, 那么高可用的压力自然而然的转移到了外部服务上. 我们一开始采用的外部的 NFS 共享存储服务, 由于我们团队实际情况, 我们暂时还不能保证外部存储的高可用. 同时, 鉴于我们对镜像服务高可用的迫切需求, 决定调研新的 Harbor 的高可用方案."
 date: "2022-03-29"
-menu: "main"
 tags:
 - "harbor"
 categories:
@@ -16,13 +15,13 @@ categories:
 
 分析了 [官方 Github: Harbor 高可用方案讨论](https://github.com/goharbor/harbor/issues/3582), 一开始我们选择了 Solution 1 (双激活共享存储方案), 在公司内部大概运行了一年多的时间, 架构图如下:
 
-![Active-Active with scale out ability](/posts/2203/harbor-dual-master-replication-ha/solution-1.png)
+![Active-Active with scale out ability](images/harbor-dual-master-replication-ha/solution-1.png)
 
 从图中可以看到, 这种方案基于外部共享存储、外部数据库和 Redis 服务, 构建其两个/以上的 harbor 实例. 既然使用了外部的服务, 那么高可用的压力自然而然的转移到了外部服务上. 我们一开始采用的外部的 NFS 共享存储服务, 由于我们团队实际情况, 我们暂时还不能保证外部存储的高可用. 同时, 鉴于我们对镜像服务高可用的迫切需求, 决定调研新的 Harbor 的高可用方案.
 
 选择了 Solution 4 (双主复制方案), 这个解决方案, 使用复制来实现高可用, 它不需要共享存储、外部数据库服务、外部 Redis 服务. 这种方案可以有效的解决镜像服务的单点故障. 架构图如下:
 
-![harbor-dual-master-replication-ha-solution](/posts/2203/harbor-dual-master-replication-ha/solution-4.png)
+![harbor-dual-master-replication-ha-solution](images/harbor-dual-master-replication-ha/solution-4.png)
 
 从图中可以看到, 这种方案仅需要在两个 harbor 实例之间建立全量复制机制. 这种方案特别适合异地办公的团队.
 
@@ -421,11 +420,11 @@ rm -rf /data/redis
 
 在其中一台 harbor 实例上配置，我以 10.206.99.58 为例，另一实例同理，首先需要创建仓库，点击`系统管理>仓库管理>新建目标`，按照如下填写：
 
-![add-harbor-instance](/posts/2203/harbor-dual-master-replication-ha/add-harbor-instance.png)
+![add-harbor-instance](images/harbor-dual-master-replication-ha/add-harbor-instance.png)
 
 然后，创建复制规则，点击`系统管理>复制管理>新建规则`，按照如下填写：
 
-![add-replication-rule](/posts/2203/harbor-dual-master-replication-ha/add-replication-rule.png)
+![add-replication-rule](images/harbor-dual-master-replication-ha/add-replication-rule.png)
 
 这样，当用户往 10.206.99.58 中推送/删除镜像时，10.206.99.57 也会同步发生变化。
 
@@ -516,5 +515,5 @@ docker run -d --restart=always \
 我的两个实例是所在虚拟机在一个网段内的，测试了一个约 900M 的镜像，从开始同步到结束大概是10秒种。如果用户在一台实例上推送之后，立马去另一台实例上拉去是不行的。所以如果两个实例前面要增加 http 代理的话，需要使用 ip_hash 负载均衡策略，将用户请求固定到其中一台实例上。
 3. **实例 url 地址不一致**  
 这个问题不严重，因为是两个实例，如果我们在他们前面再部署 http 代理的话，就是三个地址。所以，两个实例对应 admin ui 上的 url 地址和用户使用的（如果有代理）url 地址都不一样。 比如：
-![harbor-url.jpg](/posts/2203/harbor-dual-master-replication-ha/harbor-url.jpg)
+![harbor-url.jpg](images/harbor-dual-master-replication-ha/harbor-url.jpg)
 

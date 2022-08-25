@@ -3,7 +3,6 @@ title: "bcc 之 opensnoop 工具的使用"
 description: "bcc 之 opensnoop 工具的使用文档"
 summary: "这篇文档主要演示了 opensnoop(Linux eBPF/bcc) 工具的使用. opensnoop 在系统范围内跟踪 open() 系统调用，并打印各种详细信息."
 date: "2022-03-16"
-menu: "main"
 tags:
 - "bcc"
 - "ebpf"

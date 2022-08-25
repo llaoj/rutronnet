@@ -1,92 +1,63 @@
 title = "如创科技"
 baseURL = "https://www.rutron.net/"
-theme = "hugo-book"
 defaultContentLanguage = 'zh'
+languageCode = "zh"
+themesDir = ".."
+theme = "hugo-hero-theme"
 
-# (Optional) Set this to true if you use capital letters in file names
-disablePathToLower = true
-
-# (Optional) Set this to true to enable 'Last Modified by' date and git author
-#  information on 'doc' type pages.
-enableGitInfo = true
-
-# (Optional) Theme is intended for documentation use, therefore it doesn't render taxonomy.
-# You can remove related files with config below
-# disableKinds = ['taxonomy', 'taxonomyTerm']
-
-[menu]
-# [[menu.before]]
-[[menu.after]]
-  name = "CNCF"
-  url = "https://www.cncf.io/"
-  weight = 20
-[[menu.after]]
-    name = "eBPF"
-    url = "https://ebpf.io/"
-    weight = 21
-
-[markup]
-  [markup.highlight]
-    codeFences = true
-    guessSyntax = true
-    style = "github"
-
+[module]
+  [module.hugoVersion]
+    extended = true
+    min = "0.92.0"
+    
 [params]
-  # (Optional, default light) Sets color theme: light, dark or auto.
-  # Theme 'auto' switches between dark and light modes based on browser/os preferences
-  BookTheme = 'light'
+  google_analytics_id=""
 
-  # (Optional, default true) Controls table of contents visibility on right side of pages.
-  # Start and end levels can be controlled with markup.tableOfContents setting.
-  # You can also specify this parameter per page in front matter.
-  BookToC = true
+  [params.logo]
+    mobile = "images/logo.png"
+    mobile_height = "40px"
+    mobile_width = "40px"
+    desktop = "images/logo.png"
+    desktop_height = "40px"
+    desktop_width = "40px "
+    alt = "如创科技"
 
-  # (Optional, default none) Set the path to a logo for the book. If the logo is
-  # /static/logo.png then the path would be 'logo.png'
-  BookLogo = ''
+  [params.homepage_meta_tags]
+    meta_description = "如创科技成立于2019年8月份, 在山东青岛为云原生而生, 我们热爱云原生, 践行云原生, 推广云原生. 成立以来一直致力于服务企事业单位规划、建设、运维云原生生态. 成功建设并运维了几个中大型的容器集群, 服务上千用户, 上万个容器应用. 积累了大量实践经验."
+    meta_og_title = "青岛如创科技有限公司"
+    meta_og_type = "website"
+    meta_og_url = "https://www.rutron.net"
+    meta_og_image = "/images/logo.png"
+    meta_og_description = "如创科技成立于2019年8月份, 在山东青岛为云原生而生, 我们热爱云原生, 践行云原生, 推广云原生. 成立以来一直致力于服务企事业单位规划、建设、运维云原生生态. 成功建设并运维了几个中大型的容器集群, 服务上千用户, 上万个容器应用. 积累了大量实践经验."
+    meta_twitter_card = ""
+    meta_twitter_site = ""
+    meta_twitter_creator = ""
 
-  # (Optional, default docs) Specify section of content to render as menu
-  # You can also set value to "*" to render all sections to menu
-  BookSection = 'docs'
+[[menu.main]]
+  name = "服务"
+  url = "/services/"
+    weight = 1
 
-  # Set source repository location.
-  # Used for 'Last Modified' and 'Edit this page' links.
-  BookRepo = 'https://github.com/llaoj/rutronnet'
+# [[menu.main]]
+#     name = "Work"
+#     url = "/work/"
+#     weight = 2
 
-  # Specifies commit portion of the link to the page's last modified commit hash for 'doc' page
-  # type.
-  # Required if 'BookRepo' param is set.
-  # Value used to construct a URL consisting of BookRepo/BookCommitPath/<commit-hash>
-  # Github uses 'commit', Bitbucket uses 'commits'
-  BookCommitPath = 'commit'
+[[menu.main]]
+    name = "关于"
+    url = "/about/"
+    weight = 3
 
-  # Enable 'Edit this page' links for 'doc' page type.
-  # Disabled by default. Uncomment to enable. Requires 'BookRepo' param.
-  # Path must point to the site directory.
-  # BookEditPath = 'edit/master/exampleSite'
+# [[menu.main]]
+#     name = "History"
+#     url = "/history/"
+#     weight = 3
 
-  # (Optional, default January 2, 2006) Configure the date format used on the pages
-  # - In git information
-  # - In blog posts
-  BookDateFormat = '2006-1-2'
+[[menu.main]]
+    name = "联系"
+    url = "/contact/"
+    weight = 4
 
-  # (Optional, default true) Enables search function with flexsearch,
-  # Index is built on fly, therefore it might slowdown your website.
-  # Configuration for indexing can be adjusted in i18n folder per language.
-  BookSearch = true
-
-  # (Optional, default true) Enables comments template on pages
-  # By default partials/docs/comments.html includes Disqus template
-  # See https://gohugo.io/content-management/comments/#configure-disqus
-  # Can be overwritten by same param in page frontmatter
-  BookComments = false
-
-  # /!\ This is an experimental feature, might be removed or changed at any time
-  # (Optional, experimental, default false) Enables portable links and link checks in markdown pages.
-  # Portable links meant to work with text editors and let you write markdown without {{< relref >}} shortcode
-  # Theme will print warning if page referenced in markdown does not exists.
-  BookPortableLinks = true
-
-  # /!\ This is an experimental feature, might be removed or changed at any time
-  # (Optional, experimental, default false) Enables service worker that caches visited pages and resources for offline use.
-  BookServiceWorker = true
+[permalinks]
+  post = "/:year/:month/:day/:slug/"
+  pages = "/:filename/"

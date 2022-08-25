@@ -1,0 +1,19 @@
+email: 'rutronnet@163.com'
+phone: '15666139166'
+businessName: 'Hugo Serif'
+address: |
+  青岛市, 崂山区
+  海尔路 31号 
+hours:
+  - day: 周一至周五
+    open: 上午9:00
+    close: 下午6:00
+  - day: 周六
+    open: 休息
+    close:
+  - day: 周日
+    open: 休息
+    close:
+  - day: 法定节假日
+    open: 休息
+    close:

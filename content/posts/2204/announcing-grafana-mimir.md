@@ -3,7 +3,6 @@ title: "Grafana Mimir 发布 目前最具扩展性的开源时序数据库"
 description: "Grafana Mimir 是目前最具扩展性性能最好的开源时序数据库"
 summary: "Grafana Mimir 是目前最具扩展性、性能最好的开源时序数据库，Mimir 允许你将指标扩展到 1 亿。它部署简单、高可用、多租户支持、持久存储、查询性能超高，比 Cortex 快 40 倍。 Mimir 托管在 https://github.com/grafana/mimir 并在 AGPLv3 下获得许可。"
 date: "2022-04-01"
-menu: "main"
 tags:
 - prometheus
 - grafana mimir
@@ -22,7 +21,7 @@ Mimir 是指标领域的一个新项目，站在巨人的肩膀上。为了理�
 
 2016 年在 Weaveworks 工作时，我与 Prometheus 的联合创始人兼维护者 Julius Volz 一起启动了 Cortex 项目。该项目的目标是构建一个可扩展的与 Prometheus 兼容的解决方案，旨在作为 SaaS 产品运行。在我加入 Grafana Labs 后，我们与 Weaveworks 合作，将 Cortex 转移到一个中立的地方，即云原生计算基金会。[Cortex 于 2018 年 9 月 20 日被接受为 CNCF 沙盒项目](https://www.cncf.io/blog/2018/09/20/cncf-to-host-cortex-in-the-sandbox/?pg=blog&plcmt=body-txt)，两年后[晋升为孵化项目](https://www.cncf.io/blog/2020/08/20/toc-welcomes-cortex-as-an-incubating-project/?pg=blog&plcmt=body-txt)。CNCF 为两个公司在项目上提供了一个公平的竞争协作环境，这确实很棒，Grafana Labs 和 Weaveworks 都积极参与其中。Cortex 被 20 多个组织使用，并得到了[大约 100 名开发人员](https://github.com/cortexproject/cortex/graphs/contributors)的贡献。 Grafana Labs 的员工无疑是 Cortex 项目的最大贡献者，在 2019 - 2021 年期间贡献了约 87% 的代码提交。
 
-![grafana-mimir-devstats-dashboard](/posts/2204/announcing-grafana-mimir/grafana-mimir-devstats-dashboard.png)
+![grafana-mimir-devstats-dashboard](images/announcing-grafana-mimir/grafana-mimir-devstats-dashboard.png)
 
 来源: cortex.devstats.cncf.io
 
@@ -44,7 +43,7 @@ Mimir 集合了 Cortex 中的最佳功能和为 GEM & Grafana Cloud 大规模运
 
 Cortex、Grafana Mimir 和 Grafana Cloud & Grafana Enterprise Metrics 比较
 
-![grafana-mimir-cortex-chart](/posts/2204/announcing-grafana-mimir/grafana-mimir-cortex-chart.svg)
+![grafana-mimir-cortex-chart](images/announcing-grafana-mimir/grafana-mimir-cortex-chart.svg)
 
 在从 Cortex 开始构建 Mimir 的过程中，团队有机会消除五年来欠下的技术债务，删除未使用的功能，使项目更易于维护，简化配置并改进文档。希望通过这次投资，在 Mimir 上的努力会让其更加易用，从而帮助社区更好的发展。
 

@@ -3,7 +3,6 @@ title: "Kubernetes 服务器配置和规划建设要求"
 description: ""
 summary: ""
 date: "2022-07-16"
-menu: "main"
 draft: false
 tags:
 - kubernetes

@@ -3,7 +3,6 @@ title: "MetalLB概念安装配置和使用"
 description: ""
 summary: ""
 date: "2022-05-30"
-menu: "main"
 draft: false
 tags:
 - kubernetes

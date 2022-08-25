@@ -3,7 +3,6 @@ title: "Linux 控制组(cgroups)和进程隔离"
 description: "本文详细介绍了cgroups的概念和技术原理"
 summary: "控制组(cgroups)是内核的一个特性，它能限制/统计/隔离一个或者多个进程使用CPU、内存、磁盘I/O和网络。cgroups技术最开始是Google开发，最终在2.6.24版本的内核中出现。3.15和3.16版本内核将合并进重新设计的cgroups，它添加来kernfs(拆分一些sysfs逻辑)。cgroups的主要设计目标是提供一个统一的接口，它可以管理进程或者整个操作系统级别的虚拟化，包含Linux容器，或者LXC。"
 date: "2022-05-15"
-menu: "main"
 tags:
 - cgroups
 - kubernetes
