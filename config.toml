@@ -39,7 +39,7 @@ theme = "github.com/llaoj/hugo-hero-theme"
     weight = 1
 
 [[menu.main]]
-    name = "Work"
+    name = "工作"
     url = "/work/"
     weight = 2
 
