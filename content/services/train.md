@@ -1,7 +1,7 @@
 ---
 title: '培训'
 date: 2018-11-28T15:14:54+10:00
-icon: 'services/service-icon-5.png'
+icon: 'services/service-icon-4.png'
 weight: 6
 featured: true
 draft: false

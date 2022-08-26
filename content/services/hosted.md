@@ -1,7 +1,7 @@
 ---
 title: '集群托管'
 date: 2018-11-18T12:33:46+10:00
-icon: 'services/service-icon-1.png'
+icon: 'services/service-icon-2.png'
 draft: false
 featured: true
 weight: 1

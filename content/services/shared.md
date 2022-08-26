@@ -1,7 +1,7 @@
 ---
 title: '共享集群'
 date: 2018-11-28T15:14:39+10:00
-icon: 'services/service-icon-2.png'
+icon: 'services/service-icon-1.png'
 weight: 5
 featured: true
 draft: false
