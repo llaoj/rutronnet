@@ -2,8 +2,8 @@ title = "如创科技"
 baseURL = "https://www.rutron.net/"
 defaultContentLanguage = 'zh'
 languageCode = "zh"
-themesDir = ".."
-theme = "hugo-hero-theme"
+# themesDir = ".."
+theme = "github.com/llaoj/hugo-hero-theme"
 
 [module]
   [module.hugoVersion]
@@ -38,10 +38,10 @@ theme = "hugo-hero-theme"
   url = "/services/"
     weight = 1
 
-# [[menu.main]]
-#     name = "Work"
-#     url = "/work/"
-#     weight = 2
+[[menu.main]]
+    name = "Work"
+    url = "/work/"
+    weight = 2
 
 [[menu.main]]
     name = "关于"
