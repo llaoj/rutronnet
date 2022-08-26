@@ -1,106 +1,77 @@
-<!DOCTYPE html>
-<html lang="zh">
-
+<!doctype html><html lang=zh>
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>Kubernetes 服务器配置和规划建设要求 - 如创科技</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  
-  <link rel="icon" href="https://www.rutron.net/favicon.png">
-
-  
-  
-  <link rel="stylesheet" href="/css/style.min.bed369b6636aa19e87512113b3caaa34b9db89c9c071f25efab970ae54757c9c.css">
-  
-
-  
-
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="ie=edge">
+<title>Kubernetes 服务器配置和规划建设要求 - 如创科技</title>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<link rel=icon href=https://www.rutron.net/favicon.png>
+<link rel=stylesheet href=/css/style.min.bed369b6636aa19e87512113b3caaa34b9db89c9c071f25efab970ae54757c9c.css>
 </head>
-
-<body class='page '>
-  <div id="main-menu-mobile" class="main-menu-mobile">
-  <ul>
-    
-    
-    <li class="menu-item-服务">
-      <a href="/services/">
-        
-        <span>服务</span>
-      </a>
-    </li>
-    
-    <li class="menu-item-关于">
-      <a href="/about/">
-        
-        <span>关于</span>
-      </a>
-    </li>
-    
-    <li class="menu-item-联系">
-      <a href="/contact/">
-        
-        <span>联系</span>
-      </a>
-    </li>
-    
-  </ul>
+<body class=page>
+<div id=main-menu-mobile class=main-menu-mobile>
+<ul>
+<li class=menu-item-服务>
+<a href=/services/>
+<span>服务</span>
+</a>
+</li>
+<li class=menu-item-关于>
+<a href=/about/>
+<span>关于</span>
+</a>
+</li>
+<li class=menu-item-联系>
+<a href=/contact/>
+<span>联系</span>
+</a>
+</li>
+</ul>
 </div>
-  <div id="wrapper" class="wrapper">
-    <div class='header header-absolute'>
-  <div class="container">
-    <div class="logo">
-      <a href="https://www.rutron.net/"><img height=40px width=40px alt="如创科技" src="/images/logo.png" /></a>
-    </div>
-    <div class="logo-mobile">
-      <a href="https://www.rutron.net/"><img height=40px width=40px alt="如创科技" src="/images/logo.png" /></a>
-    </div>
-    <div id="main-menu" class="main-menu">
-  <ul>
-    
-    
-    <li class="menu-item-服务">
-      <a href="/services/">
-        
-        <span>服务</span>
-      </a>
-    </li>
-    
-    <li class="menu-item-关于">
-      <a href="/about/">
-        
-        <span>关于</span>
-      </a>
-    </li>
-    
-    <li class="menu-item-联系">
-      <a href="/contact/">
-        
-        <span>联系</span>
-      </a>
-    </li>
-    
-  </ul>
+<div id=wrapper class=wrapper>
+<div class="header header-absolute">
+<div class=container>
+<div class=logo>
+<a href=https://www.rutron.net/><img height=40px width=40px alt=如创科技 src=/images/logo.png></a>
 </div>
-    <button id="toggle-main-menu-mobile" class="hamburger hamburger--slider" type="button" aria-label="Toggle Menu">
-  <span class="hamburger-box">
-    <span class="hamburger-inner"></span>
-  </span>
+<div class=logo-mobile>
+<a href=https://www.rutron.net/><img height=40px width=40px alt=如创科技 src=/images/logo.png></a>
+</div>
+<div id=main-menu class=main-menu>
+<ul>
+<li class=menu-item-服务>
+<a href=/services/>
+<span>服务</span>
+</a>
+</li>
+<li class=menu-item-关于>
+<a href=/about/>
+<span>关于</span>
+</a>
+</li>
+<li class=menu-item-联系>
+<a href=/contact/>
+<span>联系</span>
+</a>
+</li>
+</ul>
+</div>
+<button id=toggle-main-menu-mobile class="hamburger hamburger--slider" type=button aria-label="Toggle Menu">
+<span class=hamburger-box>
+<span class=hamburger-inner></span>
+</span>
 </button>
-  </div>
 </div>
-    
-<div class="container">
-  <div class="row justify-content-center">
-    <div class="col-12 col-md-9">
-      <h1>Kubernetes 服务器配置和规划建设要求</h1>
-      星期六, 7月 16, 2022
-      
-      <div class="content">
-        <p>新建集群的第一步就是要规划服务器、网络、操作系统等等, 下面就结合我平时的工作经验总结下相关的要求, 内容根据日常工作持续补充完善:</p>
-<h2 id="服务器配置">服务器配置</h2>
+</div>
+<div class=container>
+<div class="row justify-content-center">
+<div class="col-12 col-md-9">
+<h1>Kubernetes 服务器配置和规划建设要求</h1>
+星期六, 7月 16, 2022
+<div class=content>
+<p>新建集群的第一步就是要规划服务器、网络、操作系统等等, 下面就结合我平时的工作经验总结下相关的要求, 内容根据日常工作持续补充完善:</p>
+<h2 id=服务器配置>服务器配置</h2>
 <p>kubernetes 集群分为控制节点和数据节点, 它们对于配置的要求有所不同:</p>
-<h3 id="控制面">控制面</h3>
+<h3 id=控制面>控制面</h3>
 <table>
 <thead>
 <tr>
@@ -128,9 +99,9 @@
 </tbody>
 </table>
 <p>系统盘40+Gi，用于储存 etcd 信息及相关配置文件等</p>
-<h3 id="数据面">数据面</h3>
+<h3 id=数据面>数据面</h3>
 <ul>
-<li>规格：CPU &gt;= 4核, 内存 &gt;= 8Gi</li>
+<li>规格：CPU >= 4核, 内存 >= 8Gi</li>
 <li>确定整个集群的日常使用的<strong>总核数</strong>以及<strong>可用度的容忍度</strong>
 <ul>
 <li>例如：集群总的核数有160核, 可以容忍10%的错误. 那么最小选择10台16核VM, 并且高峰运行的负荷不要超过 <code>160*90%=144核</code>. 如果容忍度是20%, 那么最小选择5台32核VM, 并且高峰运行的负荷不要超过<code>160*80%=128核</code>. 这样就算有一台VM出现故障, 剩余VM仍可以支持现有业务正常运行.</li>
@@ -139,107 +110,78 @@
 <li>确定 <code>CPU:Memory</code> 比例. 对于使用内存比较多的应用, 例如Java类应用, 建议考虑使用1:8的机型</li>
 <li>比如: <code>virtual machine 32C 64G 200G系统盘 数据盘可选</code></li>
 </ul>
-<h3 id="什么情况下使用裸金属服务器">什么情况下使用裸金属服务器?</h3>
+<h3 id=什么情况下使用裸金属服务器>什么情况下使用裸金属服务器?</h3>
 <ul>
 <li>集群日常规模能够达到1000核。一台服务器至少96核，这样可以通过10台或11台服务器即可构建一个集群。</li>
 <li>快速扩大较多容器。例如：电商类大促，为应对流量尖峰，可以考虑使用裸金属来作为新增节点，这样增加一台裸金属服务器就可以支持很多个容器运行。</li>
 </ul>
-<h2 id="操作系统">操作系统</h2>
+<h2 id=操作系统>操作系统</h2>
 <ul>
 <li>建议安装 ubuntu 18.04/debian buster/ubuntu 20.04/centos 7.9 优先级从高到低</li>
 <li>linux kenerl 4.17+</li>
-<li>安装 ansible v2.9 &amp; python-netaddr 以运行 ansible 命令</li>
+<li>安装 ansible v2.9 & python-netaddr 以运行 ansible 命令</li>
 <li>安装 jinja 2.11+ 以运行 ansible playbooks</li>
 <li>允许 IPv4 forwarding</li>
 <li>部署节点的 ssh key 拷贝到所有节点</li>
 <li>禁用防火墙</li>
 </ul>
-<h2 id="网络">网络</h2>
+<h2 id=网络>网络</h2>
 <ul>
 <li>单一集群采用统一的网卡命名比如:<code>eth0</code>等, 保证名称唯一</li>
 <li>没有特殊要求, 服务器要求可访问外网</li>
 </ul>
-<h2 id="集群规模限制">集群规模限制</h2>
+<h2 id=集群规模限制>集群规模限制</h2>
 <ul>
 <li>每节点不超过 110 pods</li>
 <li>不超过 5k nodes</li>
 <li>总计不超过 15w pods</li>
 <li>总计不超过 30w containers</li>
 </ul>
-<h2 id="参考">参考</h2>
+<h2 id=参考>参考</h2>
 <ul>
-<li><a href="https://docs.ucloud.cn/uk8s/introduction/node_requirements">优刻得容器云UK8S集群节点配置推荐</a></li>
-<li><a href="https://help.aliyun.com/document_detail/98886.html">阿里云ACK容器服务之ECS选型</a></li>
+<li><a href=https://docs.ucloud.cn/uk8s/introduction/node_requirements>优刻得容器云UK8S集群节点配置推荐</a></li>
+<li><a href=https://help.aliyun.com/document_detail/98886.html>阿里云ACK容器服务之ECS选型</a></li>
 </ul>
-
-      </div>
-    </div>
-  </div>
 </div>
-
-  </div>
-
-  <div class="footer">
-  <div class="container">
-    <div class="row">
-      <div class="col-12">
-        <div class="footer-inner">
-          
-          <ul class="social">
-              
-                  <li><a href="https://github.com/llaoj" target="blank"><img width="20" height="20" src="/social/github.svg" title="Github" alt="Github" /></a></li>
-              
-          </ul>
-          
-          <ul class="footer-menu">
-            <li><a href="https://www.rutron.net/">Home</a></li>
-            <li><a href="https://www.rutron.net/contact">Contact</a></li>
-            <li class="copyright">© 2022 如创科技</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
-  <div class="sub-footer">
-  <div class="container">
-    <div class="row">
-      <div class="col-12">
-        <div class="sub-footer-inner">
-          <ul>
-            
-            <li><strong>Phone: </strong>15666139166</li>
-            
-            
-            <li><strong>Email: </strong><a href="mailto:rutronnet@163.com">rutronnet@163.com</a></li>
-            
-          </ul>
-          <ul>
-            
-            <li class="zerostatic"><a href="https://beian.miit.gov.cn/#/Integrated/index">鲁ICP备2021035257号-1</a></li>
-            
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
-
-  
-
-  
-  
-
-  
-  <script type="text/javascript" src="/js/scripts.min.98ee06cc35517b5800b382aecb0fc59893e95b9c11dd21842d0d57e4f68043e3.js"></script>
-  
-
-  
-  
-  
-    
-  
-
-
+</div>
+</div>
+<div class=footer>
+<div class=container>
+<div class=row>
+<div class=col-12>
+<div class=footer-inner>
+<ul class=social>
+<li><a href=https://github.com/llaoj target=blank><img width=20 height=20 src=/social/github.svg title=Github alt=Github></a></li>
+</ul>
+<ul class=footer-menu>
+<li><a href=https://www.rutron.net/>Home</a></li>
+<li><a href=https://www.rutron.net/contact>Contact</a></li>
+<li class=copyright>© 2022 如创科技</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class=sub-footer>
+<div class=container>
+<div class=row>
+<div class=col-12>
+<div class=sub-footer-inner>
+<ul>
+<li><strong>Phone: </strong>15666139166</li>
+<li><strong>Email: </strong><a href=mailto:rutronnet@163.com>rutronnet@163.com</a></li>
+</ul>
+<ul>
+<li class=zerostatic><a href=https://beian.miit.gov.cn/#/Integrated/index>鲁ICP备2021035257号-1</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script type=text/javascript src=/js/scripts.min.98ee06cc35517b5800b382aecb0fc59893e95b9c11dd21842d0d57e4f68043e3.js></script>
 </body>
 </html>

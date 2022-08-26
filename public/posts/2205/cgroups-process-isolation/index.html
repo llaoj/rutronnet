@@ -1,106 +1,77 @@
-<!DOCTYPE html>
-<html lang="zh">
-
+<!doctype html><html lang=zh>
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>Linux 控制组(cgroups)和进程隔离 - 如创科技</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  
-  <link rel="icon" href="https://www.rutron.net/favicon.png">
-
-  
-  
-  <link rel="stylesheet" href="/css/style.min.bed369b6636aa19e87512113b3caaa34b9db89c9c071f25efab970ae54757c9c.css">
-  
-
-  
-
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="ie=edge">
+<title>Linux 控制组(cgroups)和进程隔离 - 如创科技</title>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<link rel=icon href=https://www.rutron.net/favicon.png>
+<link rel=stylesheet href=/css/style.min.bed369b6636aa19e87512113b3caaa34b9db89c9c071f25efab970ae54757c9c.css>
 </head>
-
-<body class='page '>
-  <div id="main-menu-mobile" class="main-menu-mobile">
-  <ul>
-    
-    
-    <li class="menu-item-服务">
-      <a href="/services/">
-        
-        <span>服务</span>
-      </a>
-    </li>
-    
-    <li class="menu-item-关于">
-      <a href="/about/">
-        
-        <span>关于</span>
-      </a>
-    </li>
-    
-    <li class="menu-item-联系">
-      <a href="/contact/">
-        
-        <span>联系</span>
-      </a>
-    </li>
-    
-  </ul>
+<body class=page>
+<div id=main-menu-mobile class=main-menu-mobile>
+<ul>
+<li class=menu-item-服务>
+<a href=/services/>
+<span>服务</span>
+</a>
+</li>
+<li class=menu-item-关于>
+<a href=/about/>
+<span>关于</span>
+</a>
+</li>
+<li class=menu-item-联系>
+<a href=/contact/>
+<span>联系</span>
+</a>
+</li>
+</ul>
 </div>
-  <div id="wrapper" class="wrapper">
-    <div class='header header-absolute'>
-  <div class="container">
-    <div class="logo">
-      <a href="https://www.rutron.net/"><img height=40px width=40px alt="如创科技" src="/images/logo.png" /></a>
-    </div>
-    <div class="logo-mobile">
-      <a href="https://www.rutron.net/"><img height=40px width=40px alt="如创科技" src="/images/logo.png" /></a>
-    </div>
-    <div id="main-menu" class="main-menu">
-  <ul>
-    
-    
-    <li class="menu-item-服务">
-      <a href="/services/">
-        
-        <span>服务</span>
-      </a>
-    </li>
-    
-    <li class="menu-item-关于">
-      <a href="/about/">
-        
-        <span>关于</span>
-      </a>
-    </li>
-    
-    <li class="menu-item-联系">
-      <a href="/contact/">
-        
-        <span>联系</span>
-      </a>
-    </li>
-    
-  </ul>
+<div id=wrapper class=wrapper>
+<div class="header header-absolute">
+<div class=container>
+<div class=logo>
+<a href=https://www.rutron.net/><img height=40px width=40px alt=如创科技 src=/images/logo.png></a>
 </div>
-    <button id="toggle-main-menu-mobile" class="hamburger hamburger--slider" type="button" aria-label="Toggle Menu">
-  <span class="hamburger-box">
-    <span class="hamburger-inner"></span>
-  </span>
+<div class=logo-mobile>
+<a href=https://www.rutron.net/><img height=40px width=40px alt=如创科技 src=/images/logo.png></a>
+</div>
+<div id=main-menu class=main-menu>
+<ul>
+<li class=menu-item-服务>
+<a href=/services/>
+<span>服务</span>
+</a>
+</li>
+<li class=menu-item-关于>
+<a href=/about/>
+<span>关于</span>
+</a>
+</li>
+<li class=menu-item-联系>
+<a href=/contact/>
+<span>联系</span>
+</a>
+</li>
+</ul>
+</div>
+<button id=toggle-main-menu-mobile class="hamburger hamburger--slider" type=button aria-label="Toggle Menu">
+<span class=hamburger-box>
+<span class=hamburger-inner></span>
+</span>
 </button>
-  </div>
 </div>
-    
-<div class="container">
-  <div class="row justify-content-center">
-    <div class="col-12 col-md-9">
-      <h1>Linux 控制组(cgroups)和进程隔离</h1>
-      星期日, 五月 15, 2022
-      
-      <div class="content">
-        <p>每个人都听过容器，但它究竟是什么？</p>
+</div>
+<div class=container>
+<div class="row justify-content-center">
+<div class="col-12 col-md-9">
+<h1>Linux 控制组(cgroups)和进程隔离</h1>
+星期日, 五月 15, 2022
+<div class=content>
+<p>每个人都听过容器，但它究竟是什么？</p>
 <p>支持这项技术的软件有很多，其中 Docker 最为流行。因为它的可移植性和环境隔离的能力，它在数据中心内部特别流行。为了能理解这个技术，需要理解很多方面。</p>
 <p>注意：很多人拿容器和虚拟机比较，他们有不同的设计目标，不是替代关系，重叠度很小。容器旨在成为一个轻量级环境，您可以裸机上启动容器，托管一个或几个独立的应用程序。当您想要托管整个操作系统或生态系统或者可能运行与底层环境不兼容的应用程序时，您应该选择虚拟机。</p>
-<h2 id="linux-控制组">Linux 控制组</h2>
+<h2 id=linux-控制组>Linux 控制组</h2>
 <p>说实话，零信任环境下有些软件的确需要被控制或被限制 - 至少为了稳定，或是为了安全。很多时候一个Bug或不良代码可能会摧毁整个机器并削弱整个生态系统。还好，有办法来控制这些应用程序，控制组(cgroups)是内核的一个特性，它能限制/计量/隔离一个或者多个进程使用CPU、内存、磁盘I/O和网络。<br>
 cgroup技术最开始是Google开发，最终在2.6.24版本（2008年1月）的内核中出现。3.15和3.16版本内核将合并进重新设计的cgroups，它添加了kernfs(拆分一些sysfs逻辑)。<br>
 cgroups的主要设计目标是提供一个统一的接口，它可以管理进程或者整个操作系统级别的虚拟化，包含Linux容器，或者LXC。cgroups主要提供了以下能力：</p>
@@ -113,250 +84,221 @@ cgroups的主要设计目标是提供一个统一的接口，它可以管理进�
 <p>一个 cgroup 可以由一个或多个进程组成，这些进程都绑定到同一组限制。这些组也可以是分层的，这意味着子组继承了对其父组管理的限制。<br>
 Linux内核为cgroups提供了一系列控制器或者子系统，控制器负责给一个或者一组进程分配指定的系统资源。比如，<code>memory</code>控制器限制内存使用，<code>cpuacct</code>控制器限制cpu使用。<br>
 您可以直接或间接访问和管理 cgroup（使用 LXC、libvirt 或 Docker），首先，我在这里通过 sysfs 和 <code>libcgroups</code> 库介绍。下面的例子中，需要安装必要的软件包。在Red Hat Enterprise Linux或者CentOS上，执行下面命令：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">sudo yum install libcgroup libcgroup-tools
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>sudo yum install libcgroup libcgroup-tools
 </code></pre></div><p>在Ubuntu或Debian上这样安装：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">sudo apt-get install libcgroup1 cgroup-tools
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>sudo apt-get install libcgroup1 cgroup-tools
 </code></pre></div><p>这个例子中，我用一个简单的脚本(test.sh)，里面会执行一个无限循环。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cat test.sh
-<span style="color:#75715e">#!/bin/sh</span>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ cat test.sh
+<span style=color:#75715e>#!/bin/sh</span>
 
-<span style="color:#66d9ef">while</span> <span style="color:#f92672">[</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">do</span>
-    echo <span style="color:#e6db74">&#34;hello world&#34;</span>
-    sleep <span style="color:#ae81ff">60</span>
-<span style="color:#66d9ef">done</span>
-</code></pre></div><h2 id="手动方式">手动方式</h2>
+<span style=color:#66d9ef>while</span> <span style=color:#f92672>[</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>]</span>; <span style=color:#66d9ef>do</span>
+    echo <span style=color:#e6db74>&#34;hello world&#34;</span>
+    sleep <span style=color:#ae81ff>60</span>
+<span style=color:#66d9ef>done</span>
+</code></pre></div><h2 id=手动方式>手动方式</h2>
 <p>需要的软件包安装完毕之后，您可以通过 <strong>sysfs 层次结构</strong>直接配置您的 cgroup。比如，要在<code>memory</code>子系统下创建一个名为 <code>foo</code> 的 cgroup，请在 <code>/sys/fs/cgroup/memory</code> 中创建一个名为 foo 的目录：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">sudo mkdir /sys/fs/cgroup/memory/foo
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>sudo mkdir /sys/fs/cgroup/memory/foo
 </code></pre></div><p>默认情况下，每个新创建的 cgroup 都将继承对系统整个内存池的访问权限。但是，对于那些不断分配内存却不释放的应用来说，这样并不好。要将应用程序限制在合理的范围内，您需要更新 memory.limit_in_bytes 文件。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ echo <span style="color:#ae81ff">50000000</span> | sudo tee
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ echo <span style=color:#ae81ff>50000000</span> | sudo tee
  ↪/sys/fs/cgroup/memory/foo/memory.limit_in_bytes
 </code></pre></div><p>验证配置：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo cat memory.limit_in_bytes
-<span style="color:#ae81ff">50003968</span>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ sudo cat memory.limit_in_bytes
+<span style=color:#ae81ff>50003968</span>
 </code></pre></div><p>注意，读到的值通常是内核页大小的倍数(page size, 4096bytes 或 4KB)。<br>
 执行应用程序：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sh ~/test.sh &amp;
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ sh ~/test.sh &amp;
 </code></pre></div><p>使用该进程PID，将其添加到<code>memory</code>控制器管理下，</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ echo <span style="color:#ae81ff">2845</span> &gt; /sys/fs/cgroup/memory/foo/cgroup.procs
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ echo <span style=color:#ae81ff>2845</span> &gt; /sys/fs/cgroup/memory/foo/cgroup.procs
 </code></pre></div><p>使用相同的 PID 号，列出正在运行的进程，并验证它是否在期望的 cgroup 中运行：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ ps -o cgroup <span style="color:#ae81ff">2845</span>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ ps -o cgroup <span style=color:#ae81ff>2845</span>
 CGROUP
-8:memory:/foo,1:name<span style="color:#f92672">=</span>systemd:/user.slice/user-0.slice/
+8:memory:/foo,1:name<span style=color:#f92672>=</span>systemd:/user.slice/user-0.slice/
 ↪session-4.scope
 </code></pre></div><p>您还可以通过读取指定的文件来监控该 cgroup 当前使用的资源。在这个例子中，你可能想看一下当前进程(以及派生的子进程)的内存使用量。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cat /sys/fs/cgroup/memory/foo/memory.usage_in_bytes
-<span style="color:#ae81ff">253952</span>
-</code></pre></div><h2 id="当程序不良运行">当程序不良运行</h2>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ cat /sys/fs/cgroup/memory/foo/memory.usage_in_bytes
+<span style=color:#ae81ff>253952</span>
+</code></pre></div><h2 id=当程序不良运行>当程序不良运行</h2>
 <p>还是上面的例子，我们将<code>cgroup/foo</code>内存限制调整为 500 bytes。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ echo <span style="color:#ae81ff">500</span> | sudo tee /sys/fs/cgroup/memory/foo/
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ echo <span style=color:#ae81ff>500</span> | sudo tee /sys/fs/cgroup/memory/foo/
 ↪memory.limit_in_bytes
 </code></pre></div><p><em>注意：如果一个任务超出了其定义的限制，内核将进行干预，在某些情况下，会终止该任务。</em><br>
 同样，再读这个值，因为它要是内核页大小的倍数。所以尽管你配置的是500字节，但实际上设置的是4KB。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cat /sys/fs/cgroup/memory/foo/memory.limit_in_bytes
-<span style="color:#ae81ff">4096</span>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ cat /sys/fs/cgroup/memory/foo/memory.limit_in_bytes
+<span style=color:#ae81ff>4096</span>
 </code></pre></div><p>启动应用，将其移动到cgroup中，并监控系统日志。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo tail -f /var/log/messages
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ sudo tail -f /var/log/messages
 
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: sh invoked oom-killer:
- ↪gfp_mask<span style="color:#f92672">=</span>0xd0, order<span style="color:#f92672">=</span>0, oom_score_adj<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: sh cpuset<span style="color:#f92672">=</span>/ mems_allowed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: CPU: <span style="color:#ae81ff">0</span> PID: <span style="color:#ae81ff">2687</span> Comm:
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: sh invoked oom-killer:
+ ↪gfp_mask<span style=color:#f92672>=</span>0xd0, order<span style=color:#f92672>=</span>0, oom_score_adj<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: sh cpuset<span style=color:#f92672>=</span>/ mems_allowed<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: CPU: <span style=color:#ae81ff>0</span> PID: <span style=color:#ae81ff>2687</span> Comm:
  ↪sh Tainted: G
-OE  ------------   3.10.0-327.36.3.el7.x86_64 <span style="color:#75715e">#1</span>
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: Hardware name: innotek GmbH
+OE  ------------   3.10.0-327.36.3.el7.x86_64 <span style=color:#75715e>#1</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: Hardware name: innotek GmbH
 VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: ffff880036ea5c00
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: ffff880036ea5c00
  ↪0000000093314010 ffff88000002bcd0 ffffffff81636431
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: ffff88000002bd60
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: ffff88000002bd60
  ↪ffffffff816313cc 01018800000000d0 ffff88000002bd68
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: ffffffffbc35e040
- ↪fffeefff00000000 <span style="color:#ae81ff">0000000000000001</span> ffff880036ea6103
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: Call Trace:
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff81636431&gt;<span style="color:#f92672">]</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: ffffffffbc35e040
+ ↪fffeefff00000000 <span style=color:#ae81ff>0000000000000001</span> ffff880036ea6103
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: Call Trace:
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: <span style=color:#f92672>[</span>&lt;ffffffff81636431&gt;<span style=color:#f92672>]</span>
  ↪dump_stack+0x19/0x1b
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff816313cc&gt;<span style="color:#f92672">]</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: <span style=color:#f92672>[</span>&lt;ffffffff816313cc&gt;<span style=color:#f92672>]</span>
  ↪dump_header+0x8e/0x214
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff8116d21e&gt;<span style="color:#f92672">]</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: <span style=color:#f92672>[</span>&lt;ffffffff8116d21e&gt;<span style=color:#f92672>]</span>
  ↪oom_kill_process+0x24e/0x3b0
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff81088e4e&gt;<span style="color:#f92672">]</span> ?
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: <span style=color:#f92672>[</span>&lt;ffffffff81088e4e&gt;<span style=color:#f92672>]</span> ?
  ↪has_capability_noaudit+0x1e/0x30
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff811d4285&gt;<span style="color:#f92672">]</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: <span style=color:#f92672>[</span>&lt;ffffffff811d4285&gt;<span style=color:#f92672>]</span>
  ↪mem_cgroup_oom_synchronize+0x575/0x5a0
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff811d3650&gt;<span style="color:#f92672">]</span> ?
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: <span style=color:#f92672>[</span>&lt;ffffffff811d3650&gt;<span style=color:#f92672>]</span> ?
  ↪mem_cgroup_charge_common+0xc0/0xc0
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff8116da94&gt;<span style="color:#f92672">]</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: <span style=color:#f92672>[</span>&lt;ffffffff8116da94&gt;<span style=color:#f92672>]</span>
  ↪pagefault_out_of_memory+0x14/0x90
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff8162f815&gt;<span style="color:#f92672">]</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: <span style=color:#f92672>[</span>&lt;ffffffff8162f815&gt;<span style=color:#f92672>]</span>
  ↪mm_fault_error+0x68/0x12b
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff816422d2&gt;<span style="color:#f92672">]</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: <span style=color:#f92672>[</span>&lt;ffffffff816422d2&gt;<span style=color:#f92672>]</span>
  ↪__do_page_fault+0x3e2/0x450
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff81642363&gt;<span style="color:#f92672">]</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: <span style=color:#f92672>[</span>&lt;ffffffff81642363&gt;<span style=color:#f92672>]</span>
  ↪do_page_fault+0x23/0x80
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff8163e648&gt;<span style="color:#f92672">]</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: <span style=color:#f92672>[</span>&lt;ffffffff8163e648&gt;<span style=color:#f92672>]</span>
  ↪page_fault+0x28/0x30
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: Task in /foo killed as
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: Task in /foo killed as
  ↪a result of limit of /foo
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: memory: usage 4kB, limit
- ↪4kB, failcnt <span style="color:#ae81ff">8</span>
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: memory+swap: usage 4kB,
- ↪limit 9007199254740991kB, failcnt <span style="color:#ae81ff">0</span>
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: kmem: usage 0kB, limit
- ↪9007199254740991kB, failcnt <span style="color:#ae81ff">0</span>
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: Memory cgroup stats <span style="color:#66d9ef">for</span> /foo:
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: memory: usage 4kB, limit
+ ↪4kB, failcnt <span style=color:#ae81ff>8</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: memory+swap: usage 4kB,
+ ↪limit 9007199254740991kB, failcnt <span style=color:#ae81ff>0</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: kmem: usage 0kB, limit
+ ↪9007199254740991kB, failcnt <span style=color:#ae81ff>0</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: Memory cgroup stats <span style=color:#66d9ef>for</span> /foo:
  ↪cache:0KB rss:4KB rss_huge:0KB mapped_file:0KB swap:0KB
  ↪inactive_anon:0KB active_anon:0KB inactive_file:0KB
  ↪active_file:0KB unevictable:0KB
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span> pid <span style="color:#f92672">]</span>   uid  tgid total_vm
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: <span style=color:#f92672>[</span> pid <span style=color:#f92672>]</span>   uid  tgid total_vm
  ↪rss nr_ptes swapents oom_score_adj name
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span> 2687<span style="color:#f92672">]</span>     <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">2687</span>    <span style="color:#ae81ff">28281</span>
- ↪347     <span style="color:#ae81ff">12</span>        <span style="color:#ae81ff">0</span>             <span style="color:#ae81ff">0</span> sh
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span> 2702<span style="color:#f92672">]</span>     <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">2702</span>    <span style="color:#ae81ff">28281</span>
- ↪50    <span style="color:#ae81ff">7</span>        <span style="color:#ae81ff">0</span>             <span style="color:#ae81ff">0</span> sh
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: Memory cgroup out of memory:
- ↪Kill process <span style="color:#ae81ff">2687</span> <span style="color:#f92672">(</span>sh<span style="color:#f92672">)</span> score <span style="color:#ae81ff">0</span> or sacrifice child
-Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: Killed process <span style="color:#ae81ff">2702</span> <span style="color:#f92672">(</span>sh<span style="color:#f92672">)</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: <span style=color:#f92672>[</span> 2687<span style=color:#f92672>]</span>     <span style=color:#ae81ff>0</span>  <span style=color:#ae81ff>2687</span>    <span style=color:#ae81ff>28281</span>
+ ↪347     <span style=color:#ae81ff>12</span>        <span style=color:#ae81ff>0</span>             <span style=color:#ae81ff>0</span> sh
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: <span style=color:#f92672>[</span> 2702<span style=color:#f92672>]</span>     <span style=color:#ae81ff>0</span>  <span style=color:#ae81ff>2702</span>    <span style=color:#ae81ff>28281</span>
+ ↪50    <span style=color:#ae81ff>7</span>        <span style=color:#ae81ff>0</span>             <span style=color:#ae81ff>0</span> sh
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: Memory cgroup out of memory:
+ ↪Kill process <span style=color:#ae81ff>2687</span> <span style=color:#f92672>(</span>sh<span style=color:#f92672>)</span> score <span style=color:#ae81ff>0</span> or sacrifice child
+Oct <span style=color:#ae81ff>14</span> 10:22:40 localhost kernel: Killed process <span style=color:#ae81ff>2702</span> <span style=color:#f92672>(</span>sh<span style=color:#f92672>)</span>
  ↪total-vm:113124kB, anon-rss:200kB, file-rss:0kB
-Oct <span style="color:#ae81ff">14</span> 10:22:41 localhost kernel: sh invoked oom-killer:
- ↪gfp_mask<span style="color:#f92672">=</span>0xd0, order<span style="color:#f92672">=</span>0, oom_score_adj<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
-<span style="color:#f92672">[</span> ... <span style="color:#f92672">]</span>
+Oct <span style=color:#ae81ff>14</span> 10:22:41 localhost kernel: sh invoked oom-killer:
+ ↪gfp_mask<span style=color:#f92672>=</span>0xd0, order<span style=color:#f92672>=</span>0, oom_score_adj<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>
+<span style=color:#f92672>[</span> ... <span style=color:#f92672>]</span>
 </code></pre></div><p>注意，一旦应用程序使用内存达到 4KB 限制，内核的 Out-Of-Memory Killer（或 oom-killer）就会介入。它杀死了应用程序。您可以下面的方式来验证这一点：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ ps -o cgroup <span style="color:#ae81ff">2687</span>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ ps -o cgroup <span style=color:#ae81ff>2687</span>
 CGROUP
-</code></pre></div><h2 id="使用-libcgroup">使用 libcgroup</h2>
+</code></pre></div><h2 id=使用-libcgroup>使用 libcgroup</h2>
 <p><code>libcgroup</code>软件包提供了简单的管理工具，上面很多操作步骤都可以用它实现。例如，使用cgcreate命令可以创建sysfs条目和文件。<br>
 在<code>memory</code>子系统下创建名字为foo的组，使用下面命令：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo cgcreate -g memory:foo
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ sudo cgcreate -g memory:foo
 </code></pre></div><p><em>注意：libcgroup 提供了一种用于管理<strong>控制组</strong>中的任务的机制。</em><br>
 使用与之前相同的方法，设置阈值：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ echo <span style="color:#ae81ff">50000000</span> | sudo tee
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ echo <span style=color:#ae81ff>50000000</span> | sudo tee
  ↪/sys/fs/cgroup/memory/foo/memory.limit_in_bytes
 </code></pre></div><p>验证配置：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo cat memory.limit_in_bytes
-<span style="color:#ae81ff">50003968</span>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ sudo cat memory.limit_in_bytes
+<span style=color:#ae81ff>50003968</span>
 </code></pre></div><p>使用 cgexec 命令在 <code>cgroup/foo</code> 下运行应用程序：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo cgexec -g memory:foo ~/test.sh
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ sudo cgexec -g memory:foo ~/test.sh
 </code></pre></div><p>使用它的 PID，验证应用程序是否在 cgroup 和定义的<code>memory</code>管理器下运行：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$  ps -o cgroup <span style="color:#ae81ff">2945</span>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$  ps -o cgroup <span style=color:#ae81ff>2945</span>
 CGROUP
-6:memory:/foo,1:name<span style="color:#f92672">=</span>systemd:/user.slice/user-0.slice/
+6:memory:/foo,1:name<span style=color:#f92672>=</span>systemd:/user.slice/user-0.slice/
 ↪session-1.scope
 </code></pre></div><p>如果您的应用程序不再运行，并且您想要清理并删除 cgroup，您可以使用 cgdelete。要从<code>memory</code>控制器下删除组 foo，请键入：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo cgdelete memory:foo
-</code></pre></div><h2 id="持久组">持久组</h2>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ sudo cgdelete memory:foo
+</code></pre></div><h2 id=持久组>持久组</h2>
 <p>通过简单的配置文件来启动服务，也可以完成上面的工作。你可以在<code>/etc/cgconfig.conf</code>文件中定义所有cgroup名字和属性。下面的例子中配置了foo组和它的一些属性。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cat /etc/cgconfig.conf
-<span style="color:#75715e">#</span>
-<span style="color:#75715e">#  Copyright IBM Corporation. 2007</span>
-<span style="color:#75715e">#</span>
-<span style="color:#75715e">#  Authors:     Balbir Singh &lt;balbir@linux.vnet.ibm.com&gt;</span>
-<span style="color:#75715e">#  This program is free software; you can redistribute it</span>
-<span style="color:#75715e">#  and/or modify it under the terms of version 2.1 of the GNU</span>
-<span style="color:#75715e">#  Lesser General Public License as published by the Free</span>
-<span style="color:#75715e">#  Software Foundation.</span>
-<span style="color:#75715e">#</span>
-<span style="color:#75715e">#  This program is distributed in the hope that it would be</span>
-<span style="color:#75715e">#  useful, but WITHOUT ANY WARRANTY; without even the implied</span>
-<span style="color:#75715e">#  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR</span>
-<span style="color:#75715e">#  PURPOSE.</span>
-<span style="color:#75715e">#</span>
-<span style="color:#75715e"># 默认，我们希望 systemd 默认加载所有内容</span>
-<span style="color:#75715e"># 所以没啥可做的</span>
-<span style="color:#75715e"># 详细内容查看 man cgconfig.conf</span>
-<span style="color:#75715e"># 了解如何在系统启动时使用该文件创建 cgroup</span>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ cat /etc/cgconfig.conf
+<span style=color:#75715e>#</span>
+<span style=color:#75715e>#  Copyright IBM Corporation. 2007</span>
+<span style=color:#75715e>#</span>
+<span style=color:#75715e>#  Authors:     Balbir Singh &lt;balbir@linux.vnet.ibm.com&gt;</span>
+<span style=color:#75715e>#  This program is free software; you can redistribute it</span>
+<span style=color:#75715e>#  and/or modify it under the terms of version 2.1 of the GNU</span>
+<span style=color:#75715e>#  Lesser General Public License as published by the Free</span>
+<span style=color:#75715e>#  Software Foundation.</span>
+<span style=color:#75715e>#</span>
+<span style=color:#75715e>#  This program is distributed in the hope that it would be</span>
+<span style=color:#75715e>#  useful, but WITHOUT ANY WARRANTY; without even the implied</span>
+<span style=color:#75715e>#  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR</span>
+<span style=color:#75715e>#  PURPOSE.</span>
+<span style=color:#75715e>#</span>
+<span style=color:#75715e># 默认，我们希望 systemd 默认加载所有内容</span>
+<span style=color:#75715e># 所以没啥可做的</span>
+<span style=color:#75715e># 详细内容查看 man cgconfig.conf</span>
+<span style=color:#75715e># 了解如何在系统启动时使用该文件创建 cgroup</span>
 
-group foo <span style="color:#f92672">{</span>
-  cpu <span style="color:#f92672">{</span>
-    cpu.shares <span style="color:#f92672">=</span> 100;
-  <span style="color:#f92672">}</span>
-  memory <span style="color:#f92672">{</span>
-    memory.limit_in_bytes <span style="color:#f92672">=</span> 5000000;
-  <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
+group foo <span style=color:#f92672>{</span>
+  cpu <span style=color:#f92672>{</span>
+    cpu.shares <span style=color:#f92672>=</span> 100;
+  <span style=color:#f92672>}</span>
+  memory <span style=color:#f92672>{</span>
+    memory.limit_in_bytes <span style=color:#f92672>=</span> 5000000;
+  <span style=color:#f92672>}</span>
+<span style=color:#f92672>}</span>
 </code></pre></div><p><code>cpu.shares</code>定义了cgroup的CPU优先级。默认，所有的组继承 1024 shares 或者说 100% CPU使用时间。降低该值，比如 100，该组将被限制在大约 10% CPU使用时间。<br>
 如前所述，cgroup 中的进程也可以被限制使用CPUs(core)数量，把下面的内容添加到cgconfig.conf文件相应的cgroup下：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">cpuset <span style="color:#f92672">{</span>
-  cpuset.cpus<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;0-5&#34;</span>;
-<span style="color:#f92672">}</span>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>cpuset <span style=color:#f92672>{</span>
+  cpuset.cpus<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;0-5&#34;</span>;
+<span style=color:#f92672>}</span>
 </code></pre></div><p>它将限制该cgroup使用索引为0到5的核心(core)，即仅能使用前6个CPU核心。<br>
 下面，需要使用<code>cgconfig</code>服务加载该配置文件。首先，配置<code>cgconfig</code>开机自启动加载上面的配置文件。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo systemctl enable cgconfig
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ sudo systemctl enable cgconfig
 Create symlink from /etc/systemd/system/sysinit.target.wants/
 ↪cgconfig.service
 to /usr/lib/systemd/system/cgconfig.service.
 </code></pre></div><p>现在，手动启动服务加载配置文件（或者直接重启操作系统）</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo systemctl start cgconfig
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ sudo systemctl start cgconfig
 </code></pre></div><p>在<code>cgroup/foo</code>下，启动应用，并将其和它的<code>memory</code>、<code>cpuset</code>和<code>cpu</code>限制进行绑定：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo cgexec -g memory,cpu,cpuset:foo ~/test.sh &amp;
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ sudo cgexec -g memory,cpu,cpuset:foo ~/test.sh &amp;
 </code></pre></div><p>除了将应用启动到预定义的cgroup中之外，剩下的操作系统重启后会一直存在。但是，你可以通过写一个依赖<code>cgconfig</code>服务的开机初始化脚本来启动应用。</p>
-
-      </div>
-    </div>
-  </div>
 </div>
-
-  </div>
-
-  <div class="footer">
-  <div class="container">
-    <div class="row">
-      <div class="col-12">
-        <div class="footer-inner">
-          
-          <ul class="social">
-              
-                  <li><a href="https://github.com/llaoj" target="blank"><img width="20" height="20" src="/social/github.svg" title="Github" alt="Github" /></a></li>
-              
-          </ul>
-          
-          <ul class="footer-menu">
-            <li><a href="https://www.rutron.net/">Home</a></li>
-            <li><a href="https://www.rutron.net/contact">Contact</a></li>
-            <li class="copyright">© 2022 如创科技</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
-  <div class="sub-footer">
-  <div class="container">
-    <div class="row">
-      <div class="col-12">
-        <div class="sub-footer-inner">
-          <ul>
-            
-            <li><strong>Phone: </strong>15666139166</li>
-            
-            
-            <li><strong>Email: </strong><a href="mailto:rutronnet@163.com">rutronnet@163.com</a></li>
-            
-          </ul>
-          <ul>
-            
-            <li class="zerostatic"><a href="https://beian.miit.gov.cn/#/Integrated/index">鲁ICP备2021035257号-1</a></li>
-            
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
-
-  
-
-  
-  
-
-  
-  <script type="text/javascript" src="/js/scripts.min.98ee06cc35517b5800b382aecb0fc59893e95b9c11dd21842d0d57e4f68043e3.js"></script>
-  
-
-  
-  
-  
-    
-  
-
-
+</div>
+</div>
+<div class=footer>
+<div class=container>
+<div class=row>
+<div class=col-12>
+<div class=footer-inner>
+<ul class=social>
+<li><a href=https://github.com/llaoj target=blank><img width=20 height=20 src=/social/github.svg title=Github alt=Github></a></li>
+</ul>
+<ul class=footer-menu>
+<li><a href=https://www.rutron.net/>Home</a></li>
+<li><a href=https://www.rutron.net/contact>Contact</a></li>
+<li class=copyright>© 2022 如创科技</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class=sub-footer>
+<div class=container>
+<div class=row>
+<div class=col-12>
+<div class=sub-footer-inner>
+<ul>
+<li><strong>Phone: </strong>15666139166</li>
+<li><strong>Email: </strong><a href=mailto:rutronnet@163.com>rutronnet@163.com</a></li>
+</ul>
+<ul>
+<li class=zerostatic><a href=https://beian.miit.gov.cn/#/Integrated/index>鲁ICP备2021035257号-1</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script type=text/javascript src=/js/scripts.min.98ee06cc35517b5800b382aecb0fc59893e95b9c11dd21842d0d57e4f68043e3.js></script>
 </body>
 </html>

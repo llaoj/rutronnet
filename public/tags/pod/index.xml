@@ -1,25 +1,6 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>pod on 如创科技</title>
-    <link>https://www.rutron.net/tags/pod/</link>
-    <description>Recent content in pod on 如创科技</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>zh</language>
-    <lastBuildDate>Tue, 08 Feb 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://www.rutron.net/tags/pod/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>kubernetes 中的 pod 究竟是什么</title>
-      <link>https://www.rutron.net/posts/2202/what-are-kubernetes-pods-anyway/</link>
-      <pubDate>Tue, 08 Feb 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://www.rutron.net/posts/2202/what-are-kubernetes-pods-anyway/</guid>
-      <description>前言 kubernetes 中 pod 的设计是一个伟大的发明, 今天我很有必要去聊一下 pod 和 container, 探究一下它们究竟是什么? kubernetes 官方文档中关于pod 概念介绍提供了一个完整的解释, 但写的不够详细, 表达过于专业, 但还是很推荐大家阅读一下. 当然这篇文档应该更接地气.
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>pod on 如创科技</title><link>https://www.rutron.net/tags/pod/</link><description>Recent content in pod on 如创科技</description><generator>Hugo -- gohugo.io</generator><language>zh</language><lastBuildDate>Tue, 08 Feb 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://www.rutron.net/tags/pod/index.xml" rel="self" type="application/rss+xml"/><item><title>kubernetes 中的 pod 究竟是什么</title><link>https://www.rutron.net/posts/2202/what-are-kubernetes-pods-anyway/</link><pubDate>Tue, 08 Feb 2022 00:00:00 +0000</pubDate><guid>https://www.rutron.net/posts/2202/what-are-kubernetes-pods-anyway/</guid><description>前言 kubernetes 中 pod 的设计是一个伟大的发明, 今天我很有必要去聊一下 pod 和 container, 探究一下它们究竟是什么? kubernetes 官方文档中关于pod 概念介绍提供了一个完整的解释, 但写的不够详细, 表达过于专业, 但还是很推荐大家阅读一下. 当然这篇文档应该更接地气.
 容器真的存在吗? linux 中是没有容器这个概念的, 容器就是 linux 中的普通进程, 它使用了 linux 内核提供的两个重要的特性: namespace &amp;amp; cgroups.
 namespace 提供了一种隔离的特性, 让它之外的内容隐藏, 给它下面的进程一个不被干扰的运行环境(其实不完全,下面说) .
 namespace 包含:
- hostname Process IDs File System Network Interface Inter-Process Communication(IPC)  接上面, 其实 namespace 内部的进程并不是完全不和外面的进程产生影响的. 进程可以不受限制的使用物理机上的所有资源, 这样就会导致其他进程无资源可用. 所以, 为了限制进程资源使用, linux 提供了另一种特性 cgroups. 进程可以像在 namespace 中运行, 但是 cgroups 限制了进程的可以使用的资源. 这些资源包括:
- CPU RAM block I/O network I/O etc.</description>
-    </item>
-    
-  </channel>
-</rss>
+hostname Process IDs File System Network Interface Inter-Process Communication(IPC) 接上面, 其实 namespace 内部的进程并不是完全不和外面的进程产生影响的. 进程可以不受限制的使用物理机上的所有资源, 这样就会导致其他进程无资源可用. 所以, 为了限制进程资源使用, linux 提供了另一种特性 cgroups. 进程可以像在 namespace 中运行, 但是 cgroups 限制了进程的可以使用的资源. 这些资源包括:
+CPU RAM block I/O network I/O etc.</description></item></channel></rss>
