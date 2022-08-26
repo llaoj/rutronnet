@@ -1,0 +1,2760 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>technology - 如创科技</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link rel="icon" href="https://www.rutron.net/favicon.png">
+
+  
+  
+  <link rel="stylesheet" href="/css/style.min.bed369b6636aa19e87512113b3caaa34b9db89c9c071f25efab970ae54757c9c.css">
+  
+
+  
+
+</head>
+
+<body class='page '>
+  <div id="main-menu-mobile" class="main-menu-mobile">
+  <ul>
+    
+    
+    <li class="menu-item-服务">
+      <a href="/services/">
+        
+        <span>服务</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-关于">
+      <a href="/about/">
+        
+        <span>关于</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-联系">
+      <a href="/contact/">
+        
+        <span>联系</span>
+      </a>
+    </li>
+    
+  </ul>
+</div>
+  <div id="wrapper" class="wrapper">
+    <div class='header header-absolute'>
+  <div class="container">
+    <div class="logo">
+      <a href="https://www.rutron.net/"><img height=40px width=40px alt="如创科技" src="/images/logo.png" /></a>
+    </div>
+    <div class="logo-mobile">
+      <a href="https://www.rutron.net/"><img height=40px width=40px alt="如创科技" src="/images/logo.png" /></a>
+    </div>
+    <div id="main-menu" class="main-menu">
+  <ul>
+    
+    
+    <li class="menu-item-服务">
+      <a href="/services/">
+        
+        <span>服务</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-关于">
+      <a href="/about/">
+        
+        <span>关于</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-联系">
+      <a href="/contact/">
+        
+        <span>联系</span>
+      </a>
+    </li>
+    
+  </ul>
+</div>
+    <button id="toggle-main-menu-mobile" class="hamburger hamburger--slider" type="button" aria-label="Toggle Menu">
+  <span class="hamburger-box">
+    <span class="hamburger-inner"></span>
+  </span>
+</button>
+  </div>
+</div>
+    
+
+<div class="container pt-10 pb-6">
+  <div class="row">
+    <div class="col-12">
+      <h1 class="title-1 black">technology</h1>
+      
+    </div>
+  </div>
+</div>
+
+<div class="container pb-6">
+  <div class="row">
+    
+    <div class="col-12 col-md-6 mb-2 "><p>新建集群的第一步就是要规划服务器、网络、操作系统等等, 下面就结合我平时的工作经验总结下相关的要求, 内容根据日常工作持续补充完善:</p>
+<h2 id="服务器配置">服务器配置</h2>
+<p>kubernetes 集群分为控制节点和数据节点, 它们对于配置的要求有所不同:</p>
+<h3 id="控制面">控制面</h3>
+<table>
+<thead>
+<tr>
+<th>节点规模</th>
+<th>Master规格</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1~5个节点</td>
+<td>4核 8Gi（不建议2核 4Gi）</td>
+</tr>
+<tr>
+<td>6~20个节点</td>
+<td>4核 16Gi</td>
+</tr>
+<tr>
+<td>21~100个节点</td>
+<td>8核 32Gi</td>
+</tr>
+<tr>
+<td>100~200个节点</td>
+<td>16核 64Gi</td>
+</tr>
+</tbody>
+</table>
+<p>系统盘40+Gi，用于储存 etcd 信息及相关配置文件等</p>
+<h3 id="数据面">数据面</h3>
+<ul>
+<li>规格：CPU &gt;= 4核, 内存 &gt;= 8Gi</li>
+<li>确定整个集群的日常使用的<strong>总核数</strong>以及<strong>可用度的容忍度</strong>
+<ul>
+<li>例如：集群总的核数有160核, 可以容忍10%的错误. 那么最小选择10台16核VM, 并且高峰运行的负荷不要超过 <code>160*90%=144核</code>. 如果容忍度是20%, 那么最小选择5台32核VM, 并且高峰运行的负荷不要超过<code>160*80%=128核</code>. 这样就算有一台VM出现故障, 剩余VM仍可以支持现有业务正常运行.</li>
+</ul>
+</li>
+<li>确定 <code>CPU:Memory</code> 比例. 对于使用内存比较多的应用, 例如Java类应用, 建议考虑使用1:8的机型</li>
+<li>比如: <code>virtual machine 32C 64G 200G系统盘 数据盘可选</code></li>
+</ul>
+<h3 id="什么情况下使用裸金属服务器">什么情况下使用裸金属服务器?</h3>
+<ul>
+<li>集群日常规模能够达到1000核。一台服务器至少96核，这样可以通过10台或11台服务器即可构建一个集群。</li>
+<li>快速扩大较多容器。例如：电商类大促，为应对流量尖峰，可以考虑使用裸金属来作为新增节点，这样增加一台裸金属服务器就可以支持很多个容器运行。</li>
+</ul>
+<h2 id="操作系统">操作系统</h2>
+<ul>
+<li>建议安装 ubuntu 18.04/debian buster/ubuntu 20.04/centos 7.9 优先级从高到低</li>
+<li>linux kenerl 4.17+</li>
+<li>安装 ansible v2.9 &amp; python-netaddr 以运行 ansible 命令</li>
+<li>安装 jinja 2.11+ 以运行 ansible playbooks</li>
+<li>允许 IPv4 forwarding</li>
+<li>部署节点的 ssh key 拷贝到所有节点</li>
+<li>禁用防火墙</li>
+</ul>
+<h2 id="网络">网络</h2>
+<ul>
+<li>单一集群采用统一的网卡命名比如:<code>eth0</code>等, 保证名称唯一</li>
+<li>没有特殊要求, 服务器要求可访问外网</li>
+</ul>
+<h2 id="集群规模限制">集群规模限制</h2>
+<ul>
+<li>每节点不超过 110 pods</li>
+<li>不超过 5k nodes</li>
+<li>总计不超过 15w pods</li>
+<li>总计不超过 30w containers</li>
+</ul>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://docs.ucloud.cn/uk8s/introduction/node_requirements">优刻得容器云UK8S集群节点配置推荐</a></li>
+<li><a href="https://help.aliyun.com/document_detail/98886.html">阿里云ACK容器服务之ECS选型</a></li>
+</ul>
+</div>
+    
+    <div class="col-12 col-md-6 mb-2 "><p><a href="https://metallb.universe.tf/">官方文档</a></p>
+<h2 id="为什么使用">为什么使用?</h2>
+<p>Kubernetes没有提供适用于裸金属集群的网络负载均衡器实现, 也就是<code>LoadBalancer</code>类型的Service. Kubernetes 附带的网络负载均衡器的实现都是调用各种 IaaS 平台（GCP、AWS、Azure ……）的胶水代码。 如果您没有在受支持的 IaaS 平台（GCP、AWS、Azure&hellip;）上运行，LoadBalancers 在创建时将一直保持在<code>pending</code>状态。</p>
+<p>裸金属集群的运维人员只剩下两个方式来将用户流量引入集群内: <code>NodePort</code>和<code>externalIPs</code>. 这两种在生产环境使用有很大的缺点, 这样, 裸金属集群也就成了 Kubernetes 生态中的第二类选择, 并不是首选.</p>
+<p>MetalLB 的目的是实现一个网络负载均衡器来与标准的网络设备集成, 这样这些外部服务就能尽可能的正常工作了.</p>
+<h2 id="要求">要求</h2>
+<p>MetalLB 要求如下:</p>
+<ul>
+<li>一个 Kubernetes 集群, Kubernetes 版本 1.13.0+, 没有网络负载均衡器功能.</li>
+<li>可以与 MetalLB 共存的集群网络配置。</li>
+<li>一些供 MetalLB 分发的 IPv4 地址。</li>
+<li>当使用 BGP 操作模式时，您将需要一台或多台能够发布 BGP 的路由器。</li>
+<li>使用 L2 操作模式时，节点之间必须允许 7946 端口（TCP 和 UDP，可配置其他端口）上的流量，这是 <a href="https://github.com/hashicorp/memberlist">hashicorp/memberlist</a> 的要求。</li>
+</ul>
+<h2 id="功能">功能</h2>
+<p>MetalLB 是作为 Kubernetes 中的一个组件, 提供了一个网络负载均衡器的实现. 简单来说, 在非公有云环境搭建的集群上, 不能使用公有云的负载均衡器, 它可以让你在集群中创建 LoadBalancer 类型的 Service.</p>
+<p>为了提供这样的服务, 它具备两个功能: 地址分配、对外发布</p>
+<h3 id="地址分配">地址分配</h3>
+<p>在公有云的 Kubernetes 集群中, 你申请一个负载均衡器, 云平台会给你分配一个 IP 地址. 在裸金属集群中, MetalLB 来做地址分配.</p>
+<p>MetalLB 不能凭空造 IP, 所以你需要提供供它使用的 IP 地址池. 在 Service 的创建和删除过程中, MetalLB 会对 Service 分配和回收 IP, 这些都是你配置的地址池中的 IP.</p>
+<p>如何获取 MetalLB 的 IP 地址池取决于您的环境。 如果您在托管设施中运行裸机集群，您的托管服务提供商可能会提供 IP 地址供出租。 在这种情况下，您将租用例如 /26 的 IP 空间（64 个地址），并将该范围提供给 MetalLB 以用于集群服务。</p>
+<p>同样, 如果你的集群是纯私有的, 可以提供一个没有暴露到网络中的相邻的 LAN 网段. 这种情况下, 你可以抽取私有地址空间中的一段 IP 地址, 分配给 MetalLB. 这种地址是免费的, 只要你把它提供给当前 LAN 内的集群服务, 它们就能正常工作.</p>
+<p>或者你可以两者都用! MetalLB 可以让你定义多个地址池, 它很方便.</p>
+<h3 id="对外发布">对外发布</h3>
+<p>当 MetalLB 给 Service 分配一个对外使用的IP之后, 它需要让集群所在的网络知道这个 IP 的存在. MetalLB 使用标准的网络/路由协议来实现, 这要看具体的工作模式: ARP、NDP 或者 BGP.</p>
+<h4 id="2层模式-arpndp">2层模式 (ARP/NDP)</h4>
+<p>在2层模式下, 集群中的机器使用标准地址发现协议把这些 IPs 通知本地网络. 从 LAN 的角度看, 这台服务器有多个 IP 地址. 这个模式的详细行为还有局限性下面会介绍.</p>
+<h4 id="bgp">BGP</h4>
+<p>在 BGP 模式下, 集群中的所有机器与临近的路由器建立 BGP 对等会话, 告诉他们如何路由 Service IPs. 得益于 BGP 的策略机制, 使用 BGP 能实现真正的多节点负载均衡和细粒度的流量控制. 下面会介绍更多操作和局限性方面的细节.</p>
+<h2 id="工作模式">工作模式</h2>
+<h3 id="2层模式">2层模式</h3>
+<p>在2层工作模式下, 一个节点负责向本地网络发布服务. 从网络的角度看, 更像是这台服务器的网卡有多个 IP 地址. 在底层, MetalLB 会响应ARP请求(IPv4)和NDP请求(IPv6). 这个工作模式的最大的优势就是适应性强: 它能工作在任何以太网内, 没有特殊的硬件要求, 不需要花哨的路由器.</p>
+<h4 id="负载均衡行为">负载均衡行为</h4>
+<p>在2层模式下, 发给 Service IP 的流量都会到一个节点上. 在该节点上, <code>kube-proxy</code> 将流量分发到服务具体的 pods 上. L2 并没有实现负载均衡.</p>
+<p>但是, 它实现了一个错误转移机制, 当领袖节点因为某些原因故障了, 另一个节点就会接管这些 IP 地址. 故障转移是自动的: 使用 <a href="https://github.com/hashicorp/memberlist">hashicorp/memberlist</a> 检测到节点发生故障, 同时新的节点会从故障节点上接管这些 IP.</p>
+<h4 id="局限性">局限性</h4>
+<p>L2模式有两个主要局限性: 单点的瓶颈、潜在的缓慢故障转移.</p>
+<p>如上面说的, 在 L2 模式下, 选举产生的单一的领袖节点会接收所有的服务流量. 这意味着, 你服务的入口带宽受限与这个单一节点的带宽. 如果使用 ARP/NDP 引导流量, 这是一个基本限制.</p>
+<p>当前的实现, 节点之间的故障转移依赖客户端之间的配合. 当故障发生时, MetalLB 会不经请求的发送出一些2层的数据包, 来通知其他客户端 Service IP 所对应的 MAC 地址已经更改.</p>
+<p>大多数操作系统能正确处理这种数据包, 同时更新“邻居”的地址缓存. 这种情况下, 故障转移也就几秒钟. 但是, 还是有个别系统要么没有实现这种报文的处理, 要么实现了, 但是更新缓存很慢.</p>
+<p>好在所有现代版本的操作系统都正确实现了 L2 故障转移, 比如 Windows、Mac、Linux. 所以, 出问题的仅仅是很老或者不常见的操作系统.</p>
+<p>为了最大限度地减少计划内的故障转移对客户端的影响，应该让旧的领袖节点多运行几分钟, 以便它可以继续为旧客户端转发流量，直到它们的缓存刷新。</p>
+<p>当一个计划之外的故障出现时, 在访问出错的客户端刷新它们的缓存之前, 这些 Service IPs 将不可达.</p>
+<h4 id="和-keepalive-比较">和 keepalive 比较</h4>
+<p>MetalLB 的2层模式和 keepalived 有很多相似之处. 所以, 如果你熟悉 keepalived, 我说的很多你应该很熟悉. 但是和它也有一些不同的地方需要说一下.</p>
+<p>Keepalived 使用虚拟路由器冗余协议(VRRP). 为了选举领袖并监控该领导者何时离开, keepalived 的各实例之间不断地相互交换 VRRP 消息。</p>
+<p>不一样的是, MetalLB 通过 memberlist 来知道什么时候集群中的节点不可达, 什么时候这个节点的 Service IPs 需要移动到别处.</p>
+<p>Keepalived 和 MetalLB 从客户端的角度看起来是一样的: 当发生故障转移时，Service IP 地址从一台机器迁移到另一台机器，之后该机器就会有多个 IP 地址。</p>
+<p>因为它不用 VRRP, MetalLB 并不会有这个协议本身的局限性. 比如: VRRP协议限制每个网络只能有255个负载均衡器实例, 但是 MetalLB 就没有这个限制. 只要你网络中有空闲IP, 你可以有很多负载均衡器实例.</p>
+<p>还有, 配置上 MetalLB 比 Keepalived 少, 比如它不需要 <code>Virtual Router IDs</code>.</p>
+<p>另一方面，由于 MetalLB 依赖于 memberlist 来获取集群成员信息，它无法与第三方 VRRP 感知路由器和基础设施进行互操作。 这是MetalLB的定位: MetalLB 专门设计<strong>用于在 Kubernetes 集群内</strong>提供负载平衡和故障转移.</p>
+<h3 id="bgp模式">BGP模式</h3>
+<p>在 BGP 模式下，集群中的每个节点都会与您的网络路由器建立 BGP 对等会话，并使用该对等会话来通告外部集群服务的 IP.</p>
+<p>假设您的路由器配置为支持多路径，这将实现真正的负载平衡: MetalLB 发布的路由彼此等效。这意味着路由器将使用所有下一跳，并在它们之间进行负载平衡.</p>
+<p>数据包到达节点后，kube-proxy 负责流量路由的最后一跳，将数据包送到服务中的特定 pod.</p>
+<h4 id="负载均衡行为-1">负载均衡行为</h4>
+<p>负载均衡的确切行为取决于您的特定路由器型号和配置，但常见的行为是基于 <code>packet-hash</code> 方法在连接层面 <code>per-connection</code> 进行平衡。这是什么意思?</p>
+<p>这个<code>per-connection</code>意味着单个 TCP 或 UDP 会话的<strong>所有数据包</strong>将被定向到集群中的单个机器。流量传播只发生在不同的连接之间，而不是一个连接内的数据包. 这是一件好事，因为在多个集群节点上传播数据包会导致一些问题：</p>
+<ul>
+<li>跨多个传输路径传播单个连接会导致数据包(packet)在线路上重新排序，这会极大地影响终端主机的性能。</li>
+<li>在 Kubernetes 中, 不能保证节点之间流量的路由保持一致。这意味着两个不同的节点可以将同一连接的数据包(packet)路由到不同的 Pod，这将导致连接失败。</li>
+</ul>
+<p>高性能路由器能够以一种无状态的方式在多个后端之间使用数据包哈希的方法分发数据包. 对于每一个数据包, 它们拥有一些属性, 并能用它作为 “种子” 来决定选择哪一个后端. 如果, 所有的属性都一样, 它们就会选择同一个后端.</p>
+<p>具体使用哪种哈希方法取决于路由器的硬件和软件. 典型的方法是: <code>3-tuple</code> 和 <code>5-tuple</code>. 3-tuple 哈希法使用数据包中的协议、源IP、目的IP作为哈希键, 这意味着来自不同ip的数据包会进入同一个后端. 5-tuple 哈希法又在其中加入了源端口和目的端口, 所有来自相同客户端的不同连接将会在集群中均衡分布.</p>
+<p>通常, 我们推荐加入尽可能多的属性来参与数据包哈希, 也就是说使用更多的属性是非常好的. 因为这样会更加接近理想的负载均衡状态, 每一个节点都会收到相同数量的数据包. 但是我们永远不会达到这种理想状态, 因为上述原因, 但是我们能做的就是尽可能的均匀的传播连接, 以防止出现主机热点.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># 一个连接(connection)由多个连续的数据包(packet)构成</span>
+<span style="color:#75715e"># 比如: </span>
+connection <span style="color:#ae81ff">1</span> : source<span style="color:#f92672">[</span>ip:port<span style="color:#f92672">]</span> -packet N-&gt;...-packet 1-&gt; target<span style="color:#f92672">[</span>ip:port<span style="color:#f92672">]</span>
+connection <span style="color:#ae81ff">2</span> : source<span style="color:#f92672">[</span>ip:port<span style="color:#f92672">]</span> -packet N-&gt;...-packet 1-&gt; target<span style="color:#f92672">[</span>ip:port<span style="color:#f92672">]</span>
+</code></pre></div><h4 id="局限性-1">局限性</h4>
+<p>使用 BGP 作为负载均衡机制可以让你使用标准的路由器硬件, 而不是定制的负载均衡器. 但是, 这也带来的一些缺点:</p>
+<p>最大的缺点是基于 BGP 的负载平衡不能优雅地响应后端设置的地址更改. 也就是说, 当集群的一个节点下线了, 到你服务的所有成功的连接都会损坏(用户会看到报错:<code>Connection reset by peer</code>)</p>
+<p>基于 BGP 的路由器实现无状态负载均衡。 他们通过哈希数据包头中的一些字段并将该哈希用作可用后端数组的索引，将给定数据包分配给特定的下一跳。</p>
+<p>问题是路由器中使用的哈希值通常<em>不稳定</em>，所以每当后端集的大小发生变化时（例如，当一个节点的 BGP 会话关闭时），现有的连接将被有效地随机重新哈希，这意味着大多数现有的 连接最终会突然被转发到不同的后端，一个不知道相关连接的后端。</p>
+<p>结果是每当你的服务的 <code>IP &gt; Node</code> 映射发生变化时, 你希望看到一次性干净的切换出现, 到该服务的大部分所有可用连接中断. 没有持续的丢包或者黑洞, 只是一次很干净的中断而已.</p>
+<p>根据您的服务的用途，您可以采用几种缓解策略：</p>
+<ul>
+<li>你的 BGP 路由器可能有更加稳定的ECMP哈希算法. 有时候可能叫: <code>弹性ECMP</code> 或 <code>弹性LAG</code>. 使用这样的算法, 在后端集合发生变化的时候, 能有效的减少受影响的连接数量.</li>
+<li>把这些需要外部访问的服务部署到特定的节点上, 来减小节点池的大小, 平时看好这些节点.</li>
+<li>把服务的变更安排在流量的低谷时候, 此时你的用户在睡觉流量很低.</li>
+<li>把每一个逻辑上的服务拆分成两个有着不同 IP 的 kubernetes 服务, 使用DNS服务优雅的将用户流量从将要中断的服务迁移到另一个服务上.</li>
+<li>在客户端添加重试逻辑, 以优雅地从突然断开连接中恢复. 如果您的客户是移动应用程序或丰富的单页网络应用程序, 这尤其适用.</li>
+<li>将您的服务放在 ingress 控制器后面. ingress 控制器本身可以使用 MetalLB 来接收流量, 但是在 BGP 和您的服务之间有一个状态层意味着您可以毫无顾虑地更改您的服务。 您只需在更改 ingress 控制器本身的部署时小心(例如, 在添加更多 NGINX pod 时).</li>
+<li>接受偶尔会出现重置连接的情况. 对于低可用性的内部服务, 这可能是可以接受的.</li>
+</ul>
+<h4 id="frr-模式">FRR 模式</h4>
+<p>MetalLB 提供了一个实验模式: 使用 FRR 作为 BGP 层的后端.</p>
+<p>开启 FRR 模式之后, 会获得以下额外的特性:</p>
+<ul>
+<li>由BFD支持的BGP会话</li>
+<li>BGP和BFD都支持IPv6</li>
+<li>多协议支持的BGP</li>
+</ul>
+<h5 id="frr-模式的局限性">FRR 模式的局限性</h5>
+<p>相比与原生实现, FRR 模式有以下局限性:</p>
+<ul>
+<li><code>BGPAdvertisement</code> 的 <code>RouterID</code> 字段可以被覆盖，但它必须对所有的 advertisements 都相同（不能有不同的 advertisements 具有不同的 RouterID）。</li>
+<li><code>BGPAdvertisement</code> 的 <code>myAsn</code> 字段可以被覆盖，但它必须对所有 advertisements 都相同(不能有不同的 advertisements 具有不同的 myAsn)</li>
+<li>如果 eBGP Peer 是距离节点多跳的, 则 <code>ebgp-multihop</code> 标志必须设置为 <code>true</code></li>
+</ul>
+<h2 id="安装">安装</h2>
+<p>安装之前, 确保满足所有<a href="#%E8%A6%81%E6%B1%82">要求</a>. 尤其是, 你要注意<a href="#%E7%BD%91%E7%BB%9C%E9%99%84%E5%8A%A0%E7%BB%84%E4%BB%B6%E7%9A%84%E5%85%BC%E5%AE%B9%E6%80%A7">网络附加组件的兼容性</a></p>
+<p>如果你在云平台环境运行 MetalLB, 你最好先看看<a href="https://metallb.universe.tf/installation/clouds/">云环境兼容性</a>页面, 确保你选择的云平台可以和 MetalLB 一起正常工作(大多数情况下都不好用).</p>
+<p>MetalLB 支持4种安装方式:</p>
+<ul>
+<li>使用 Kubernetes 部署清单安装</li>
+<li>使用 Kustomize 安装</li>
+<li>使用 Helm 安装</li>
+<li>使用 MetalLB Operator 安装</li>
+</ul>
+<h3 id="准备">准备</h3>
+<p>如果您在 IPVS 模式下使用 kube-proxy，则从 Kubernetes v1.14.2 开始，您必须启用严格的 ARP 模式。</p>
+<blockquote>
+<p>请注意，如果您使用 kube-router 作为服务代理，则不需要这个，因为它默认启用严格的 ARP。</p>
+</blockquote>
+<p>你可以在集群中修改 kube-proxy 的配置文件:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl edit configmap -n kube-system kube-proxy
+</code></pre></div><p>这样配置:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">kubeproxy.config.k8s.io/v1alpha1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">KubeProxyConfiguration</span>
+<span style="color:#f92672">mode</span>: <span style="color:#e6db74">&#34;ipvs&#34;</span>
+<span style="color:#f92672">ipvs</span>:
+  <span style="color:#f92672">strictARP</span>: <span style="color:#66d9ef">true</span>
+</code></pre></div><p>你也可以把这个配置片段加入到你的 <code>kubeadm-config</code> 中, 在主配置后面使用 <code>---</code> 附加上它就行.</p>
+<p>如果你想自动更改配置, 下面的 shell 脚本可以用:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># 查看将会发生什么样的配置变化, 如果存在不同则返回非零返回值</span>
+kubectl get configmap kube-proxy -n kube-system -o yaml | <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>sed -e <span style="color:#e6db74">&#34;s/strictARP: false/strictARP: true/&#34;</span> | <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>kubectl diff -f - -n kube-system
+
+<span style="color:#75715e"># 实际应用变更, 仅在遇到错误的时候返回非零返回值</span>
+kubectl get configmap kube-proxy -n kube-system -o yaml | <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>sed -e <span style="color:#e6db74">&#34;s/strictARP: false/strictARP: true/&#34;</span> | <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>kubectl apply -f - -n kube-system
+</code></pre></div><h3 id="使用部署清单安装">使用部署清单安装</h3>
+<p>使用下面的部署清单, 来安装MetalLB:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://raw.githubusercontent.com/
+metallb/metallb/v0.13.4/config/manifests/metallb-native.yaml
+</code></pre></div><blockquote>
+<p>如果你想开启使用实验性的FRR模式, 使用下面的部署清单
+<code>kubectl apply -f https://raw.githubusercontent.com</code>
+<code>/metallb/metallb/v0.13.4/config/manifests/metallb-frr.yaml</code>
+注意: 这些部署清单来自开发分支. 如果应用在生产环境, 强烈推荐你使用稳定的发布版本.</p>
+</blockquote>
+<p>这样, 在 <code>metallb-system</code> 名称空间下就部署了 MetalLB. 主要组件是:</p>
+<ul>
+<li>Deployment: <code>metallb-system/controller</code>, 这是集群级别的控制器, 负责处理 IP 分配.</li>
+<li>Daemonset: <code>metallb-system/speaker</code>, 这个组件使用你选择的协议对外发送信息, 使你的 Service 可以被访问.</li>
+<li>ServiceAccount: controller 和 speaker 所使用的, 同时配置好了组件所需要的 RBAC 权限.</li>
+</ul>
+<p>该安装清单并不包含配置文件, 但是 MetalLB 组件仍会启动, 在你<a href="#%E9%85%8D%E7%BD%AE">部署相关配置资源</a>之前, 它保持空闲状态.</p>
+<h3 id="其他安装方式">其他安装方式</h3>
+<p>另外的三种安装方式(Kustomize, Helm, MetalLB Operator)请查看<a href="https://metallb.universe.tf/installation/">官方文档</a></p>
+<h3 id="网络附加组件的兼容性">网络附加组件的兼容性</h3>
+<p>通常来说, MetalLB 并不关心你集群用什么网络附件组件, 只要它能满足 Kubernetes 要求的标准就可以.</p>
+<p>下面是一些网络附加组件与 MetalLB 一起测试的结果, 可以供你参考. 列表中没有的附加组件可能也可以正常工作, 只是我们没有测试.</p>
+<table>
+<thead>
+<tr>
+<th>网络附加组件</th>
+<th>兼容性</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Antrea</td>
+<td>可以</td>
+<td>1.4和1.5版本测试通过</td>
+</tr>
+<tr>
+<td>Calico</td>
+<td>大部分可以</td>
+<td>Calico也提供了使用BGP公布LoadBalancer IP的能力 <a href="https://metallb.universe.tf/configuration/calico/">详细</a></td>
+</tr>
+<tr>
+<td>Canal</td>
+<td>可以</td>
+<td></td>
+</tr>
+<tr>
+<td>Cilium</td>
+<td>可以</td>
+<td></td>
+</tr>
+<tr>
+<td>Flannel</td>
+<td>可以</td>
+<td></td>
+</tr>
+<tr>
+<td>Kube-ovn</td>
+<td>可以</td>
+<td></td>
+</tr>
+<tr>
+<td>Kube-router</td>
+<td>大部分可以</td>
+<td><a href="https://metallb.universe.tf/configuration/kube-router/">已知问题</a></td>
+</tr>
+<tr>
+<td>Weave Net</td>
+<td>大部分可以</td>
+<td><a href="https://metallb.universe.tf/configuration/weave/">已知问题</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="配置">配置</h2>
+<p>在配置之前, MetalLB一直保持空闲状态. 想要配置 MetalLB, 需要在 MetalLB 所在的名称空间(通常是 <code>metallb-system</code>)部署很多和配置相关的资源.</p>
+<p>当然, 如果你没有把 MetalLB 部署到 <code>metallb-system</code> 名称空间下, 你可能需要修改下面的配置清单.</p>
+<h3 id="为loadbalancer类型服务定义可分配的ip地址">为<code>LoadBalancer</code>类型服务定义可分配的IP地址</h3>
+<p>为了能给 Services 分配 IPs, MetalLB 通过 <code>IPAddressPool</code> 自定义资源来定义.</p>
+<p>通过 <code>IPAddressPools</code> 定义好 IPs 地址池之后, MetalLB 就会使用这些地址给 Services 分配 IP.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">IPAddressPool</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">first-pool</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">addresses</span>:
+  - <span style="color:#ae81ff">192.168.10.0</span><span style="color:#ae81ff">/24</span>
+  - <span style="color:#ae81ff">192.168.9.1-192.168.9.5</span>
+  - <span style="color:#ae81ff">fc00:f853:0ccd:e799::/124</span>
+</code></pre></div><p>可以同时定义多个 <code>IPAddressPools</code> 资源. 可以使用 CIDR 定义地址, 也可以使用范围区间定义, 也可以定义 IPv4 和 IPv6 地址用于分配.</p>
+<h3 id="对外公布service-ips">对外公布Service IPs</h3>
+<p>一旦给 Service 分配IPs之后, 它们必须要公布出去. 具体的配置要根据你想使用的协议来定, 下面会一一介绍:</p>
+<p><em>注意: 也可以同时将一个 service 同时通过 L2 和 BGP 对外公布.</em></p>
+<h3 id="使用-l2-模式的配置">使用 L2 模式的配置</h3>
+<p>配置2层模式最简单, 在多数情况下, 你不需要任何关于协议的配置, 只配置IP地址就行.</p>
+<p>使用2层模式<strong>不需要将IP地址绑定到工作节点的网络接口上</strong>. 它直接响应本地网络上的ARP请求，将机器的MAC地址提供给客户端。</p>
+<p>为了公布来自 <code>IPAddressPool</code> 的 IP, <code>L2Advertisement</code> 资源必须与 <code>IPAddressPool</code> 资源一起使用.</p>
+<p>比如, 下面的例子配置了 MetalLB 可以分配从 192.168.1.240 到 192.168.1.250 之间的地址, 并配置它使用2层模式:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">IPAddressPool</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">first-pool</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">addresses</span>:
+  - <span style="color:#ae81ff">192.168.1.240-192.168.1.250</span>
+---
+<span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">L2Advertisement</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">example</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+</code></pre></div><p>上面的例子, 在 <code>L2Advertisement</code> 中没有配置 <code>IPAddressPool</code> 选择器, 这样它能使用所有的 IP 地址.</p>
+<p>所以, 为了只将一部分 <code>IPAddressPool</code>s 使用 L2 对外公布, 我们就需要声明一下(或者, 使用标签选择器).</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">L2Advertisement</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">example</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">ipAddressPools</span>:
+  - <span style="color:#ae81ff">first-pool</span>
+</code></pre></div><h3 id="使用-bgp-模式的配置">使用 BGP 模式的配置</h3>
+<p>需要告诉 MetalLB 如何与外部一个或多个 BGP 路由器建立会话.</p>
+<p>所以, 需要给每一个 MetalLB 需要连接到路由器建一个 <code>BGPPeer</code> 资源.</p>
+<p>为了能提供一个基础的 BGP 路由器配置和一个 IP 地址范围, 你需要定义4段信息.</p>
+<ul>
+<li>MetalLB 需要连接的路由器地址</li>
+<li>路由器的AS编号</li>
+<li>MetalLB 使用的AS编号</li>
+<li>使用CIDR前缀表示IP地址范围</li>
+</ul>
+<p>比如给MetalLB分配的AS编号为64500, 并且将它连接到地址为 <code>10.0.0.1</code> 且AS编号为 64501 的路由器，您的配置将如下所示：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta2</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">BGPPeer</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">sample</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">myASN</span>: <span style="color:#ae81ff">64500</span>
+  <span style="color:#f92672">peerASN</span>: <span style="color:#ae81ff">64501</span>
+  <span style="color:#f92672">peerAddress</span>: <span style="color:#ae81ff">10.0.0.1</span>
+</code></pre></div><p>提供一个IP地址池 <code>IPAddressPool</code> 像这样:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">IPAddressPool</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">first-pool</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">addresses</span>:
+  - <span style="color:#ae81ff">192.168.1.240-192.168.1.250</span>
+</code></pre></div><p>使用自定义资源<code>BGPAdvertisement</code>来配置MetalLB使用BGP来公布IPs:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">BGPAdvertisement</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">example</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+</code></pre></div><p>在<code>BGPAdvertisement</code>的定义中, 如果没有配置<code>IPAddressPool</code>选择器, 默认使用所有可用的IP地址池<code>IPAddressPools</code></p>
+<p>如果仅需要使用特定的IP地址池通过BGP进行地址公布, 则需要声明一个IP地址池列表<code>ipAddressPools</code>(或者使用标签选择器):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">BGPAdvertisement</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">example</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">ipAddressPools</span>:
+  - <span style="color:#ae81ff">first-pool</span>
+</code></pre></div><h3 id="为-bgp-会话开启-bfd-支持">为 BGP 会话开启 BFD 支持</h3>
+<p>在实验的FRR模式下, BGP会话可以由BFD会话取代，从而能实现比单纯使用BGP更快的路径故障检测的能力.</p>
+<p>想要开启BFD, 你必须定义个BFD配置<code>BFDProfile</code>, 并且和BGP会话对等方配置<code>BGPPeer</code>关联起来:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">BFDProfile</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">testbfdprofile</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">receiveInterval</span>: <span style="color:#ae81ff">380</span>
+  <span style="color:#f92672">transmitInterval</span>: <span style="color:#ae81ff">270</span>
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta2</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">BGPPeer</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">peersample</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">myASN</span>: <span style="color:#ae81ff">64512</span>
+  <span style="color:#f92672">peerASN</span>: <span style="color:#ae81ff">64512</span>
+  <span style="color:#f92672">peerAddress</span>: <span style="color:#ae81ff">172.30.0.3</span>
+  <span style="color:#f92672">bfdProfile</span>: <span style="color:#ae81ff">testbfdprofile</span>
+</code></pre></div><h3 id="配置验证">配置验证</h3>
+<p>部署时 MetalLB 会安装配置验证的钩子程序 <code>validatingwebhook</code>, 用来检查用户部署的自定义资源的有效性.</p>
+<p>但是, 因为 MetalLB 的整体配置被分隔成很多分片, 不是所有的无效配置都能被钩子程序避免. 所以, 一旦无效的 MetalLB 配置资源被成功部署了, MetalLB 会忽略它, 并使用最新的有效配置.</p>
+<p>未来的版本中, MetalLB 会把错误的配置暴露到 Kubernetes 资源中. 但是, 目前来说, 如果需要知道为什么配置没有生效, 就需要去查看一下控制器的日志.</p>
+<h3 id="更多高级配置">更多高级配置</h3>
+<p>关于地址分配、BGP、L2、calico等相关的高级配置, 请参考<a href="https://metallb.universe.tf/configuration/_advanced_ipaddresspool_config/">官方文档</a></p>
+<h2 id="如何使用">如何使用</h2>
+<p>当安装并配置完 MetalLB 之后, 为了对外暴露 Service, 非常简单, 将 Service 的 <code>spec.type</code> 配置为 <code>LoadBalancer</code>, 剩下的就交给 MetalLB 就好了.</p>
+<p>MetalLB 会给它控制的 Service 添加一些事件, 如果你的 <code>LoadBalancer</code> 类型的 service 表现的不符合预期, 可以执行<code>kubectl describe service &lt;service name&gt;</code>查看事件日志.</p>
+<h3 id="请求特定的ips">请求特定的IPs</h3>
+<p>MetalLB 尊重<code>spec.loadBalancerIP</code>参数, 所以, 如果你想要使用一个特定的IP地址, 你可以通过配置这个参数来指定. 如果MetalLB没有你申请的IP地址, 或者如果你申请的IP地址已经被其他的服务占用了, 地址分配就会失败, MetalLB会记录一个Warning级别的事件, 你通过<code>kubectl describe service &lt;service name&gt;</code>就能看到.</p>
+<p>MetalLB不仅支持<code>spec.loadBalancerIP</code>参数, 还支持一个自定义 annotation 参数: <code>metallb.universe.tf/loadBalancerIPs</code>. 对于有些双栈的 Service 需要多个IPs, 这个 annotation 也支持使用逗号分隔指定多个IPs</p>
+<p><strong>请注意</strong>: 在 kubernetes 的API中, <code>spec.LoadBalancerIP</code>参数未来计划会被废弃. <a href="https://github.com/kubernetes/kubernetes/pull/107235">请看这</a></p>
+<p>如果你想使用特定的类型的IP, 但是不在乎具体是什么地址, MetalLB同样也支持请求一个特定的IP地址池. 为能能使用特定的地址池, 你需要在 Service 中添加一个 annotation: <code>metallb.universe.tf/address-pool</code>, 来指定IP地址池的名称. 比如:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Service</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nginx</span>
+  <span style="color:#f92672">annotations</span>:
+    <span style="color:#f92672">metallb.universe.tf/address-pool</span>: <span style="color:#ae81ff">production-public-ips</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">ports</span>:
+  - <span style="color:#f92672">port</span>: <span style="color:#ae81ff">80</span>
+    <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">80</span>
+  <span style="color:#f92672">selector</span>:
+    <span style="color:#f92672">app</span>: <span style="color:#ae81ff">nginx</span>
+  <span style="color:#f92672">type</span>: <span style="color:#ae81ff">LoadBalancer</span>
+</code></pre></div><h3 id="流量策略">流量策略</h3>
+<p>MetalLB 理解并尊重服务的 <code>externalTrafficPolicy</code> 选项，并根据您选择的策略和公告协议实现不同的公告模式。</p>
+<h4 id="layer2">Layer2</h4>
+<p>当使用2层模式公布的时候, 集群中的一个节点会接收给 Service IP 的流量. 从那开始, 行为就取决于选择的流量策略.</p>
+<h5 id="cluster流量策略"><code>Cluster</code>流量策略</h5>
+<p>使用默认的<code>Cluster</code>流量策略, 节点上的<code>kube-proxy</code>接收流量并负载均衡, 并且将流量分发给 Service 对应的 Pod.</p>
+<p>这种策略下 pods 之间的流量是均匀分布的. 但是<code>kube-proxy</code>在进行负载均衡的时候会隐藏真实的源IP地址, 因此, 在 pod 的日志中会看到外部流量来自 MetalLB 的领袖节点.</p>
+<h5 id="local流量策略"><code>Local</code>流量策略</h5>
+<p>使用<code>Local</code>流量策略, 节点上的<code>kube-proxy</code>接收流量, 同时将流量发送给当前节点的 pod. 因为 kube-proxy 不会跨集群节点分发流量, 你的 pod 可以看到真实的源IP地址.</p>
+<p>这个策略的缺点是, 流量仅能流向 Service 对应的某些 pod. 那些不在领袖节点上的 Pod 是无法接收到任何流量的, 他们可以暂时当作副本存在, 当 MetalLB 发生故障转移的时候他们或许可以接收流量.</p>
+<h4 id="bgp-1">BGP</h4>
+<p>当通过 BGP 发布时, MetalLB尊重Service的<code>externalTrafficPolicy</code>选项, 按照用户选择的策略实现了两种不同的发布模式.</p>
+<h5 id="cluster流量策略-1"><code>Cluster</code>流量策略</h5>
+<p>使用默认的<code>Cluster</code>流量策略, 集群中的每个节点都会接收服务 IP 的流量。 在每个节点上，流量都经过第二次负载均衡（由 kube-proxy 提供），它将流量引导到各个 pod。</p>
+<p>此策略会在集群中的所有节点以及服务中的所有 Pod 之间实现统一的流量分布。 但是，因为存在两次负载均衡（一次在 BGP 路由器上，一次在节点上的 <code>kube-proxy</code> 上），这会导致流量低效。 例如，特定用户的连接可能由 BGP 路由器发送到节点 A，但随后节点 A 决定将该连接发送到运行在节点 B 上的 pod。</p>
+<p><code>Cluster</code>策略的另一个缺点是 <code>kube-proxy</code> 在进行负载平衡时会隐藏连接的源 IP 地址，因此在 pod 日志中会看到外部流量来自集群的节点。</p>
+<h5 id="local流量策略-1"><code>Local</code>流量策略</h5>
+<p>使用<code>Local</code>流量策略，只有在本地运行了一个或多个 Services 的 Pod 时, 该节点才会吸引流量。 同时 BGP 路由器仅在托管服务的那些节点之间, 对传入流量进行负载平衡。在每个节点上，流量仅通过 <code>kube-proxy</code> 转发到本地 Pod，节点之间没有“水平”流量。</p>
+<p>此策略为你的服务提供最有效的流量。此外，由于 <code>kube-proxy</code> 不需要在集群节点之间发送流量，因此您的 pod 可以看到传入连接的真实源 IP 地址。</p>
+<p>该策略的缺点是: 节点作为负载均衡的一个单元，它不管该节点上运行了多少服务的 pod。所以, 这可能会导致你的 pod 流量不平衡。</p>
+<p>比如，如果你有一个服务, 它在节点 A 上运行 2 个 pod，在节点 B 上运行1个 pod，则<code>Local</code>流量策略会将到该服务的流量平分到这两个节点(A&amp;B节点各50%)。在节点A上, 又会将到达A的流量平分给2个 pod, 因此节点A上的每个 pod 的负载分配为 25%，节点B的 pod 为 50%。相反，如果您使用<code>Cluster</code>流量策略，每个 pod 将接收到总流量的 33%。</p>
+<p>一般来说，在使用 <code>Local</code> 流量策略时，建议对 Pod 在节点上的调度进行精细控制，例如使用节点反亲和性，从而实现 Pod 之间的流量均匀.</p>
+<p>将来，MetalLB 或许会解决这种流量策略的缺点，那时, 它无疑会成为 BGP 模式一起使用的最佳模式。</p>
+<h3 id="ipv6和双协议栈services">IPv6和双协议栈Services</h3>
+<p>在 L2 模式下同时支持 IPv6 和双协议栈Services，但在 BGP 模式下仅通过实验性 FRR 模式来提供支持.</p>
+<p>为了让 MetalLB 将 IP 分配给双栈服务，必须至少有一个IP地址池同时具有 v4 和 v6 版本的地址。</p>
+<p>请注意，在双协议栈Services的情况下，不能使用<code>spec.loadBalancerIP</code>，因为它不允许请求多个IP，因此必须使用注解 <code>metallb.universe.tf/loadBalancerIPs</code>。</p>
+<h3 id="ip地址共享">IP地址共享</h3>
+<p>默认, Services 之间不能共享IP地址. 如果你希望多个Service使用一个IP地址. 你可以在 service 上配置 annotation <code>metallb.universe.tf/allow-shared-ip</code> 来开启优选择的IP地址共享.</p>
+<p>这个 annotation 的值是一个共享 key. 下面几种情况下, Services 可以共享IP:</p>
+<ul>
+<li>他们都有一个相同的共享 key.</li>
+<li>他们使用的端口不一样(比如一个是 tcp/80 另一个是 tcp/443)</li>
+<li>他们都使用<code>Cluster</code>外部流量策略, 或者它们都指向相同的一组 pods(比如 pod 选择器是完全相同的)</li>
+</ul>
+<p>如果这些条件不满足, MetalLB可能会给两个 service 分配同一个IP, 但是也不一定. 如果你想确保多个 service 共享一个特定的IP, 使用上面提到的<code>spec.loadBalancerIP</code>来定义.</p>
+<p>以这样的方式来管理 Service 有两个主要原因: 1. 规避 Kubernetes 的限制; 2. 可使用的IP地址有限.</p>
+<p>下面是两个 services 共享一个IP地址的例子:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Service</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">dns-service-tcp</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">default</span>
+  <span style="color:#f92672">annotations</span>:
+    <span style="color:#f92672">metallb.universe.tf/allow-shared-ip</span>: <span style="color:#e6db74">&#34;key-to-share-1.2.3.4&#34;</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">type</span>: <span style="color:#ae81ff">LoadBalancer</span>
+  <span style="color:#f92672">loadBalancerIP</span>: <span style="color:#ae81ff">1.2.3.4</span>
+  <span style="color:#f92672">ports</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">dnstcp</span>
+      <span style="color:#f92672">protocol</span>: <span style="color:#ae81ff">TCP</span>
+      <span style="color:#f92672">port</span>: <span style="color:#ae81ff">53</span>
+      <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">53</span>
+  <span style="color:#f92672">selector</span>:
+    <span style="color:#f92672">app</span>: <span style="color:#ae81ff">dns</span>
+---
+<span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Service</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">dns-service-udp</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">default</span>
+  <span style="color:#f92672">annotations</span>:
+    <span style="color:#f92672">metallb.universe.tf/allow-shared-ip</span>: <span style="color:#e6db74">&#34;key-to-share-1.2.3.4&#34;</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">type</span>: <span style="color:#ae81ff">LoadBalancer</span>
+  <span style="color:#f92672">loadBalancerIP</span>: <span style="color:#ae81ff">1.2.3.4</span>
+  <span style="color:#f92672">ports</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">dnsudp</span>
+      <span style="color:#f92672">protocol</span>: <span style="color:#ae81ff">UDP</span>
+      <span style="color:#f92672">port</span>: <span style="color:#ae81ff">53</span>
+      <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">53</span>
+  <span style="color:#f92672">selector</span>:
+    <span style="color:#f92672">app</span>: <span style="color:#ae81ff">dns</span>
+</code></pre></div><p><a href="https://github.com/kubernetes/kubernetes/issues/23880">目前 kubernetes 不支持多协议的 LoadBalancer Service</a>. 通常, 像DNS这样的服务, 会同时监听TCP和UDP. 为了规避这个限制. 创建两个 Service(一个使用TCP, 一个使用UDP), 它们使用同样的pod选择器. 然后给他们配置相同的共享Key和<code>spec.loadBalancerIP</code>, 这样就可以在同一个IP地址上同时使用TCP和UDP.</p>
+<p>第二个原因很简单, 如果你的Service数量比IP地址数量多, 并且也搞不来更多的IP地址. 那么只能共享IP地址了.</p>
+<h2 id="一些例子">一些例子</h2>
+<p>假如, 一个电子商务平台由一个生产环境和很多沙箱环境. 生产环境需要公网IP地址, 但是沙箱环境使用私有的IP地址, 开发者通过VPN可以访问沙箱环境.</p>
+<p>另外, 生产的IP已经在很多地方写死了(比如, DNS、安全扫描等), 所以在生产环境中, 我们希望特定的服务使用特定的IP地址. 因为沙箱环境是由开发者开启和关闭的, 所以我们不想手动管理.</p>
+<p>我们可以使用 MetalLB 来满足上面的要求, 我们定义两个IP地址池, 通过定义BGP属性来控制每一个IP地址池的可见性.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">IPAddressPool</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">production</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#75715e"># 生产使用,因为公网的IP很贵,我们只有4个</span>
+  <span style="color:#f92672">addresses</span>:
+  - <span style="color:#ae81ff">42.176.25.64</span><span style="color:#ae81ff">/30</span>
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">IPAddressPool</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">sandbox</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">addresses</span>:
+  <span style="color:#75715e"># 相反, 沙箱环境使用私有IP空间</span>
+  <span style="color:#75715e"># 免费的而且很多, 所以我们给这个地址池分配了大量的IP</span>
+  <span style="color:#75715e"># 这样开发者可以根据需要启动很多沙箱环境</span>
+  - <span style="color:#ae81ff">192.168.144.0</span><span style="color:#ae81ff">/20</span>
+</code></pre></div><p>然后我们需要公布他们, 可以通过设置BGP的一些属性来控制每一个地址集合的可见性.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">BGPAdvertisement</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">external</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">ipAddressPools</span>:
+  - <span style="color:#ae81ff">production</span>
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">BGPAdvertisement</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">local</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">ipAddressPools</span>:
+  - <span style="color:#ae81ff">sandbox</span>
+  <span style="color:#f92672">communities</span>:
+    - <span style="color:#ae81ff">vpn-only</span>
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#75715e"># 我们数据中心路由器知道“vpn-only”的BGP社区。</span>
+<span style="color:#75715e"># 带有此社区标签的公告将仅通过公司VPN隧道传播回开发人员办公室。</span>
+<span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Community</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">communities</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">communities</span>:
+  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">vpn-only</span>
+    <span style="color:#f92672">value</span>: <span style="color:#ae81ff">1234</span>:<span style="color:#ae81ff">1</span>
+</code></pre></div><p>在我们沙箱环境的 Helm 定义 charts 中, 我们给每一个 service 都打上了annotation <code>metallb.universe.tf/address-pool: sandbox</code>. 这样, 不管开发者什么时候创建沙箱环境, 都会从<code>192.168.144.0/20</code>获得一个IP地址.</p>
+<p>对于生产环境, 我们使用<code>spec.loadBalancerIP</code>参数来给 service 定义特定的IP地址.</p>
+<hr>
+<pre tabindex="0"><code>Copyright © The MetalLB Contributors.
+Copyright © 2021 The Linux Foundation ®. 
+All rights reserved. Linux 基金会已注册商标并使用商标.
+</code></pre></div>
+    
+    <div class="col-12 col-md-6 mb-2 "><p>每个人都听过容器，但它究竟是什么？</p>
+<p>支持这项技术的软件有很多，其中 Docker 最为流行。因为它的可移植性和环境隔离的能力，它在数据中心内部特别流行。为了能理解这个技术，需要理解很多方面。</p>
+<p>注意：很多人拿容器和虚拟机比较，他们有不同的设计目标，不是替代关系，重叠度很小。容器旨在成为一个轻量级环境，您可以裸机上启动容器，托管一个或几个独立的应用程序。当您想要托管整个操作系统或生态系统或者可能运行与底层环境不兼容的应用程序时，您应该选择虚拟机。</p>
+<h2 id="linux-控制组">Linux 控制组</h2>
+<p>说实话，零信任环境下有些软件的确需要被控制或被限制 - 至少为了稳定，或是为了安全。很多时候一个Bug或不良代码可能会摧毁整个机器并削弱整个生态系统。还好，有办法来控制这些应用程序，控制组(cgroups)是内核的一个特性，它能限制/计量/隔离一个或者多个进程使用CPU、内存、磁盘I/O和网络。<br>
+cgroup技术最开始是Google开发，最终在2.6.24版本（2008年1月）的内核中出现。3.15和3.16版本内核将合并进重新设计的cgroups，它添加了kernfs(拆分一些sysfs逻辑)。<br>
+cgroups的主要设计目标是提供一个统一的接口，它可以管理进程或者整个操作系统级别的虚拟化，包含Linux容器，或者LXC。cgroups主要提供了以下能力：</p>
+<ul>
+<li><strong>资源限制</strong>：一个组，可以通过配置使其不能使用超过特定内存限制，或者使用超过指定数量的处理器，或者被限制使用特定的外围设备。</li>
+<li><strong>优先级</strong>：可以配置一个或多个组比别的组使用更少/更多的CPU或者I/O吞吐。</li>
+<li><strong>计量</strong>：组的资源使用是被监控和计量的。</li>
+<li><strong>控制</strong>：进程组可以被冻结、停止或重启。</li>
+</ul>
+<p>一个 cgroup 可以由一个或多个进程组成，这些进程都绑定到同一组限制。这些组也可以是分层的，这意味着子组继承了对其父组管理的限制。<br>
+Linux内核为cgroups提供了一系列控制器或者子系统，控制器负责给一个或者一组进程分配指定的系统资源。比如，<code>memory</code>控制器限制内存使用，<code>cpuacct</code>控制器限制cpu使用。<br>
+您可以直接或间接访问和管理 cgroup（使用 LXC、libvirt 或 Docker），首先，我在这里通过 sysfs 和 <code>libcgroups</code> 库介绍。下面的例子中，需要安装必要的软件包。在Red Hat Enterprise Linux或者CentOS上，执行下面命令：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">sudo yum install libcgroup libcgroup-tools
+</code></pre></div><p>在Ubuntu或Debian上这样安装：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">sudo apt-get install libcgroup1 cgroup-tools
+</code></pre></div><p>这个例子中，我用一个简单的脚本(test.sh)，里面会执行一个无限循环。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cat test.sh
+<span style="color:#75715e">#!/bin/sh</span>
+
+<span style="color:#66d9ef">while</span> <span style="color:#f92672">[</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">do</span>
+    echo <span style="color:#e6db74">&#34;hello world&#34;</span>
+    sleep <span style="color:#ae81ff">60</span>
+<span style="color:#66d9ef">done</span>
+</code></pre></div><h2 id="手动方式">手动方式</h2>
+<p>需要的软件包安装完毕之后，您可以通过 <strong>sysfs 层次结构</strong>直接配置您的 cgroup。比如，要在<code>memory</code>子系统下创建一个名为 <code>foo</code> 的 cgroup，请在 <code>/sys/fs/cgroup/memory</code> 中创建一个名为 foo 的目录：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">sudo mkdir /sys/fs/cgroup/memory/foo
+</code></pre></div><p>默认情况下，每个新创建的 cgroup 都将继承对系统整个内存池的访问权限。但是，对于那些不断分配内存却不释放的应用来说，这样并不好。要将应用程序限制在合理的范围内，您需要更新 memory.limit_in_bytes 文件。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ echo <span style="color:#ae81ff">50000000</span> | sudo tee
+ ↪/sys/fs/cgroup/memory/foo/memory.limit_in_bytes
+</code></pre></div><p>验证配置：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo cat memory.limit_in_bytes
+<span style="color:#ae81ff">50003968</span>
+</code></pre></div><p>注意，读到的值通常是内核页大小的倍数(page size, 4096bytes 或 4KB)。<br>
+执行应用程序：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sh ~/test.sh &amp;
+</code></pre></div><p>使用该进程PID，将其添加到<code>memory</code>控制器管理下，</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ echo <span style="color:#ae81ff">2845</span> &gt; /sys/fs/cgroup/memory/foo/cgroup.procs
+</code></pre></div><p>使用相同的 PID 号，列出正在运行的进程，并验证它是否在期望的 cgroup 中运行：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ ps -o cgroup <span style="color:#ae81ff">2845</span>
+CGROUP
+8:memory:/foo,1:name<span style="color:#f92672">=</span>systemd:/user.slice/user-0.slice/
+↪session-4.scope
+</code></pre></div><p>您还可以通过读取指定的文件来监控该 cgroup 当前使用的资源。在这个例子中，你可能想看一下当前进程(以及派生的子进程)的内存使用量。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cat /sys/fs/cgroup/memory/foo/memory.usage_in_bytes
+<span style="color:#ae81ff">253952</span>
+</code></pre></div><h2 id="当程序不良运行">当程序不良运行</h2>
+<p>还是上面的例子，我们将<code>cgroup/foo</code>内存限制调整为 500 bytes。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ echo <span style="color:#ae81ff">500</span> | sudo tee /sys/fs/cgroup/memory/foo/
+↪memory.limit_in_bytes
+</code></pre></div><p><em>注意：如果一个任务超出了其定义的限制，内核将进行干预，在某些情况下，会终止该任务。</em><br>
+同样，再读这个值，因为它要是内核页大小的倍数。所以尽管你配置的是500字节，但实际上设置的是4KB。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cat /sys/fs/cgroup/memory/foo/memory.limit_in_bytes
+<span style="color:#ae81ff">4096</span>
+</code></pre></div><p>启动应用，将其移动到cgroup中，并监控系统日志。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo tail -f /var/log/messages
+
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: sh invoked oom-killer:
+ ↪gfp_mask<span style="color:#f92672">=</span>0xd0, order<span style="color:#f92672">=</span>0, oom_score_adj<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: sh cpuset<span style="color:#f92672">=</span>/ mems_allowed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: CPU: <span style="color:#ae81ff">0</span> PID: <span style="color:#ae81ff">2687</span> Comm:
+ ↪sh Tainted: G
+OE  ------------   3.10.0-327.36.3.el7.x86_64 <span style="color:#75715e">#1</span>
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: Hardware name: innotek GmbH
+VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: ffff880036ea5c00
+ ↪0000000093314010 ffff88000002bcd0 ffffffff81636431
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: ffff88000002bd60
+ ↪ffffffff816313cc 01018800000000d0 ffff88000002bd68
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: ffffffffbc35e040
+ ↪fffeefff00000000 <span style="color:#ae81ff">0000000000000001</span> ffff880036ea6103
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: Call Trace:
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff81636431&gt;<span style="color:#f92672">]</span>
+ ↪dump_stack+0x19/0x1b
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff816313cc&gt;<span style="color:#f92672">]</span>
+ ↪dump_header+0x8e/0x214
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff8116d21e&gt;<span style="color:#f92672">]</span>
+ ↪oom_kill_process+0x24e/0x3b0
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff81088e4e&gt;<span style="color:#f92672">]</span> ?
+ ↪has_capability_noaudit+0x1e/0x30
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff811d4285&gt;<span style="color:#f92672">]</span>
+ ↪mem_cgroup_oom_synchronize+0x575/0x5a0
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff811d3650&gt;<span style="color:#f92672">]</span> ?
+ ↪mem_cgroup_charge_common+0xc0/0xc0
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff8116da94&gt;<span style="color:#f92672">]</span>
+ ↪pagefault_out_of_memory+0x14/0x90
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff8162f815&gt;<span style="color:#f92672">]</span>
+ ↪mm_fault_error+0x68/0x12b
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff816422d2&gt;<span style="color:#f92672">]</span>
+ ↪__do_page_fault+0x3e2/0x450
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff81642363&gt;<span style="color:#f92672">]</span>
+ ↪do_page_fault+0x23/0x80
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span>&lt;ffffffff8163e648&gt;<span style="color:#f92672">]</span>
+ ↪page_fault+0x28/0x30
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: Task in /foo killed as
+ ↪a result of limit of /foo
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: memory: usage 4kB, limit
+ ↪4kB, failcnt <span style="color:#ae81ff">8</span>
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: memory+swap: usage 4kB,
+ ↪limit 9007199254740991kB, failcnt <span style="color:#ae81ff">0</span>
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: kmem: usage 0kB, limit
+ ↪9007199254740991kB, failcnt <span style="color:#ae81ff">0</span>
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: Memory cgroup stats <span style="color:#66d9ef">for</span> /foo:
+ ↪cache:0KB rss:4KB rss_huge:0KB mapped_file:0KB swap:0KB
+ ↪inactive_anon:0KB active_anon:0KB inactive_file:0KB
+ ↪active_file:0KB unevictable:0KB
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span> pid <span style="color:#f92672">]</span>   uid  tgid total_vm
+ ↪rss nr_ptes swapents oom_score_adj name
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span> 2687<span style="color:#f92672">]</span>     <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">2687</span>    <span style="color:#ae81ff">28281</span>
+ ↪347     <span style="color:#ae81ff">12</span>        <span style="color:#ae81ff">0</span>             <span style="color:#ae81ff">0</span> sh
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: <span style="color:#f92672">[</span> 2702<span style="color:#f92672">]</span>     <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">2702</span>    <span style="color:#ae81ff">28281</span>
+ ↪50    <span style="color:#ae81ff">7</span>        <span style="color:#ae81ff">0</span>             <span style="color:#ae81ff">0</span> sh
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: Memory cgroup out of memory:
+ ↪Kill process <span style="color:#ae81ff">2687</span> <span style="color:#f92672">(</span>sh<span style="color:#f92672">)</span> score <span style="color:#ae81ff">0</span> or sacrifice child
+Oct <span style="color:#ae81ff">14</span> 10:22:40 localhost kernel: Killed process <span style="color:#ae81ff">2702</span> <span style="color:#f92672">(</span>sh<span style="color:#f92672">)</span>
+ ↪total-vm:113124kB, anon-rss:200kB, file-rss:0kB
+Oct <span style="color:#ae81ff">14</span> 10:22:41 localhost kernel: sh invoked oom-killer:
+ ↪gfp_mask<span style="color:#f92672">=</span>0xd0, order<span style="color:#f92672">=</span>0, oom_score_adj<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+<span style="color:#f92672">[</span> ... <span style="color:#f92672">]</span>
+</code></pre></div><p>注意，一旦应用程序使用内存达到 4KB 限制，内核的 Out-Of-Memory Killer（或 oom-killer）就会介入。它杀死了应用程序。您可以下面的方式来验证这一点：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ ps -o cgroup <span style="color:#ae81ff">2687</span>
+CGROUP
+</code></pre></div><h2 id="使用-libcgroup">使用 libcgroup</h2>
+<p><code>libcgroup</code>软件包提供了简单的管理工具，上面很多操作步骤都可以用它实现。例如，使用cgcreate命令可以创建sysfs条目和文件。<br>
+在<code>memory</code>子系统下创建名字为foo的组，使用下面命令：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo cgcreate -g memory:foo
+</code></pre></div><p><em>注意：libcgroup 提供了一种用于管理<strong>控制组</strong>中的任务的机制。</em><br>
+使用与之前相同的方法，设置阈值：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ echo <span style="color:#ae81ff">50000000</span> | sudo tee
+ ↪/sys/fs/cgroup/memory/foo/memory.limit_in_bytes
+</code></pre></div><p>验证配置：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo cat memory.limit_in_bytes
+<span style="color:#ae81ff">50003968</span>
+</code></pre></div><p>使用 cgexec 命令在 <code>cgroup/foo</code> 下运行应用程序：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo cgexec -g memory:foo ~/test.sh
+</code></pre></div><p>使用它的 PID，验证应用程序是否在 cgroup 和定义的<code>memory</code>管理器下运行：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$  ps -o cgroup <span style="color:#ae81ff">2945</span>
+CGROUP
+6:memory:/foo,1:name<span style="color:#f92672">=</span>systemd:/user.slice/user-0.slice/
+↪session-1.scope
+</code></pre></div><p>如果您的应用程序不再运行，并且您想要清理并删除 cgroup，您可以使用 cgdelete。要从<code>memory</code>控制器下删除组 foo，请键入：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo cgdelete memory:foo
+</code></pre></div><h2 id="持久组">持久组</h2>
+<p>通过简单的配置文件来启动服务，也可以完成上面的工作。你可以在<code>/etc/cgconfig.conf</code>文件中定义所有cgroup名字和属性。下面的例子中配置了foo组和它的一些属性。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cat /etc/cgconfig.conf
+<span style="color:#75715e">#</span>
+<span style="color:#75715e">#  Copyright IBM Corporation. 2007</span>
+<span style="color:#75715e">#</span>
+<span style="color:#75715e">#  Authors:     Balbir Singh &lt;balbir@linux.vnet.ibm.com&gt;</span>
+<span style="color:#75715e">#  This program is free software; you can redistribute it</span>
+<span style="color:#75715e">#  and/or modify it under the terms of version 2.1 of the GNU</span>
+<span style="color:#75715e">#  Lesser General Public License as published by the Free</span>
+<span style="color:#75715e">#  Software Foundation.</span>
+<span style="color:#75715e">#</span>
+<span style="color:#75715e">#  This program is distributed in the hope that it would be</span>
+<span style="color:#75715e">#  useful, but WITHOUT ANY WARRANTY; without even the implied</span>
+<span style="color:#75715e">#  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR</span>
+<span style="color:#75715e">#  PURPOSE.</span>
+<span style="color:#75715e">#</span>
+<span style="color:#75715e"># 默认，我们希望 systemd 默认加载所有内容</span>
+<span style="color:#75715e"># 所以没啥可做的</span>
+<span style="color:#75715e"># 详细内容查看 man cgconfig.conf</span>
+<span style="color:#75715e"># 了解如何在系统启动时使用该文件创建 cgroup</span>
+
+group foo <span style="color:#f92672">{</span>
+  cpu <span style="color:#f92672">{</span>
+    cpu.shares <span style="color:#f92672">=</span> 100;
+  <span style="color:#f92672">}</span>
+  memory <span style="color:#f92672">{</span>
+    memory.limit_in_bytes <span style="color:#f92672">=</span> 5000000;
+  <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p><code>cpu.shares</code>定义了cgroup的CPU优先级。默认，所有的组继承 1024 shares 或者说 100% CPU使用时间。降低该值，比如 100，该组将被限制在大约 10% CPU使用时间。<br>
+如前所述，cgroup 中的进程也可以被限制使用CPUs(core)数量，把下面的内容添加到cgconfig.conf文件相应的cgroup下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">cpuset <span style="color:#f92672">{</span>
+  cpuset.cpus<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;0-5&#34;</span>;
+<span style="color:#f92672">}</span>
+</code></pre></div><p>它将限制该cgroup使用索引为0到5的核心(core)，即仅能使用前6个CPU核心。<br>
+下面，需要使用<code>cgconfig</code>服务加载该配置文件。首先，配置<code>cgconfig</code>开机自启动加载上面的配置文件。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo systemctl enable cgconfig
+Create symlink from /etc/systemd/system/sysinit.target.wants/
+↪cgconfig.service
+to /usr/lib/systemd/system/cgconfig.service.
+</code></pre></div><p>现在，手动启动服务加载配置文件（或者直接重启操作系统）</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo systemctl start cgconfig
+</code></pre></div><p>在<code>cgroup/foo</code>下，启动应用，并将其和它的<code>memory</code>、<code>cpuset</code>和<code>cpu</code>限制进行绑定：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo cgexec -g memory,cpu,cpuset:foo ~/test.sh &amp;
+</code></pre></div><p>除了将应用启动到预定义的cgroup中之外，剩下的操作系统重启后会一直存在。但是，你可以通过写一个依赖<code>cgconfig</code>服务的开机初始化脚本来启动应用。</p>
+</div>
+    
+    <div class="col-12 col-md-6 mb-2 "><p>Apache APISIX - 专门为 kubernetes 研发的入口控制器。</p>
+<h2 id="状态">状态</h2>
+<p>该项目目前是 general availability 级别</p>
+<h2 id="先决条件">先决条件</h2>
+<p>apisix-ingress-controller 要求 kubernetes 版本 1.16+. 因为使用了 CustomResourceDefinition v1 stable 版本的 API.
+从 1.0.0 版本开始，APISIX-ingress-controller 要求 Apache APISIX 版本 2.7+.</p>
+<h2 id="功能特性">功能特性</h2>
+<ul>
+<li>使用 Custom Resource Definitions(CRDs) 对 Apache APISIX 进行声明式配置，使用 kubernetes yaml 结构最小化学习成本。</li>
+<li>Yaml 配置热加载</li>
+<li>支持原生 Kubernetes Ingress (v1 和 v1beta1) 资源</li>
+<li>Kubernetes endpoint 自动注册到 Apache APISIX 上游节点</li>
+<li>支持基于 POD（上游节点） 的负载均衡</li>
+<li>开箱支持上游节点健康检查</li>
+<li>扩展插件支持热配置并且立即生效</li>
+<li>支持路由的 SSL 和 mTLS</li>
+<li>支持流量切割和金丝雀发布</li>
+<li>支持 TCP 4层代理</li>
+<li>Ingress 控制器本身也是一个可插拔的热加载组件</li>
+<li>多集群配置分发</li>
+</ul>
+<p><a href="https://docs.google.com/spreadsheets/d/191WWNpjJ2za6-nbG4ZoUMXMpUK8KlCIosvQB0f-oq3k/edit#gid=907731238">这里有一份在线竞品分析表格</a></p>
+<h3 id="apache-apisix-ingress-vs-kubernetes-nginx-ingress">Apache APISIX Ingress vs. Kubernetes Nginx Ingress</h3>
+<ul>
+<li>yaml 配置热加载</li>
+<li>更方便的金丝雀发布</li>
+<li>配置验证，安全可靠</li>
+<li>丰富的插件和生态, <a href="https://github.com/apache/apisix/tree/master/docs/en/latest/plugins">插件列表</a></li>
+<li>支持 APISIX 自定义资源和原生 kubernetes ingress 资源</li>
+<li>更活跃的社区</li>
+</ul>
+<h2 id="设计原理">设计原理</h2>
+<h3 id="架构">架构</h3>
+<p>apisix-ingress-controller 需要的所有配置都是通过 Kubernetes CRDs (Custom Resource Definitions) 定义的。支持在 Apache APISIX 中配置插件、上游的服务注册发现机制、负载均衡等。<br>
+apisix-ingress-controller 是 Apache APISIX 的控制面组件. 当前服务于 Kubernetes 集群。 未来, 计划分离出子模块以适配更多的部署模式，比如虚拟机集群部署。</p>
+<p>整体架构图如下：</p>
+<p><img src="images/apisix-ingress-controller-design/arch.png" alt="architecture"></p>
+<p>这是一张内部架构图：</p>
+<p><img src="images/apisix-ingress-controller-design/internal-arch.png" alt="internal-arch"></p>
+<h3 id="时序流程图">时序/流程图</h3>
+<p>apisix-ingress-controller 负责和 Kubernetes Apiserver 交互, 申请可访问资源权限（RBAC），监控变化，在 Ingress 控制器中实现对象转换，比较变化，然后同步到 Apache APISIX。</p>
+<p><img src="images/apisix-ingress-controller-design/flow.png" alt="flow"></p>
+<p>这是一张流程图，介绍了ApisixRoute和其他CRD在同步过程中的主要逻辑</p>
+<p><img src="images/apisix-ingress-controller-design/sync-logic-controller.png" alt="sync-logic-controller"></p>
+<h3 id="结构转换">结构转换</h3>
+<p>apisix-ingress-controller 给 CRDs 提供了外部配置方法。它旨在务于需要日常操作和维护的运维人员，他们需要经常处理大量路由配置，希望在一个配置文件中处理所有相关的服务，同时还希望能具备便捷和易于理解的管理能力。但是，Apache APISIX 则是从网关的角度设计的，并且所有的路由都是独立的。这就导致了两者在数据结构上存在差异。一个注重批量定义，一个注重离散实现。<br>
+考虑到不同人群的使用习惯，CRDs 的数据结构借鉴了 Kubernetes Ingress 的数据结构，数据结构基本一致。
+关于这两者的差别，请看下面这张图：</p>
+<p><img src="images/apisix-ingress-controller-design/struct-compare.png" alt="struct-compare"></p>
+<p>可以看到，它们是多对多的关系。因此，apisix-ingress-controller 必须对 CRD 做一些转换，以适应不同的网关。</p>
+<h3 id="规则比较">规则比较</h3>
+<p>seven 模块内部保存了内存数据结构，目前与Apache APISIX资源对象非常相似。当 Kubernetes 资源对象有新变化时，seven 会比较内存对象，并根据比较结果进行增量更新。<br>
+目前的比较规则是根据route/service/upstream资源对象的分组，分别进行比较，发现差异后做出相应的广播通知。</p>
+<p><img src="images/apisix-ingress-controller-design/diff-rules.png" alt="diff-rules"></p>
+<h3 id="服务发现">服务发现</h3>
+<p>根据 <code>ApisixUpstream</code> 中定义的 <code>namespace</code> <code>name</code> <code>port</code> 字段，apisix-ingress-controller 会在 Apache APISIX Upstream 中注册 处于 running 状态的 endpoints 节点，并且根据 kubernetes endpoints 状态进行实时同步。<br>
+基于服务发现，apisix-ingress-controller 可以直接访问后端 pod，绕过 Kubernetes Service，可以实现自定义的负载均衡策略。</p>
+<h3 id="annotation-实现">Annotation 实现</h3>
+<p>不像 Kubernetes Nginx Ingress Controller，apisix-ingress-controller 的 annotation 实现是基于 Apache APISIX 的插件机制的。<br>
+比如，可以通过在<code>ApisixRoute</code>资源对象中设置<code>k8s.apisix.apache.org/whitelist-source-range</code>annotation来配置白名单。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apisix.apache.org/v2beta3</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApisixRoute</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">annotations</span>:
+    <span style="color:#f92672">k8s.apisix.apache.org/whitelist-source-range</span>: <span style="color:#ae81ff">1.2.3.4</span>,<span style="color:#ae81ff">2.2.0.0</span><span style="color:#ae81ff">/16</span>
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">httpserver-route</span>
+<span style="color:#f92672">spec</span>:
+    <span style="color:#ae81ff">...</span>
+</code></pre></div><p>黑/白名单功能是通过<a href="https://github.com/apache/apisix/blob/master/docs/en/latest/plugins/ip-restriction.md">ip-restriction</a>插件来实现的。<br>
+为方便的定义一些常用的配置，未来会有更多的 annotation 实现，比如CORS。</p>
+<h2 id="apisixroute-介绍">ApisixRoute 介绍</h2>
+<p>ApisixRoute 是一个 CRD 资源，它关注如何将流量发送到后端，它有很多 APISIX 支持的特性。相比 Ingress，功能实现的更原生，语意更强。</p>
+<h3 id="基于路径的路由规则">基于路径的路由规则</h3>
+<p>URI 路径总是用于拆分流量，比如访问 foo.com 的请求， 含有 /foo 前缀请求路由到 foo 服务，访问 /bar 的请求要路由到 bar 服务。以 ApisixRoute 方式配置应该是这样的：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apisix.apache.org/v2beta3</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApisixRoute</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">foo-bar-route</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">http</span>:
+  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">foo</span>
+    <span style="color:#f92672">match</span>:
+      <span style="color:#f92672">hosts</span>:
+      - <span style="color:#ae81ff">foo.com</span>
+      <span style="color:#f92672">paths</span>:
+      - <span style="color:#e6db74">&#34;/foo*&#34;</span>
+    <span style="color:#f92672">backends</span>:
+     - <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">foo</span>
+       <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">80</span>
+  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">bar</span>
+    <span style="color:#f92672">match</span>:
+      <span style="color:#f92672">paths</span>:
+        - <span style="color:#e6db74">&#34;/bar&#34;</span>
+    <span style="color:#f92672">backends</span>:
+      - <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">bar</span>
+        <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">80</span>
+</code></pre></div><p>有<code>prefix</code>和<code>exact</code>两种路径类型可用 默认<code>exact</code>，当需要前缀匹配的时候，就在路径后加 * 比如 /id/* 能匹配所有带 /id/ 前缀的请求。</p>
+<h3 id="高级路由特性">高级路由特性</h3>
+<p>基于路径的路由是最普遍的，但这并不够， 再试一下其他路由方式，比如 <code>methods</code> 和 <code>exprs</code></p>
+<p><code>methods</code> 通过 HTTP 动作来切分流量，下面例子会把所有 GET 请求路由到 foo 服务（kubernetes service）</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apisix.apache.org/v2beta3</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApisixRoute</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">method-route</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">http</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">method</span>
+      <span style="color:#f92672">match</span>:
+        <span style="color:#f92672">paths</span>:
+          - <span style="color:#ae81ff">/</span>
+        <span style="color:#f92672">methods</span>:
+          - <span style="color:#ae81ff">GET</span>
+      <span style="color:#f92672">backends</span>:
+        - <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">foo</span>
+          <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">80</span>
+</code></pre></div><p><code>exprs</code>允许用户使用 HTTP 中的任意字符串来配置匹配条件，例如query、HTTP Header、Cookie。它可以配置多个表达式，而这些表达式又由主题(subject)、运算符(operator)和值/集合(value/set)组成。比如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apisix.apache.org/v2beta3</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApisixRoute</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">method-route</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">http</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">method</span>
+      <span style="color:#f92672">match</span>:
+        <span style="color:#f92672">paths</span>:
+          - <span style="color:#ae81ff">/</span>
+        <span style="color:#f92672">exprs</span>:
+          - <span style="color:#f92672">subject</span>:
+              <span style="color:#f92672">scope</span>: <span style="color:#ae81ff">Query</span>
+              <span style="color:#f92672">name</span>: <span style="color:#ae81ff">id</span>
+            <span style="color:#f92672">op</span>: <span style="color:#ae81ff">Equal</span>
+            <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#34;2143&#34;</span>
+      <span style="color:#f92672">backends</span>:
+        - <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">foo</span>
+          <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">80</span>
+</code></pre></div><p>上面是绝对匹配，匹配所有请求的 query 字符串中 id 的值必须等于 2143。</p>
+<h4 id="服务解析粒度">服务解析粒度</h4>
+<p>默认，apisix-ingress-controller 会监听 service 的引用，所以最新的 endpoints 列表会被更新到 Apache APISIX。同样 apisix-ingress-controller 也可以直接使用 service 自身的 clusterIP。如果这正是你想要的，配置 <code>resolveGranularity: service</code>(默认<code>endpoint</code>). 如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apisix.apache.org/v2beta3</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApisixRoute</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">method-route</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">http</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">method</span>
+      <span style="color:#f92672">match</span>:
+        <span style="color:#f92672">paths</span>:
+          - <span style="color:#ae81ff">/*</span>
+        <span style="color:#f92672">methods</span>:
+          - <span style="color:#ae81ff">GET</span>
+      <span style="color:#f92672">backends</span>:
+        - <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">foo</span>
+          <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">80</span>
+          <span style="color:#f92672">resolveGranularity</span>: <span style="color:#ae81ff">service</span>
+</code></pre></div><h3 id="基于权重的流量切分">基于权重的流量切分</h3>
+<p>这是 APISIX Ingress Controller 一个非常棒的特性。一个路由规则中可以指定多个后端，当多个后端共存时，将应用基于权重的流量拆分（实际上是使用Apache APISIX中的流量拆分 <a href="https://apisix.apache.org/zh/docs/apisix/plugins/traffic-split/">traffic-split</a> 插件）您可以为每个后端指定权重，默认权重为 100。比如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apisix.apache.org/v2beta3</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApisixRoute</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">method-route</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">http</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">method</span>
+      <span style="color:#f92672">match</span>:
+        <span style="color:#f92672">paths</span>:
+          - <span style="color:#ae81ff">/*</span>
+        <span style="color:#f92672">methods</span>:
+          - <span style="color:#ae81ff">GET</span>
+        <span style="color:#f92672">exprs</span>:
+          - <span style="color:#f92672">subject</span>:
+              <span style="color:#f92672">scope</span>: <span style="color:#ae81ff">Header</span>
+              <span style="color:#f92672">name</span>: <span style="color:#ae81ff">User-Agent</span>
+            <span style="color:#f92672">op</span>: <span style="color:#ae81ff">RegexMatch</span>
+            <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#34;.*Chrome.*&#34;</span>
+      <span style="color:#f92672">backends</span>:
+        - <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">foo</span>
+          <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">80</span>
+          <span style="color:#f92672">weight</span>: <span style="color:#ae81ff">100</span>
+        - <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">bar</span>
+          <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">81</span>
+          <span style="color:#f92672">weight</span>: <span style="color:#ae81ff">50</span>
+</code></pre></div><p>上面有一个路由规则（1.所有<code>GET /*</code>请求 2.Header中有匹配 <code>User-Agent: .*Chrome.*</code> 的条目）它有两个后端服务 foo、bar，权重是100：50，意味着有2/3的流量会进入 foo，有1/3的流量会进入bar。</p>
+<h3 id="插件">插件</h3>
+<p>Apache APISIX 提供了 40 多个插件，可以在 APIsixRoute 中使用。所有配置项的名称与 APISIX 中的相同。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apisix.apache.org/v2beta3</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApisixRoute</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">httpbin-route</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">http</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">httpbin</span>
+      <span style="color:#f92672">match</span>:
+        <span style="color:#f92672">hosts</span>:
+        - <span style="color:#ae81ff">local.httpbin.org</span>
+        <span style="color:#f92672">paths</span>:
+          - <span style="color:#ae81ff">/*</span>
+      <span style="color:#f92672">backends</span>:
+        - <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">foo</span>
+          <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">80</span>
+      <span style="color:#f92672">plugins</span>:
+        - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">cors</span>
+          <span style="color:#f92672">enable</span>: <span style="color:#66d9ef">true</span>
+</code></pre></div><p>为到 local.httpbin.org 的请求都配置了 Cors 插件</p>
+<h3 id="websocket-代理">Websocket 代理</h3>
+<p>创建一个 route，配置特定的 websocket 字段，就可以代理 websocket 服务。比如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apisix.apache.org/v2beta3</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApisixRoute</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">ws-route</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">http</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">websocket</span>
+      <span style="color:#f92672">match</span>:
+        <span style="color:#f92672">hosts</span>:
+          - <span style="color:#ae81ff">ws.foo.org</span>
+        <span style="color:#f92672">paths</span>:
+          - <span style="color:#ae81ff">/*</span>
+      <span style="color:#f92672">backends</span>:
+        - <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">websocket-server</span>
+          <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">8080</span>
+      <span style="color:#f92672">websocket</span>: <span style="color:#66d9ef">true</span>
+</code></pre></div><h3 id="tcp-路由">TCP 路由</h3>
+<p>apisix-ingress-controller 支持基于端口的 tcp 路由</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apisix.apache.org/v2beta3</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApisixRoute</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">tcp-route</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">stream</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">tcp-route-rule1</span>
+      <span style="color:#f92672">protocol</span>: <span style="color:#ae81ff">TCP</span>
+      <span style="color:#f92672">match</span>:
+        <span style="color:#f92672">ingressPort</span>: <span style="color:#ae81ff">9100</span>
+      <span style="color:#f92672">backend</span>:
+        <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">tcp-server</span>
+        <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">8080</span>
+</code></pre></div><p>进入 apisix-ingress-controller 9100 端口的 TCP 流量会路由到后端 tcp-server 服务。</p>
+<p><strong>注意：</strong> APISIX不支持动态监听，所以需要在APISIX<a href="https://github.com/apache/apisix/blob/master/conf/config-default.yaml#L111">配置文件</a>中预先定义9100端口。</p>
+<h3 id="udp-路由">UDP 路由</h3>
+<p>apisix-ingress-controller 支持基于端口的 udp 路由</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apisix.apache.org/v2beta3</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApisixRoute</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">udp-route</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">stream</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">udp-route-rule1</span>
+      <span style="color:#f92672">protocol</span>: <span style="color:#ae81ff">UDP</span>
+      <span style="color:#f92672">match</span>:
+        <span style="color:#f92672">ingressPort</span>: <span style="color:#ae81ff">9200</span>
+      <span style="color:#f92672">backend</span>:
+        <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">udp-server</span>
+        <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">53</span>
+</code></pre></div><p>进入 apisix-ingress-controller 9200 端口的 TCP 流量会路由到后端 udp-server 服务。</p>
+<p><strong>注意：</strong> APISIX不支持动态监听，所以需要在APISIX<a href="https://github.com/apache/apisix/blob/master/conf/config-default.yaml#L111">配置文件</a>中预先定义9200端口。</p>
+<h2 id="apisixupstream-介绍">ApisixUpstream 介绍</h2>
+<p>ApisixUpstream 是 kubernetes service 的装饰器。它设计成与其关联的 kubernetes service 的名字一致，将其变得更加强大，使该 kubernetes service 能够配置负载均衡策略、健康检查、重试、超时参数等。<br>
+通过 ApisixUpstream 和 kubernetes service，apisix-ingress-controller 会生成 APISIX Upstream(s).</p>
+<h3 id="配置负载均衡">配置负载均衡</h3>
+<p>需要适当的负载均衡算法来合理地分散 Kubernetes Service 的请求</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apisix.apache.org/v1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApisixUpstream</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">httpbin</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">loadbalancer</span>:
+    <span style="color:#f92672">type</span>: <span style="color:#ae81ff">ewma</span>
+---
+<span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Service</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">httpbin</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">selector</span>:
+    <span style="color:#f92672">app</span>: <span style="color:#ae81ff">httpbin</span>
+  <span style="color:#f92672">ports</span>:
+  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">http</span>
+    <span style="color:#f92672">port</span>: <span style="color:#ae81ff">80</span>
+    <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">8080</span>
+</code></pre></div><p>上面这个例子给 httpbin 服务配置了 ewma 负载均衡算法。有时候可能会需要会话保持，你可以配置一致性哈希负载均衡算法</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apisix.apache.org/v1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApisixUpstream</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">httpbin</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">loadbalancer</span>:
+    <span style="color:#f92672">type</span>: <span style="color:#ae81ff">chash</span>
+    <span style="color:#f92672">hashOn</span>: <span style="color:#ae81ff">header</span>
+    <span style="color:#f92672">key</span>: <span style="color:#e6db74">&#34;user-agent&#34;</span>
+</code></pre></div><p>这样 apisix 就会根据 user-agent header 来分发流量。</p>
+<h3 id="配置健康检查">配置健康检查</h3>
+<p>尽管 kubelet 已经提供了检测 pod 健康的探针机制。你可能还需要更加丰富的健康检查机制，比如被动健康检查机制。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apisix.apache.org/v1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApisixUpstream</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">httpbin</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">healthCheck</span>:
+    <span style="color:#f92672">passive</span>:
+      <span style="color:#f92672">unhealthy</span>:
+        <span style="color:#f92672">httpCodes</span>:
+          - <span style="color:#ae81ff">500</span>
+          - <span style="color:#ae81ff">502</span>
+          - <span style="color:#ae81ff">503</span>
+          - <span style="color:#ae81ff">504</span>
+        <span style="color:#f92672">httpFailures</span>: <span style="color:#ae81ff">3</span>
+        <span style="color:#f92672">timeout</span>: <span style="color:#ae81ff">5s</span>
+    <span style="color:#f92672">active</span>:
+      <span style="color:#f92672">type</span>: <span style="color:#ae81ff">http</span>
+      <span style="color:#f92672">httpPath</span>: <span style="color:#ae81ff">/healthz</span>
+      <span style="color:#f92672">timeout</span>: <span style="color:#ae81ff">5s</span>
+      <span style="color:#f92672">host</span>: <span style="color:#ae81ff">www.foo.com</span>
+      <span style="color:#f92672">healthy</span>:
+        <span style="color:#f92672">successes</span>: <span style="color:#ae81ff">3</span>
+        <span style="color:#f92672">interval</span>: <span style="color:#ae81ff">2s</span>
+        <span style="color:#f92672">httpCodes</span>:
+          - <span style="color:#ae81ff">200</span>
+          - <span style="color:#ae81ff">206</span>
+</code></pre></div><p>上面的yaml片段定义了被动健康检查器来检查endpoints的健康状况。一旦连续三次请求的响应状态码是错误（500 502 503 504 中的一个），这个endpoint就会被标记成不健康并不会再给它分配流量了，直到它再次健康。<br>
+所以，主动健康检查器就出现了。endpoint 可能掉线一段时间又回复健康，主动健康检查器主动探测这些不健康的endpoints，一旦满足健康条件就将其恢复为健康（条件：连续三次请求响应状态码为200或206）</p>
+<blockquote>
+<p>注意：主动健康检查器在某种程度上与 liveness/readiness 探针重复，但如果使用被动健康检查机制，则它是必需的。因此，一旦您使用了 ApisixUpstream 中的健康检查功能，主动健康检查器是强制性的。</p>
+</blockquote>
+<h3 id="配置重试和超时">配置重试和超时</h3>
+<p>当请求出现错误，比如网络问题或者服务不可用当时候，你可能想重试请求。默认重试次数是1，通过定义<code>retries</code>字段可以改变这个值。<br>
+下面这个例子将<code>retries</code>定义为3，表明会对kubernetes service/httpbin的endpoints最多请求3次。</p>
+<blockquote>
+<p>注意：只有在尚未向客户端响应任何内容的情况下，才有可能将请求重试传递到下一个端点。也就是说，如果在传输响应的过程中发生错误或超时，就不会重试了。</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apisix.apache.org/v1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApisixUpstream</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">httpbin</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">retries</span>: <span style="color:#ae81ff">3</span>
+</code></pre></div><p>默认，connect、send 和 read 的超时时间是60s，这可能对有些应用不合适，修改<code>timeout</code>字段来改变默认值。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apisix.apache.org/v1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApisixUpstream</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">httpbin</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">timeout</span>:
+    <span style="color:#f92672">connect</span>: <span style="color:#ae81ff">5s</span>
+    <span style="color:#f92672">read</span>: <span style="color:#ae81ff">10s</span>
+    <span style="color:#f92672">send</span>: <span style="color:#ae81ff">10s</span>
+</code></pre></div><p>上面例子将connect、read 和 send 分别设置为 5s、10s、10s。</p>
+<h3 id="端口级别配置">端口级别配置</h3>
+<p>有时，单个 kubernetes service 可能会暴露多个端口，这些端口提供不同的功能并且需要不同的上游配置。在这种情况下，您可以为单个端口创建配置。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apisix.apache.org/v1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApisixUpstream</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">foo</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">loadbalancer</span>:
+    <span style="color:#f92672">type</span>: <span style="color:#ae81ff">roundrobin</span>
+  <span style="color:#f92672">portLevelSettings</span>:
+  - <span style="color:#f92672">port</span>: <span style="color:#ae81ff">7000</span>
+    <span style="color:#f92672">scheme</span>: <span style="color:#ae81ff">http</span>
+  - <span style="color:#f92672">port</span>: <span style="color:#ae81ff">7001</span>
+    <span style="color:#f92672">scheme</span>: <span style="color:#ae81ff">grpc</span>
+---
+<span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Service</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">foo</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">selector</span>:
+    <span style="color:#f92672">app</span>: <span style="color:#ae81ff">foo</span>
+  <span style="color:#f92672">portLevelSettings</span>:
+  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">http</span>
+    <span style="color:#f92672">port</span>: <span style="color:#ae81ff">7000</span>
+    <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">7000</span>
+  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">grpc</span>
+    <span style="color:#f92672">port</span>: <span style="color:#ae81ff">7001</span>
+    <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">7001</span>
+</code></pre></div><p>foo 服务暴露的两个端口，一个使用http协议，另一个使用grpc协议。同时，ApisixUpstream/foo 为7000端口配置http协议，为7001端口配置grpc协议（所有端口都是service端口），两个端口都共享使用同一个负载均衡算法。<br>
+如果服务仅公开一个端口，则 PortLevelSettings 不是必需的，但在定义多个端口时很有用。</p>
+<h2 id="用户故事">用户故事</h2>
+<p><a href="https://mp.weixin.qq.com/s/bmm2ibk2V7-XYneLo9XAPQ">思必驰：为什么我们重新写了一个 k8s ingress controller？</a><br>
+<a href="https://www.upyun.com/opentalk/448.html">腾讯云：为什么选择 apisix 实现 kubernetes ingress controller</a></p>
+</div>
+    
+    <div class="col-12 col-md-6 mb-2 "><h2 id="mimir-简介">Mimir 简介</h2>
+<p>Grafana Mimir 是目前最具扩展性、性能最好的开源时序数据库，Mimir 允许你将指标扩展到 1 亿。它部署简单、高可用、多租户支持、持久存储、查询性能超高，比 Cortex 快 40 倍。 Mimir 托管在 <a href="https://github.com/grafana/mimir">https://github.com/grafana/mimir</a> 并在 AGPLv3 下获得许可。</p>
+<p><a href="https://www.bilibili.com/video/BV1s34y1s7sw/">B站：Grafana Mimir 发布 目前最具扩展性的开源时序数据库</a></p>
+<p>Mimir 是指标领域的一个新项目，站在巨人的肩膀上。为了理解 Mimir，我们需要回顾一下 Cortex 的历史。</p>
+<h2 id="源自-prometheus">源自 Prometheus</h2>
+<p>2016 年在 Weaveworks 工作时，我与 Prometheus 的联合创始人兼维护者 Julius Volz 一起启动了 Cortex 项目。该项目的目标是构建一个可扩展的与 Prometheus 兼容的解决方案，旨在作为 SaaS 产品运行。在我加入 Grafana Labs 后，我们与 Weaveworks 合作，将 Cortex 转移到一个中立的地方，即云原生计算基金会。<a href="https://www.cncf.io/blog/2018/09/20/cncf-to-host-cortex-in-the-sandbox/?pg=blog&amp;plcmt=body-txt">Cortex 于 2018 年 9 月 20 日被接受为 CNCF 沙盒项目</a>，两年后<a href="https://www.cncf.io/blog/2020/08/20/toc-welcomes-cortex-as-an-incubating-project/?pg=blog&amp;plcmt=body-txt">晋升为孵化项目</a>。CNCF 为两个公司在项目上提供了一个公平的竞争协作环境，这确实很棒，Grafana Labs 和 Weaveworks 都积极参与其中。Cortex 被 20 多个组织使用，并得到了<a href="https://github.com/cortexproject/cortex/graphs/contributors">大约 100 名开发人员</a>的贡献。 Grafana Labs 的员工无疑是 Cortex 项目的最大贡献者，在 2019 - 2021 年期间贡献了约 87% 的代码提交。</p>
+<p><img src="images/announcing-grafana-mimir/grafana-mimir-devstats-dashboard.png" alt="grafana-mimir-devstats-dashboard"></p>
+<p>来源: cortex.devstats.cncf.io</p>
+<h2 id="开源和商业">开源和商业</h2>
+<p>来看看这些产品 <strong>Cortex、Loki、Tempo 和 Grafana Enterprise Metrics</strong></p>
+<p>过去，Cortex 已经成为很多项目的基础，包括 Grafana Loki（类似 Prometheus，用于日志）、Grafana Tempo（用于分布式追踪）、Grafana Enterprise Metrics（GEM）。Grafana Labs 于 2020 年发布该项目，让 Prometheus 能适应更大的组织、加入很多企业级特性（比如安全、访问控制、简化管理UI），旨在他们卖给那些不想自己构建但还想使用这类产品的企业。</p>
+<p>同时，云服务商和 ISVs（独立软件开发商）也推出了基于 Cortex 的产品，但是对项目却没啥贡献。一家公司，通过创造技术来降低其他公司的成本，但是却对开源技术不感兴趣。这是不可持续并且非常不好的。为了回应，我们后面更偏向于对 GEM 投资而不是 Cortex。作为一家热衷于开源的公司，这一点让大家很不舒服。我们认为，GEM 中一些可扩展性相关和性能相关的特性应该被开源。</p>
+<p>大家应该知道，去年我们<a href="https://grafana.com/blog/2021/04/20/grafana-loki-tempo-relicensing-to-agplv3/?pg=blog&amp;plcmt=body-txt">重新授权了一些开源项目</a>，把 Grafana, Grafana Loki 和 Grafana Tempo, 从 Apache 2.0 调整到 AGPLv3（OSI 批准的许可证，保留了开源自由，同时鼓励第三方将代码贡献回社区）从 Grafana Labs 开创之初，我们的目标就是要围绕我们的开源项目构建可持续发展的商业，将商业产品的收入重新投入到开源技术和社区。AGPL 许可能平衡商业和开源之间的关系。</p>
+<h2 id="介绍-grafana-mimir">介绍 Grafana Mimir</h2>
+<p>Mimir 集合了 Cortex 中的最佳功能和为 GEM &amp; Grafana Cloud 大规模运行而研发的功能，所有这些都在 AGPLv3 许可下。Mimir 包含以前的商业功能，包括无限制基数（使用水平可扩展的 “split” 压缩器实现）和快速、高基数查询（使用分片查询引擎实现）</p>
+<h2 id="产品比较">产品比较</h2>
+<p>Cortex、Grafana Mimir 和 Grafana Cloud &amp; Grafana Enterprise Metrics 比较</p>
+<p><img src="images/announcing-grafana-mimir/grafana-mimir-cortex-chart.svg" alt="grafana-mimir-cortex-chart"></p>
+<p>在从 Cortex 开始构建 Mimir 的过程中，团队有机会消除五年来欠下的技术债务，删除未使用的功能，使项目更易于维护，简化配置并改进文档。希望通过这次投资，在 Mimir 上的努力会让其更加易用，从而帮助社区更好的发展。</p>
+<p>对于 Grafana Cloud 和 Grafana Enterprise Metrics 的用户来说，没有任何变化，因为这两种产品从几个月前就都基于 Grafana Mimir。对于正使用 Cortex 的组织，在一定程度的主版本升级限制内，Mimir 可以作为替代品。大多数情况下，从 Cortex 迁移到 Mimir只需不到 10 分钟。</p>
+<h2 id="指标的未来">指标的未来</h2>
+<p>Mimir 的愿景不是成为“最具可扩展性的普罗米修斯”，而是“最具可扩展性的泛指标时序数据库”。用户无需更改代码即可将指标发送到 Mimir。今天，Mimir 可以原生使用 Prometheus 指标。很快 Influx、Graphite、OpenTelemetry 和 Datadog 将紧随其后。这是我们“大帐篷”理念的一部分：正如 Grafana 是可视化所有数据的一体化工具一样，Mimir 可以成为存储所有指标的一体化工具。</p>
+<p>Mimir 发布以后，强大、全面、可插拔的开源观测工具栈已经形成：LGTM（Loki 用户日志, Grafana 用于可视化, Tempo 用于跟踪, Mimir 用于指标），快去体验吧。</p>
+<p>想了解更多，阅读 <a href="https://grafana.com/blog/2022/03/30/qa-with-our-ceo-about-grafana-mimir/?pg=blog&amp;plcmt=body-txt">Q&amp;A with our CEO, Raj Dutt</a>，注册4月26日网络研讨会 <a href="https://grafana.com/go/webinar/intro-to-grafana-mimir/?pg=blog&amp;plcmt=body-txt">介绍 Grafana Mimir，能扩展1亿指标的开源的时序数据库，不仅如此</a></p>
+</div>
+    
+    <div class="col-12 col-md-6 mb-2 "><blockquote>
+<p>本文已参与「开源摘星计划」，欢迎正在阅读的你加入。活动链接：https://github.com/weopenprojects/WeOpen-Star</p>
+</blockquote>
+<h2 id="方案的选择">方案的选择</h2>
+<p>分析了 <a href="https://github.com/goharbor/harbor/issues/3582">官方 Github: Harbor 高可用方案讨论</a>, 一开始我们选择了 Solution 1 (双激活共享存储方案), 在公司内部大概运行了一年多的时间, 架构图如下:</p>
+<p><img src="images/harbor-dual-master-replication-ha/solution-1.png" alt="Active-Active with scale out ability"></p>
+<p>从图中可以看到, 这种方案基于外部共享存储、外部数据库和 Redis 服务, 构建其两个/以上的 harbor 实例. 既然使用了外部的服务, 那么高可用的压力自然而然的转移到了外部服务上. 我们一开始采用的外部的 NFS 共享存储服务, 由于我们团队实际情况, 我们暂时还不能保证外部存储的高可用. 同时, 鉴于我们对镜像服务高可用的迫切需求, 决定调研新的 Harbor 的高可用方案.</p>
+<p>选择了 Solution 4 (双主复制方案), 这个解决方案, 使用复制来实现高可用, 它不需要共享存储、外部数据库服务、外部 Redis 服务. 这种方案可以有效的解决镜像服务的单点故障. 架构图如下:</p>
+<p><img src="images/harbor-dual-master-replication-ha/solution-4.png" alt="harbor-dual-master-replication-ha-solution"></p>
+<p>从图中可以看到, 这种方案仅需要在两个 harbor 实例之间建立全量复制机制. 这种方案特别适合异地办公的团队.</p>
+<h2 id="环境">环境</h2>
+<p>以下是服务器和各组件的详细情况:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">服务器配置</th>
+<th style="text-align:left">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">虚拟机</td>
+<td style="text-align:left">2台</td>
+</tr>
+<tr>
+<td style="text-align:left">IP/内网</td>
+<td style="text-align:left">10.206.99.57,  10.206.99.58</td>
+</tr>
+<tr>
+<td style="text-align:left">配置</td>
+<td style="text-align:left">4核8G, 系统盘160G, 数据盘5T挂载到/data目录</td>
+</tr>
+<tr>
+<td style="text-align:left">操作系统</td>
+<td style="text-align:left">CentOS 7.9</td>
+</tr>
+<tr>
+<td style="text-align:left">用户</td>
+<td style="text-align:left">root</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>这里把数据磁盘挂到 <code>/data</code> 目录, 是因为 harbor 的数据卷配置默认就是它, 后面就不需要修改 harbor 这块的配置了.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">组件</th>
+<th style="text-align:left">配置/版本</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">docker-ce</td>
+<td style="text-align:left">20.10.14</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left">docker-compose</td>
+<td style="text-align:left">1.29.2</td>
+<td style="text-align:left">最新稳定版</td>
+</tr>
+<tr>
+<td style="text-align:left">harbor</td>
+<td style="text-align:left">v2.2.4</td>
+<td style="text-align:left">离线版</td>
+</tr>
+</tbody>
+</table>
+<h2 id="安装-docker">安装 docker</h2>
+<p>参考 <a href="https://docs.docker.com/engine/install/centos/">Install Docker Engine on CentOS</a> 来安装, 因为我是全新的系统, 直接安装:</p>
+<h3 id="安装-yum-仓库">安装 yum 仓库</h3>
+<p>安装 <code>yum-utils</code> 包, 它能提供 <code>yum-config-manager</code> 配置工具, 然后用工具来配置安装稳定的 yum 仓库.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">yum install -y yum-utils
+yum-config-manager <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --add-repo <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+</code></pre></div><blockquote>
+<p>这里使用阿里云镜像替换 <a href="https://download.docker.com/linux/centos/docker-ce.repo">https://download.docker.com/linux/centos/docker-ce.repo</a></p>
+</blockquote>
+<h3 id="安装-docker-引擎">安装 docker 引擎</h3>
+<p>安装最新稳定版 Docker 引擎和 containerd</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">yum install -y docker-ce docker-ce-cli containerd.io
+</code></pre></div><p>启动 docker 实例并配置开机自动启动</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">systemctl start docker
+systemctl enable docker
+</code></pre></div><h3 id="优化-docker-配置">优化 docker 配置</h3>
+<p>做一些 docker 相关的配置优化:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">cat <span style="color:#e6db74">&lt;&lt;EOF | tee /etc/docker/daemon.json
+</span><span style="color:#e6db74">{
+</span><span style="color:#e6db74">  &#34;exec-opts&#34;: [&#34;native.cgroupdriver=systemd&#34;],
+</span><span style="color:#e6db74">  &#34;log-driver&#34;: &#34;json-file&#34;,
+</span><span style="color:#e6db74">  &#34;log-opts&#34;: {
+</span><span style="color:#e6db74">    &#34;max-size&#34;: &#34;100m&#34;
+</span><span style="color:#e6db74">  },
+</span><span style="color:#e6db74">  &#34;storage-driver&#34;: &#34;overlay2&#34;,
+</span><span style="color:#e6db74">  &#34;storage-opts&#34;: [
+</span><span style="color:#e6db74">    &#34;overlay2.override_kernel_check=true&#34;
+</span><span style="color:#e6db74">  ]
+</span><span style="color:#e6db74">}
+</span><span style="color:#e6db74">EOF</span>
+</code></pre></div><p>重启启动 docker 实例</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">systemctl daemon-reload
+systemctl restart docker
+</code></pre></div><h3 id="安装-docker-compose">安装 docker-compose</h3>
+<p>harbor 使用 docker-compose 进行部署, 当前最新稳定版本是 1.29.2, 使用下面命令进行安装:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">curl -L <span style="color:#e6db74">&#34;https://github.com/docker/compose/releases/download/1.29.2/docker-compose-</span><span style="color:#66d9ef">$(</span>uname -s<span style="color:#66d9ef">)</span><span style="color:#e6db74">-</span><span style="color:#66d9ef">$(</span>uname -m<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span> -o /usr/local/bin/docker-compose
+<span style="color:#75715e"># 如果你的服务器也是 Linux-x86_64, 可以用这个国内的地址下载</span>
+curl -L <span style="color:#e6db74">&#34;https://rutron.oss-cn-beijing.aliyuncs.com/tools/docker-compose-Linux-x86_64&#34;</span> -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+</code></pre></div><h2 id="安装-harbor-实例">安装 Harbor 实例</h2>
+<p>打开 <a href="https://github.com/goharbor/harbor/releases">Harbor 下载页面</a>, 下载离线安装器. 因为之前使用的是 <code>v2.2.0</code> 版本, 有不少应用已经对接了 harbor 的 api, 为了兼容性, 我选择了 <code>v2.2.4</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># 使用 root 用户 ~ 目录</span>
+cd /root
+curl -O https://rutron.oss-cn-beijing.aliyuncs.com/harbor/harbor-offline-installer-v2.2.4.tgz
+tar xzvf harbor-offline-installer-v2.2.4.tgz
+cd harbor
+</code></pre></div><blockquote>
+<p>由于 github-releases 下载页面速度很慢, 我将下载好的包放在了 aliyun-oss 上</p>
+</blockquote>
+<h3 id="配置文件">配置文件</h3>
+<p>拷贝示例配置文件, 进行修改:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">cp harbor.yml.tmpl harbor.yml
+vi harbor.yml
+</code></pre></div><p>因为我打算采用默认安装, 所以需要修改的配置项不多, 仅有几个地方需要修改:</p>
+<ul>
+<li><strong>hostname:</strong> 访问 harbor admin ui 和镜像服务的 hostname 或者 ip</li>
+<li><strong>https:</strong>
+<ul>
+<li><strong>certificate:</strong> 线上服务基本都需要要开通 https, 为 https 配置证书路径</li>
+<li><strong>private_key:</strong> 为 https 配置私钥路径</li>
+</ul>
+</li>
+<li><strong>external_url:</strong> 如果要把 harbor 放在代理的后面, 比如请求会通过 nginx/f5 的代理转发才会到 harbor, 就需要配置该项. 如配置了该项, 上面的 <code>hostname</code> 配置就会失效.</li>
+<li><strong>database.paasword:</strong> 数据库密码, 线上环境必须修改</li>
+<li><strong>data_volume:</strong> 这是 harbor 的数据目录, 默认是 <code>/data</code>, 因为我服务器的数据盘就挂的 <code>/data</code> 目录, 这里就不需要修改了.</li>
+</ul>
+<p>下面是默认配置文件, 重点配置我都做了翻译。别看配置文件这么长，重要的都在前 50 行:</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 48
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 49
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 50
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 51
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 52
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 53
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 54
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 55
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 56
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 57
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 58
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 59
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 60
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 61
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 62
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 63
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 64
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 65
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 66
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 67
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 68
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 69
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 70
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 71
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 72
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 73
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 74
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 75
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 76
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 77
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 78
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 79
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 80
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 81
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 82
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 83
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 84
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 85
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 86
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 87
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 88
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 89
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 90
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 91
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 92
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 93
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 94
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 95
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 96
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 97
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 98
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 99
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">100
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">101
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">102
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">103
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">104
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">105
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">106
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">107
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">108
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">109
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">110
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">111
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">112
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">113
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">114
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">115
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">116
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">117
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">118
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">119
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">120
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">121
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">122
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">123
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">124
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">125
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">126
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">127
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">128
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">129
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">130
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">131
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">132
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">133
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">134
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">135
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">136
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">137
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">138
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">139
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">140
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">141
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">142
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">143
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">144
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">145
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">146
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">147
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">148
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">149
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">150
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">151
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">152
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">153
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">154
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">155
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">156
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">157
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">158
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">159
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">160
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">161
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">162
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">163
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">164
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">165
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">166
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">167
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">168
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">169
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">170
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">171
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">172
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">173
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">174
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">175
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">176
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">177
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">178
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">179
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">180
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">181
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">182
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">183
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">184
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">185
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">186
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">187
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">188
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">189
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">190
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">191
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">192
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">193
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">194
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">195
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">196
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">197
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">198
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">199
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">200
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">201
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">202
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">203
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">204
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">205
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">206
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#75715e"># Harbor 配置文件</span>
+
+<span style="color:#75715e"># 访问管理端 UI 和容器镜像服务使用的 IP 地址或者 hostname</span>
+<span style="color:#75715e"># 禁止使用 localhost 或 127.0.0.1, 因为 Harbor 需要被外部客户端访问</span>
+<span style="color:#f92672">hostname</span>: <span style="color:#ae81ff">reg.mydomain.com</span>
+
+<span style="color:#75715e"># http related config</span>
+<span style="color:#f92672">http</span>:
+  <span style="color:#75715e"># port for http, default is 80. If https enabled, this port will redirect to https port</span>
+  <span style="color:#f92672">port</span>: <span style="color:#ae81ff">80</span>
+
+<span style="color:#75715e"># https 相关配置</span>
+<span style="color:#f92672">https</span>:
+  <span style="color:#75715e"># harbor https 端口, 默认 443</span>
+  <span style="color:#f92672">port</span>: <span style="color:#ae81ff">443</span>
+  <span style="color:#75715e"># nginx 证书和私钥路径</span>
+  <span style="color:#f92672">certificate</span>: <span style="color:#ae81ff">/your/certificate/path</span>
+  <span style="color:#f92672">private_key</span>: <span style="color:#ae81ff">/your/private/key/path</span>
+
+<span style="color:#75715e"># # Uncomment following will enable tls communication between all harbor components</span>
+<span style="color:#75715e"># internal_tls:</span>
+<span style="color:#75715e">#   # set enabled to true means internal tls is enabled</span>
+<span style="color:#75715e">#   enabled: true</span>
+<span style="color:#75715e">#   # put your cert and key files on dir</span>
+<span style="color:#75715e">#   dir: /etc/harbor/tls/internal</span>
+
+<span style="color:#75715e"># 取消注释会开启外部代理</span>
+<span style="color:#75715e"># 如开启了该配置, 就不会使用 hostname 了</span>
+<span style="color:#75715e"># external_url: https://reg.mydomain.com:8433</span>
+
+<span style="color:#75715e"># Harbor 管理后台初始密码</span>
+<span style="color:#75715e"># 仅第一次安装 harbor 时有用</span>
+<span style="color:#75715e"># 登录 harbor 管理后台之后, 记得修改 admin 密码</span>
+<span style="color:#f92672">harbor_admin_password</span>: <span style="color:#ae81ff">Harbor12345</span>
+
+<span style="color:#75715e"># Harbor 数据库配置</span>
+<span style="color:#f92672">database</span>:
+  <span style="color:#75715e"># Harbor 数据库 root 用户的密码</span>
+  <span style="color:#75715e"># 上生产环境, 必须要修改</span>
+  <span style="color:#f92672">password</span>: <span style="color:#ae81ff">root123</span>
+  <span style="color:#75715e"># 空闲连接池中的最大连接数量</span>
+  <span style="color:#75715e"># 如果 &lt;=0 表示不保留任何空闲连接</span>
+  <span style="color:#f92672">max_idle_conns</span>: <span style="color:#ae81ff">50</span>
+  <span style="color:#75715e"># 数据库开启的最大连接数</span>
+  <span style="color:#75715e"># 如果 &lt;=0, 表示不限制打开连接数</span>
+  <span style="color:#75715e"># 注意: harbor 使用的 postgres 该配置默认是 1024</span>
+  <span style="color:#f92672">max_open_conns</span>: <span style="color:#ae81ff">1000</span>
+
+<span style="color:#75715e"># 默认数据卷</span>
+<span style="color:#f92672">data_volume</span>: <span style="color:#ae81ff">/data</span>
+
+<span style="color:#75715e"># Harbor Storage settings by default is using /data dir on local filesystem</span>
+<span style="color:#75715e"># Uncomment storage_service setting If you want to using external storage</span>
+<span style="color:#75715e"># storage_service:</span>
+<span style="color:#75715e">#   # ca_bundle is the path to the custom root ca certificate, which will be injected into the truststore</span>
+<span style="color:#75715e">#   # of registry&#39;s and chart repository&#39;s containers.  This is usually needed when the user hosts a internal storage with self signed certificate.</span>
+<span style="color:#75715e">#   ca_bundle:</span>
+
+<span style="color:#75715e">#   # storage backend, default is filesystem, options include filesystem, azure, gcs, s3, swift and oss</span>
+<span style="color:#75715e">#   # for more info about this configuration please refer https://docs.docker.com/registry/configuration/</span>
+<span style="color:#75715e">#   filesystem:</span>
+<span style="color:#75715e">#     maxthreads: 100</span>
+<span style="color:#75715e">#   # set disable to true when you want to disable registry redirect</span>
+<span style="color:#75715e">#   redirect:</span>
+<span style="color:#75715e">#     disabled: false</span>
+
+<span style="color:#75715e"># Trivy configuration</span>
+<span style="color:#75715e">#</span>
+<span style="color:#75715e"># Trivy DB contains vulnerability information from NVD, Red Hat, and many other upstream vulnerability databases.</span>
+<span style="color:#75715e"># It is downloaded by Trivy from the GitHub release page https://github.com/aquasecurity/trivy-db/releases and cached</span>
+<span style="color:#75715e"># in the local file system. In addition, the database contains the update timestamp so Trivy can detect whether it</span>
+<span style="color:#75715e"># should download a newer version from the Internet or use the cached one. Currently, the database is updated every</span>
+<span style="color:#75715e"># 12 hours and published as a new release to GitHub.</span>
+<span style="color:#f92672">trivy</span>:
+  <span style="color:#75715e"># ignoreUnfixed The flag to display only fixed vulnerabilities</span>
+  <span style="color:#f92672">ignore_unfixed</span>: <span style="color:#66d9ef">false</span>
+  <span style="color:#75715e"># skipUpdate The flag to enable or disable Trivy DB downloads from GitHub</span>
+  <span style="color:#75715e">#</span>
+  <span style="color:#75715e"># You might want to enable this flag in test or CI/CD environments to avoid GitHub rate limiting issues.</span>
+  <span style="color:#75715e"># If the flag is enabled you have to download the `trivy-offline.tar.gz` archive manually, extract `trivy.db` and</span>
+  <span style="color:#75715e"># `metadata.json` files and mount them in the `/home/scanner/.cache/trivy/db` path.</span>
+  <span style="color:#f92672">skip_update</span>: <span style="color:#66d9ef">false</span>
+  <span style="color:#75715e">#</span>
+  <span style="color:#75715e"># insecure The flag to skip verifying registry certificate</span>
+  <span style="color:#f92672">insecure</span>: <span style="color:#66d9ef">false</span>
+  <span style="color:#75715e"># github_token The GitHub access token to download Trivy DB</span>
+  <span style="color:#75715e">#</span>
+  <span style="color:#75715e"># Anonymous downloads from GitHub are subject to the limit of 60 requests per hour. Normally such rate limit is enough</span>
+  <span style="color:#75715e"># for production operations. If, for any reason, it&#39;s not enough, you could increase the rate limit to 5000</span>
+  <span style="color:#75715e"># requests per hour by specifying the GitHub access token. For more details on GitHub rate limiting please consult</span>
+  <span style="color:#75715e"># https://developer.github.com/v3/#rate-limiting</span>
+  <span style="color:#75715e">#</span>
+  <span style="color:#75715e"># You can create a GitHub token by following the instructions in</span>
+  <span style="color:#75715e"># https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line</span>
+  <span style="color:#75715e">#</span>
+  <span style="color:#75715e"># github_token: xxx</span>
+
+<span style="color:#f92672">jobservice</span>:
+  <span style="color:#75715e"># Maximum number of job workers in job service</span>
+  <span style="color:#f92672">max_job_workers</span>: <span style="color:#ae81ff">10</span>
+
+<span style="color:#f92672">notification</span>:
+  <span style="color:#75715e"># Maximum retry count for webhook job</span>
+  <span style="color:#f92672">webhook_job_max_retry</span>: <span style="color:#ae81ff">10</span>
+
+<span style="color:#f92672">chart</span>:
+  <span style="color:#75715e"># Change the value of absolute_url to enabled can enable absolute url in chart</span>
+  <span style="color:#f92672">absolute_url</span>: <span style="color:#ae81ff">disabled</span>
+
+<span style="color:#75715e"># 日志配置</span>
+<span style="color:#f92672">log</span>:
+  <span style="color:#75715e"># 可选项 debug, info, warning, error, fatal</span>
+  <span style="color:#f92672">level</span>: <span style="color:#ae81ff">info</span>
+  <span style="color:#75715e"># 使用 local 存储的日志相关配置</span>
+  <span style="color:#f92672">local</span>:
+    <span style="color:#75715e"># 日志轮转文件数量</span>
+    <span style="color:#75715e"># 日志文件在被删除之前会轮转 rotate_count 次</span>
+    <span style="color:#75715e"># 如果 0 则删除旧版本而不是轮换。</span>
+    <span style="color:#f92672">rotate_count</span>: <span style="color:#ae81ff">50</span>
+    <span style="color:#75715e"># 当日志文件大于 rotate_size 个字节 bytes 时会轮换</span>
+    <span style="color:#75715e"># 如果 size 后跟 k 则表示以 kb 为单位, 也可以跟 M/G</span>
+    <span style="color:#75715e"># 所以 100/100k/100M/200G 都是合法的</span>
+    <span style="color:#f92672">rotate_size</span>: <span style="color:#ae81ff">200M</span>
+    <span style="color:#75715e"># 存储日志的主机目录</span>
+    <span style="color:#f92672">location</span>: <span style="color:#ae81ff">/var/log/harbor</span>
+
+  <span style="color:#75715e"># Uncomment following lines to enable external syslog endpoint.</span>
+  <span style="color:#75715e"># external_endpoint:</span>
+  <span style="color:#75715e">#   # protocol used to transmit log to external endpoint, options is tcp or udp</span>
+  <span style="color:#75715e">#   protocol: tcp</span>
+  <span style="color:#75715e">#   # The host of external endpoint</span>
+  <span style="color:#75715e">#   host: localhost</span>
+  <span style="color:#75715e">#   # Port of external endpoint</span>
+  <span style="color:#75715e">#   port: 5140</span>
+
+<span style="color:#75715e">#This attribute is for migrator to detect the version of the .cfg file, DO NOT MODIFY!</span>
+<span style="color:#f92672">_version</span>: <span style="color:#ae81ff">2.2.0</span>
+
+<span style="color:#75715e"># Uncomment external_database if using external database.</span>
+<span style="color:#75715e"># external_database:</span>
+<span style="color:#75715e">#   harbor:</span>
+<span style="color:#75715e">#     host: harbor_db_host</span>
+<span style="color:#75715e">#     port: harbor_db_port</span>
+<span style="color:#75715e">#     db_name: harbor_db_name</span>
+<span style="color:#75715e">#     username: harbor_db_username</span>
+<span style="color:#75715e">#     password: harbor_db_password</span>
+<span style="color:#75715e">#     ssl_mode: disable</span>
+<span style="color:#75715e">#     max_idle_conns: 2</span>
+<span style="color:#75715e">#     max_open_conns: 0</span>
+<span style="color:#75715e">#   notary_signer:</span>
+<span style="color:#75715e">#     host: notary_signer_db_host</span>
+<span style="color:#75715e">#     port: notary_signer_db_port</span>
+<span style="color:#75715e">#     db_name: notary_signer_db_name</span>
+<span style="color:#75715e">#     username: notary_signer_db_username</span>
+<span style="color:#75715e">#     password: notary_signer_db_password</span>
+<span style="color:#75715e">#     ssl_mode: disable</span>
+<span style="color:#75715e">#   notary_server:</span>
+<span style="color:#75715e">#     host: notary_server_db_host</span>
+<span style="color:#75715e">#     port: notary_server_db_port</span>
+<span style="color:#75715e">#     db_name: notary_server_db_name</span>
+<span style="color:#75715e">#     username: notary_server_db_username</span>
+<span style="color:#75715e">#     password: notary_server_db_password</span>
+<span style="color:#75715e">#     ssl_mode: disable</span>
+
+<span style="color:#75715e"># Uncomment external_redis if using external Redis server</span>
+<span style="color:#75715e"># external_redis:</span>
+<span style="color:#75715e">#   # support redis, redis+sentinel</span>
+<span style="color:#75715e">#   # host for redis: &lt;host_redis&gt;:&lt;port_redis&gt;</span>
+<span style="color:#75715e">#   # host for redis+sentinel:</span>
+<span style="color:#75715e">#   #  &lt;host_sentinel1&gt;:&lt;port_sentinel1&gt;,&lt;host_sentinel2&gt;:&lt;port_sentinel2&gt;,&lt;host_sentinel3&gt;:&lt;port_sentinel3&gt;</span>
+<span style="color:#75715e">#   host: redis:6379</span>
+<span style="color:#75715e">#   password:</span>
+<span style="color:#75715e">#   # sentinel_master_set must be set to support redis+sentinel</span>
+<span style="color:#75715e">#   #sentinel_master_set:</span>
+<span style="color:#75715e">#   # db_index 0 is for core, it&#39;s unchangeable</span>
+<span style="color:#75715e">#   registry_db_index: 1</span>
+<span style="color:#75715e">#   jobservice_db_index: 2</span>
+<span style="color:#75715e">#   chartmuseum_db_index: 3</span>
+<span style="color:#75715e">#   trivy_db_index: 5</span>
+<span style="color:#75715e">#   idle_timeout_seconds: 30</span>
+
+<span style="color:#75715e"># Uncomment uaa for trusting the certificate of uaa instance that is hosted via self-signed cert.</span>
+<span style="color:#75715e"># uaa:</span>
+<span style="color:#75715e">#   ca_file: /path/to/ca</span>
+
+<span style="color:#75715e"># Global proxy</span>
+<span style="color:#75715e"># Config http proxy for components, e.g. http://my.proxy.com:3128</span>
+<span style="color:#75715e"># Components doesn&#39;t need to connect to each others via http proxy.</span>
+<span style="color:#75715e"># Remove component from `components` array if want disable proxy</span>
+<span style="color:#75715e"># for it. If you want use proxy for replication, MUST enable proxy</span>
+<span style="color:#75715e"># for core and jobservice, and set `http_proxy` and `https_proxy`.</span>
+<span style="color:#75715e"># Add domain to the `no_proxy` field, when you want disable proxy</span>
+<span style="color:#75715e"># for some special registry.</span>
+<span style="color:#f92672">proxy</span>:
+  <span style="color:#f92672">http_proxy</span>:
+  <span style="color:#f92672">https_proxy</span>:
+  <span style="color:#f92672">no_proxy</span>:
+  <span style="color:#f92672">components</span>:
+    - <span style="color:#ae81ff">core</span>
+    - <span style="color:#ae81ff">jobservice</span>
+    - <span style="color:#ae81ff">trivy</span>
+
+<span style="color:#75715e"># metric:</span>
+<span style="color:#75715e">#   enabled: false</span>
+<span style="color:#75715e">#   port: 9090</span>
+<span style="color:#75715e">#   path: /metrics</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="默认安装">默认安装</h3>
+<p>默认安装不含 Notary, Trivy, 或者 Chart 仓库服务, 执行下面的命令:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">./install.sh
+</code></pre></div><p>查看安装状态:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">docker ps
+</code></pre></div><p>如果所有的容器的状态 STATUS 都为 <code>Up About a minute (healthy)</code> 说明安装成功~<br>
+打开 harbor admin ui 验证下吧! 别忘了修改 admin 的密码. 使用同样的方式将两台虚拟机的 docker、docker-compose 和 harbor 都安装好.</p>
+<h3 id="更改配置">更改配置</h3>
+<p>如果需要更改 harbor 的配置, 请按照如下步骤操作:</p>
+<ol>
+<li>停止 harbor</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># 首先进入工作目录</span>
+cd ~/harbor/
+docker-compose down -v
+</code></pre></div><ol start="2">
+<li>更新配置文件</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">vim harbor.yml
+</code></pre></div><ol start="3">
+<li>运行脚本生成最终配置</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">./prepare
+</code></pre></div><ol start="4">
+<li>重新启动 harbor 实例</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">docker-compose up -d
+</code></pre></div><ol start="5">
+<li>其他命令</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># 重装前清理历史数据</span>
+rm -rf /data/database
+rm -rf /data/registry
+rm -rf /data/redis
+</code></pre></div><h2 id="配置双主复制">配置双主复制</h2>
+<p>在其中一台 harbor 实例上配置，我以 10.206.99.58 为例，另一实例同理，首先需要创建仓库，点击<code>系统管理&gt;仓库管理&gt;新建目标</code>，按照如下填写：</p>
+<p><img src="images/harbor-dual-master-replication-ha/add-harbor-instance.png" alt="add-harbor-instance"></p>
+<p>然后，创建复制规则，点击<code>系统管理&gt;复制管理&gt;新建规则</code>，按照如下填写：</p>
+<p><img src="images/harbor-dual-master-replication-ha/add-replication-rule.png" alt="add-replication-rule"></p>
+<p>这样，当用户往 10.206.99.58 中推送/删除镜像时，10.206.99.57 也会同步发生变化。</p>
+<h2 id="增加反向代理">增加反向代理</h2>
+<p>现在两个 harbor 实例都已经配置好了。用户看到的是两个完全独立的 harbor，他们的用户独立，访问地址不同。当然有些场景下这样已经可以满足需求了，比如异地办公的团队（可以按照地域区分使用访问地址）。如果我们想统一访问地址，可以在前面增加一个反向代理。而且可以将 ssl 证书部署在代理上。还是比较推荐的。所以我希望这个代理能实现：</p>
+<ol>
+<li><strong>统一的访问入口：</strong> 将两个 harbor 地址统一为一个。</li>
+<li><strong>卸载 ssl 证书：</strong> 这将简化 harbor 实例的配置，更易于证书的管理。</li>
+<li><strong>会话保持：</strong> 因为 harbor 之间复制是有时间差的，用户往一个实例中推送镜像之后不可能立即在另一实例中拉取到，所以要将客户端的请求固定到一个实例上。</li>
+</ol>
+<blockquote>
+<p>但是很遗憾，harbor 实例之间用户和相关权限是无法同步的。这可能需要需要一些外在的机制实现了。</p>
+</blockquote>
+<p>我假设提供给用户的域名是：registry.example.com，我使用 nginx 作为这个反向代理，它的配置文件<code>/etc/nginx/conf.d/registry.example.com.conf</code>是这样的。</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-nginx" data-lang="nginx"><span style="color:#66d9ef">upstream</span> <span style="color:#e6db74">harbor</span>{
+    <span style="color:#f92672">ip_hash</span>;
+    <span style="color:#f92672">server</span> <span style="color:#ae81ff">10</span><span style="color:#e6db74">.206.99.57</span>;
+    <span style="color:#f92672">server</span> <span style="color:#ae81ff">10</span><span style="color:#e6db74">.206.99.58</span>;
+}
+
+<span style="color:#66d9ef">server</span> {
+    <span style="color:#f92672">listen</span> <span style="color:#ae81ff">80</span>;
+    <span style="color:#f92672">server_name</span> <span style="color:#e6db74">registry.example.com</span>;
+    <span style="color:#f92672">rewrite</span> <span style="color:#e6db74">^(.*)</span>$ <span style="color:#e6db74">https://</span>$host$1;
+}
+
+<span style="color:#66d9ef">server</span> {
+    <span style="color:#f92672">listen</span> <span style="color:#ae81ff">443</span> <span style="color:#e6db74">ssl</span>;
+    <span style="color:#f92672">server_name</span> <span style="color:#e6db74">registry.example.com</span>;
+
+    <span style="color:#f92672">charset</span> <span style="color:#e6db74">utf-8</span>;
+    <span style="color:#f92672">client_max_body_size</span> <span style="color:#ae81ff">0</span>;
+    <span style="color:#f92672">client_header_timeout</span> <span style="color:#ae81ff">180</span>;
+    <span style="color:#f92672">client_body_timeout</span> <span style="color:#ae81ff">180</span>;
+    <span style="color:#f92672">send_timeout</span> <span style="color:#ae81ff">180</span>;
+    
+    <span style="color:#f92672">ssl_certificate</span> <span style="color:#e6db74">/etc/nginx/conf.d/cert/registry_example_com.pem</span>;
+    <span style="color:#f92672">ssl_certificate_key</span> <span style="color:#e6db74">/etc/nginx/conf.d/cert/registry_example_com.key</span>;
+    <span style="color:#f92672">ssl_session_timeout</span> <span style="color:#ae81ff">5m</span>;
+    <span style="color:#f92672">ssl_ciphers</span> <span style="color:#e6db74">ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4:!DH:!DHE</span>;
+    <span style="color:#f92672">ssl_protocols</span> <span style="color:#e6db74">TLSv1</span> <span style="color:#e6db74">TLSv1.1</span> <span style="color:#e6db74">TLSv1.2</span> <span style="color:#e6db74">TLSv1.3</span>;
+    <span style="color:#f92672">ssl_prefer_server_ciphers</span> <span style="color:#66d9ef">on</span>;
+
+    <span style="color:#f92672">proxy_http_version</span> <span style="color:#ae81ff">1</span><span style="color:#e6db74">.1</span>;
+    <span style="color:#f92672">proxy_connect_timeout</span> <span style="color:#ae81ff">900</span>;
+    <span style="color:#f92672">proxy_send_timeout</span> <span style="color:#ae81ff">900</span>;
+    <span style="color:#f92672">proxy_read_timeout</span> <span style="color:#ae81ff">900</span>;
+    <span style="color:#f92672">proxy_buffering</span> <span style="color:#66d9ef">off</span>;
+    <span style="color:#f92672">proxy_request_buffering</span> <span style="color:#66d9ef">off</span>;
+    <span style="color:#f92672">proxy_set_header</span> <span style="color:#e6db74">X-Real-IP</span> $remote_addr;
+    <span style="color:#f92672">proxy_set_header</span> <span style="color:#e6db74">X-Forwarded-For</span> $proxy_add_x_forwarded_for;
+
+    <span style="color:#75715e"># 如果harbor实例仅配置了ip类型的hostname这里就不用配置了
+</span><span style="color:#75715e"></span>    <span style="color:#75715e"># 如果配置了可解析的hostname/external_url需要打开注释
+</span><span style="color:#75715e"></span>    <span style="color:#75715e"># proxy_set_header Host $host;
+</span><span style="color:#75715e"></span>
+    <span style="color:#75715e"># 如果external_url中使用https但是代理访问harbor使用http需要打开注释
+</span><span style="color:#75715e"></span>    <span style="color:#75715e"># 同时去掉harbor实例内部的nginx相关的$scheme配置
+</span><span style="color:#75715e"></span>    <span style="color:#75715e"># proxy_set_header X-Forwarded-Proto $scheme;
+</span><span style="color:#75715e"></span>
+    <span style="color:#f92672">location</span> <span style="color:#e6db74">/</span> {
+        <span style="color:#f92672">proxy_pass</span> <span style="color:#e6db74">http://harbor</span>;
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>运行 nginx 反向代理：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># 将证书和配置文件都放在 /etc/nginx/conf.d 路径下</span>
+docker run -d --restart<span style="color:#f92672">=</span>always <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --name<span style="color:#f92672">=</span>nginx <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    -p 80:80 -p 443:443 <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    -v /etc/nginx/conf.d:/etc/nginx/conf.d <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    nginx
+</code></pre></div><p>测试对 registry.example.com 进行<code>login/push/pull</code>镜像均正常，检查两个 harbor 实例也同步正常。至此，完成～</p>
+<h2 id="总结">总结</h2>
+<p>至此，所有的安装/配置就结束了，通过体验测试我发现：</p>
+<ol>
+<li><strong>用户是独立的</strong><br>
+两个实例之间的项目、镜像、标签相关资源是可以同步的，但是用户不可以。如果用户要在两个实例直接切换使用的话，需要分别登录两个 harbor admin ui 为用户创建两个相同的账号。所以说该方案比较适合异地办公团队，仅做镜像数据的同步。</li>
+<li><strong>镜像同步有一定的时间差</strong><br>
+我的两个实例是所在虚拟机在一个网段内的，测试了一个约 900M 的镜像，从开始同步到结束大概是10秒种。如果用户在一台实例上推送之后，立马去另一台实例上拉去是不行的。所以如果两个实例前面要增加 http 代理的话，需要使用 ip_hash 负载均衡策略，将用户请求固定到其中一台实例上。</li>
+<li><strong>实例 url 地址不一致</strong><br>
+这个问题不严重，因为是两个实例，如果我们在他们前面再部署 http 代理的话，就是三个地址。所以，两个实例对应 admin ui 上的 url 地址和用户使用的（如果有代理）url 地址都不一样。 比如：
+<img src="images/harbor-dual-master-replication-ha/harbor-url.jpg" alt="harbor-url.jpg"></li>
+</ol>
+</div>
+    
+    <div class="col-12 col-md-6 mb-2 "><p>点击查看<a href="https://ebpf.io/what-is-ebpf">原文</a></p>
+<h2 id="什么是-ebpf">什么是 eBPF?</h2>
+<p>eBPF 是革命性技术, 起源于 linux 内核, 能够在操作系统内核中执行沙盒程序. 旨在不改变内核源码或加载内核模块的前提下安全便捷的扩展内核能力.</p>
+<p>历史上, 由于内核拥有全局查看并控制整个操作系统的特权, 操作系统一直被认为是实现可观察性, 安全, 网络功能的理想地方. 同时, 由于其核心角色和对于稳定和安全的高要求, 操作系统很难演进. 因此, 传统上与在操作系统之外实现的功能相比, 操作系统级别的创新率较低.</p>
+<p><img src="images/what-is-ebpf/overview.png" alt="overview"></p>
+<p>eBPF 从根本上改变了这种一成不变的状态. 通过允许在操作系统中执行沙盒程序, 开发者可以通过执行 eBPF 程序, 来给运行中的操作系统添加额外的能力. 就像在本地使用即时编译器(JIT)和验证引擎一样, 操作系统可以保证安全性和执行效率. 这催生了不少基于 eBPF 的项目, 涵盖了广泛的用例, 包括下一代网络、可观察性和安全功能.</p>
+<p>今天, eBPF 被广泛用于各种用例: 在现代化的数据中心和云原生环境中提供高性能网络和负载均衡, 以较低的开销提取细粒度的可观察性安全数据, 帮助应用程序开发者追踪应用, 并能够在性能故障分析、预防性应用和容器运行时安全执法等方面提供帮助. 它的可能性是无限的, 关于 eBPF 的创新才刚开始.</p>
+<h3 id="什么是-ebpfio">什么是 eBPF.io?</h3>
+<p>eBPF.io 是以 eBPF 为主题, 每个人学习和协作的地方. eBPF 是一个开源社区, 每个人可以实践或者分享. 不论你是想阅读 eBPF 第一篇介绍文章, 还是发现更多阅读素材, 抑或是为变成 eBPF 主项目贡献者迈出第一步, eBPF.io 会一直陪伴你帮助你.</p>
+<h2 id="介绍-ebpf">介绍 eBPF</h2>
+<p>下面的章节是关于 eBPF 的快速介绍. 如果你想了解更多, 查看 <a href="https://cilium.readthedocs.io/en/stable/bpf/">eBPF &amp; XDP Reference Guide</a>. 不管你是一名从事 eBPF 的开发者, 或是有兴趣使用 eBPF 作为解决方案, 理解基础概念和架构都是很有用的.</p>
+<h3 id="hook-概览">Hook 概览</h3>
+<p>eBPF 程序是事件驱动的, 能在内核或应用程序执行到一个特定的 hook 点时执行. 预定义的 hooks 包含系统调用, 函数出/入口, 内核追踪点, 网络事件等等.</p>
+<p><img src="images/what-is-ebpf/syscall_hook.png" alt="syscall_hook"></p>
+<p>如果预定义 hook 不能满足需求, 也可以创建内核探针(kprobe)或者用户探针(uprobe), 在内核/用户应用程序的任何位置, 把探针附加到 eBPF 程序上.</p>
+<h3 id="ebpf-程序怎么写">eBPF 程序怎么写?</h3>
+<p>在很多场景中, 用户不需要直接使用 eBPF, 而是通过一些项目, 比如 <a href="https://ebpf.io/projects/#cilium">cilium</a>, <a href="https://ebpf.io/projects/#bcc">bcc</a> 或 <a href="https://ebpf.io/projects/#bpftrace">bpftrace</a>, 它们是 eBPF 上层的抽象, 提供了使用 eBPF 实现的特定功能, 用户无需直接编写 eBPF 程序.</p>
+<p><img src="images/what-is-ebpf/clang.png" alt="clang"></p>
+<p>如果没有高级抽象, 就需要直接编写 eBPF 程序. Linux 内核要器加载字节码形式的 eBPF 程序. 虽然可以直接编写字节码, 但是更普遍的开发实践是借用像 <a href="https://llvm.org/">LLVM</a> 这样的编译器, 把伪 C 代码编译成字节码.</p>
+<h3 id="加载器--验证架构">加载器 &amp; 验证架构</h3>
+<p>当所需的钩子被识别后, 可以使用 bpf 系统调用将 eBPF 程序加载到 Linux 内核中. 这通常使用一个可用的 eBPF 工具库来完成. 下一节将介绍一些可用的开发工具链.</p>
+<p><img src="images/what-is-ebpf/go.png" alt="go"></p>
+<p>当程序加载到 Linux 内核中时, 它在附加到请求的钩子之前要经过两个步骤:</p>
+<h3 id="验证">验证</h3>
+<p>这一步是为了确保 eBPF 程序安全执行. 它验证程序是否满足一些条件, 比如:</p>
+<ul>
+<li>加载 eBPF 程序的进程拥有所需的能力(特权). 除非启用非特权 eBPF, 否则只有特权进程才能加载 eBPF 程序.</li>
+<li>该程序不能崩溃或者以其他方式伤害操作系统.</li>
+<li>该程序必须总是能执行完(即程序不会死循环, 阻止后面的处理).</li>
+</ul>
+<h3 id="即时编译-jit">即时编译 (JIT)</h3>
+<p>该步骤将通用字节码翻译成机器特定的指令集, 以优化程序的执行速度. 这使 eBPF 程序像原生编译的内核代码或者像已加载的内核模块代码一样高效运行.</p>
+<h3 id="maps">Maps</h3>
+<p>eBPF 程序一个重要能力是: 能够共享收集的信息, 能够存储状态. 为了实现该能力, eBPF 程序借用 Maps 来存储/获取数据, 它支持丰富的数据结构. 通过系统调用, 可以从 eBPF 程序或者用户空间应用访问 maps.</p>
+<p><img src="images/what-is-ebpf/map_architecture.png" alt="map_architecture"></p>
+<p>为了解 map 类型的多样性, 下面是不完整的 map 类型列表. 这些类型的变量同时是 共享变量 和 per-CPU 变量.</p>
+<ul>
+<li>Hash tables, Arrays 哈希表, 数组</li>
+<li>LRU (Least Recently Used) 最近最少使用</li>
+<li>Ring Buffer 环形缓冲区</li>
+<li>Stack Trace 堆栈跟踪</li>
+<li>LPM (Longest Prefix Match) 最长前缀匹配</li>
+<li>&hellip;</li>
+</ul>
+<h3 id="帮助函数">帮助函数</h3>
+<p>eBPF 程序不能随意调用内核函数. 如果允许的话, 将会把 eBPF 程序绑定到特定的内核版本, 这会使程序的兼容性复杂化. 所以, eBPF 程序转而使用帮助函数, 它是内核提供的大家熟知的稳定的 API.</p>
+<p><img src="images/what-is-ebpf/helper.png" alt="helper"></p>
+<p>可用的帮助函数还在持续发展中, 例如:</p>
+<ul>
+<li>生成随机数</li>
+<li>获取当前时间和日期</li>
+<li>访问 eBPF map</li>
+<li>获取 process/cgroup 上下文</li>
+<li>网络数据包处理和转发逻辑</li>
+</ul>
+<h3 id="尾调用--函数调用">尾调用 &amp; 函数调用</h3>
+<p>eBPF 程序可以组合使用尾调用和函数调用(tail &amp; function calls). 函数调用允许在 eBPF 程序中定义和调用函数. 尾调用可以调用执行其他 eBPF 程序, 并替换执行上下文, 类似于 <code>execve()</code> 系统调用对常规进程的操作方式.</p>
+<p><img src="images/what-is-ebpf/tailcall.png" alt="tailcall"></p>
+<h3 id="ebpf-安全">eBPF 安全</h3>
+<p><em>权利越大, 责任越大</em></p>
+<p>eBPF 是一项伟大的技术, 当下在很多关键软件中都扮演了核心的角色. 在 eBPF 程序开发过程中, 当 eBPF 进入 Linux 内核时, eBPF 的安全性就变得异常重要. eBPF 的安全性通过下面几点来保证:</p>
+<h4 id="要求特权">要求特权</h4>
+<p>除非开启非特权 eBPF, 所有企图加载 eBPF 程序到内核的进程必须在特权模式（root）下运行，或者必须获得 CAP_BPF 能力. 这意味着非授信的程序不能加载 eBPF 程序.</p>
+<p>如果开启非特权 eBPF, 非特权进程可以加载特定的 eBPF 程序, 它们仅能使用被缩减的功能集合, 并且将受限制的访问内核.</p>
+<h4 id="验证器">验证器</h4>
+<p>如果进程允许加载 eBPF 程序, 所有的程序都要经过 eBPF 验证器, 验证器来确保程序本身的安全性. 这意味着:</p>
+<ul>
+<li>通过验证的程序一定会执行完, 比如, eBPF 程序不会卡住或死循环. eBPF 程序可以包含有边界的循环, 但是验证器要求, 循环必须具有可以被执行到的退出条件.</li>
+<li>程序不能使用任何未初始化的变量或者越界访问内存.</li>
+<li>程序必须在系统要求的大小范围内. 随意大的 eBPF 程序是无法加载的.</li>
+<li>程序必须具备有限的复杂性. 验证器会评估所有可能的执行路径, 并且必须在配置的复杂度范围内完成分析.</li>
+</ul>
+<h4 id="加固">加固</h4>
+<p>完成验证之后, 根据 eBPF 程序是从特权进程还是非特权进程加载, 来决定是否加固的 eBPF 程序. 这包括:</p>
+<ul>
+<li><strong>程序执行保护</strong>: 存有 eBPF 程序的内核内存是被保护的并且是只读的. 不管是内核 bug 或者是被恶意操纵, 内核都将崩溃, 而不是允许它继续执行损坏/被操纵的程序.</li>
+<li><strong>Mitigation against Spectre</strong>: Under speculation CPUs may mispredict branches and leave observable side effects that could be extracted through a side channel. 举几个例子: eBPF programs mask memory access in order to redirect access under transient instructions to controlled areas, the verifier also follows program paths accessible only under speculative execution and the JIT compiler emits Retpolines in case tail calls cannot be converted to direct calls.</li>
+<li><strong>常量 blinding</strong>: 代码中的所有常量都被 blinded, 以防止 JIT spraying 攻击. 这可以避免: 当存在某种内核 bug 的情况下, 攻击者可以把可执行代码作为常量注入, 从而让攻击者跳转到 eBPF 程序的内存区域来执行代码.</li>
+</ul>
+<h4 id="抽象的运行时上下文">抽象的运行时上下文</h4>
+<p>eBPF 程序不能直接访问任意内核内存. 必须通过 <strong>eBPF 助手函数</strong>访问位于程序上下文之外的数据和数据结构. 这保证了一致性的数据访问, 并使任何此类访问均受制于 eBPF 程序的权限, 例如如果可以保证修改是安全的, 则允许运行的 eBPF 程序修改某些数据结构的数据. eBPF 程序不能随机修改内核中的数据结构.</p>
+<h2 id="为什么使用-ebpf">为什么使用 eBPF?</h2>
+<h3 id="可编程的力量">可编程的力量</h3>
+<p>还记得 GeoCities 吗? 20年前, 网页几乎全都是用静态标记语言(HTML)写的, 网页基本上是一种应用程序(浏览器)能打开的文件. 再看今天, 网页已经变成了非常成熟的应用, 并且 WEB 已经取代了绝大部分编译语言写的应用. 是什么成就了这次革命?</p>
+<p><img src="images/what-is-ebpf/geocities.png" alt="geocities"></p>
+<p>简单来说, 就是引入 JavaScript 之后的可编程性. 它开启了一场大规模的革命, 几乎将浏览器变成了独立的操作系统.</p>
+<p>为什么呢? 程序员不再受限于特定的浏览器版本. 没有去说服标准机构去定义更多需要的 HTML 标签, 相反, 而是提供了一些必要的构建模块, 将浏览器底层的演进和运行在其上层的应用进行分离. 这样说可能过于简单, 因为 HTML 的确做了不小的贡献, 也的确有所发展, 但是 HTML 本身的变革还不够.</p>
+<p>在举这个例子并将其应用到 eBPF 之前, 让我们看一下对引入 JavaScript 至关重要的几个关键方面:</p>
+<ul>
+<li><strong>安全性</strong>: 不受信任的代码在用户的浏览器中运行. 这是通过沙盒 JavaScript 程序和抽象对浏览器数据的访问来解决的.</li>
+<li><strong>持续交付</strong>: 在不需要浏览器发新版本的情况下, 程序要能不断更新. 这得益于浏览器低级的(low-level)构建模块, 它能构建任意的逻辑.</li>
+<li><strong>性能</strong>: 必须以最小的开销提供可编程性. 这得益于即时编译器(JIT).</li>
+</ul>
+<p>上面说的所有内容, 在 eBPF 中都能找到:</p>
+<h3 id="ebpf-对-linux-内核的影响">eBPF 对 Linux 内核的影响</h3>
+<p>现在我们回到 eBPF. 为了理解 eBPF 可编程性在 Linux 内核上的影响, 我们来看张图片, 它有助于我们对 Linux 内核的架构进行理解, 并且能了解它是如何与应用程序和硬件进行交互的.</p>
+<p><img src="images/what-is-ebpf/kernel_arch.png" alt="kernel_arch"></p>
+<p>Linux 内核的主要目的是抽象硬件或虚拟硬件, 并提供一致的 API(系统调用), 允许应用程序运行和共享资源. 为了实现这一点, 维护了大量的子系统和层来分配这些职责. 每个子系统通常允许某种级别的配置来满足不同的用户需求. 如果没办法通过配置满足某种需求, 则需要更改内核. 从历史上看, 有两种选择:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">原生支持</th>
+<th style="text-align:left">内核模块</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">1. 更改内核源代码并说服 Linux 内核社区</td>
+<td style="text-align:left">1. 写一个新的内核模块</td>
+</tr>
+<tr>
+<td style="text-align:left">2. 等几年新内核版本上市</td>
+<td style="text-align:left">2. 定期修复它, 因为每个内核版本都可能破坏它</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">3. 由于缺乏安全边界, 有损坏 Linux 内核的风险</td>
+</tr>
+</tbody>
+</table>
+<p>在不需要改变内核源码或者加载内核模块的情况下, eBPF 为重新编程内核行为提供了一种新的选择. 在很多地方, 这很像 JavaScript 和其他脚本语言, 它们让那些改变难度大, 成本高的系统开始演进.</p>
+<h2 id="开发工具链">开发工具链</h2>
+<p>有几个开发工具链来能够协助 eBPF 程序的开发和管理. 它们能满足用户的不同需求:</p>
+<h3 id="bcc">bcc</h3>
+<p>BCC 是一个框架, 能够让用户编写嵌入了 eBPF 程序的 python 程序. 该框架主要用来分析和跟踪应用/系统, eBPF 在其中主要负责收集统计数据或生成事件, 然后, 对应的用户空间程序会收集这些数据并以易读的方式进行展示. 运行 python 程序会生成 eBPF 字节码并将其加载进内核.</p>
+<p><img src="images/what-is-ebpf/bcc.png" alt="bcc"></p>
+<h3 id="bpftrace">bpftrace</h3>
+<p>bpftrace 是 Linux eBPF 的高级跟踪语言, 可用于最新的 Linux 内核(4.x). bpftrace 使用 LLVM 作为后端将脚本编译为 eBPF 字节码，并利用 BCC 与 Linux eBPF 子系统以及现有的 Linux 跟踪功能进行交互: 内核动态跟踪(kprobes)、用户级动态跟踪(uprobes)和跟踪点(tracepoints). bpftrace 语言的灵感来自 awk、C 和以前的跟踪器(如 DTrace 和 SystemTap).</p>
+<p><img src="images/what-is-ebpf/bpftrace.png" alt="bpftrace"></p>
+<h3 id="ebpf-go-类库">eBPF Go 类库</h3>
+<p>eBPF Go 库提供了一个通用的 eBPF 库, 它将获取 eBPF 字节码的过程与 eBPF 程序的加载和管理分离. eBPF 程序通常是通过编写高级语言创建的, 然后使用 clang/LLVM 编译器编译为 eBPF 字节码.</p>
+<p><img src="images/what-is-ebpf/go.png" alt="go"></p>
+<h3 id="libbpf-cc-类库">libbpf C/C++ 类库</h3>
+<p>libbpf 库是一个基于 C/C++ 的通用 eBPF 库. 它提供给应用程序一种易用的 API 来抽象化 BPF 系统调用, 并将 eBPF 字节码(clang/LLVM 编译器生成)加载到内核的过程与之分离.</p>
+<p><img src="images/what-is-ebpf/libbpf.png" alt="libbpf"></p>
+<h2 id="阅读更多">阅读更多</h2>
+<p>如果你想学习更多的 eBPF 知识, 阅读下面的材料:</p>
+<h3 id="文档">文档</h3>
+<ul>
+<li><a href="https://docs.cilium.io/en/stable/bpf/">BPF &amp; XDP Reference Guide</a><br>
+Cilium 文档, 2020年8月</li>
+<li><a href="https://www.kernel.org/doc/html/latest/bpf/index.html">BPF Documentation</a><br>
+Linux 内核中的 BPF 介绍文档</li>
+<li><a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/bpf/bpf_design_QA.rst">BPF Design Q&amp;A</a><br>
+内核相关的 eBPF 问答</li>
+</ul>
+<h3 id="教程">教程</h3>
+<ul>
+<li><a href="https://www.brendangregg.com/blog/2019-01-01/learn-ebpf-tracing.html">Learn eBPF Tracing: Tutorial and Examples</a><br>
+Brendan Gregg 的博客, 2019年1月</li>
+<li><a href="https://github.com/xdp-project/xdp-tutorial">XDP Hands-On Tutorials</a><br>
+很多作者, 2019年</li>
+<li><a href="https://facebookmicrosites.github.io/bpf/blog/">BCC, libbpf and BPF CO-RE Tutorials</a><br>
+Facebook 的 BPF 博客, 2020年</li>
+</ul>
+<h3 id="发言">发言</h3>
+<h4 id="基础">基础</h4>
+<ul>
+<li><a href="">eBPF and Kubernetes: Little Helper Minions for Scaling Microservices (Slides)</a><br>
+Daniel Borkmann, KubeCon EU, Aug 2020</li>
+<li><a href="">eBPF - Rethinking the Linux Kernel (Slides)</a><br>
+Thomas Graf, QCon London, April 2020</li>
+<li><a href="">BPF as a revolutionary technology for the container landscape (Slides)</a><br>
+Daniel Borkmann, FOSDEM, Feb 2020</li>
+<li><a href="">BPF at Facebook</a><br>
+Alexei Starovoitov, Performance Summit, Dec 2019</li>
+<li><a href="">BPF: A New Type of Software (Slides)</a><br>
+Brendan Gregg, Ubuntu Masters, Oct 2019</li>
+<li><a href="">The ubiquity but also the necessity of eBPF as a technology</a><br>
+David S. Miller, Kernel Recipes, Oct 2019</li>
+</ul>
+<h4 id="深入">深入</h4>
+<ul>
+<li><a href="">BPF and Spectre: Mitigating transient execution attacks (Slides)</a><br>
+Daniel Borkmann, eBPF Summit, Aug 2021</li>
+<li><a href="">BPF Internals (Slides)</a><br>
+Brendan Gregg, USENIX LISA, Jun 2021</li>
+</ul>
+<h4 id="cilium">Cilium</h4>
+<ul>
+<li><a href="">Advanced BPF Kernel Features for the Container Age (Slides)</a><br>
+Daniel Borkmann, FOSDEM, Feb 2021</li>
+<li><a href="">Kubernetes Service Load-Balancing at Scale with BPF &amp; XDP (Slides)</a><br>
+Daniel Borkmann &amp; Martynas Pumputis, Linux Plumbers, Aug 2020</li>
+<li><a href="">Liberating Kubernetes from kube-proxy and iptables (Slides)</a><br>
+Martynas Pumputis, KubeCon US 2019</li>
+<li><a href="">Understanding and Troubleshooting the eBPF Datapath in Cilium (Slides)</a><br>
+Nathan Sweet, KubeCon US 2019</li>
+<li><a href="">Transparent Chaos Testing with Envoy, Cilium and BPF (Slides)</a><br>
+Thomas Graf, KubeCon EU 2019</li>
+<li><a href="">Cilium - Bringing the BPF Revolution to Kubernetes Networking and Security (Slides)</a><br>
+Thomas Graf, All Systems Go!, Berlin, Sep 2018</li>
+<li><a href="">How to Make Linux Microservice-Aware with eBPF (Slides)</a><br>
+Thomas Graf, QCon San Francisco, 2018</li>
+<li><a href="">Accelerating Envoy with the Linux Kernel</a><br>
+Thomas Graf, KubeCon EU 2018</li>
+<li><a href="">Cilium - Network and Application Security with BPF and XDP (Slides)</a><br>
+Thomas Graf, DockerCon Austin, Apr 2017</li>
+</ul>
+<h4 id="hubble">Hubble</h4>
+<ul>
+<li><a href="">Hubble - eBPF Based Observability for Kubernetes</a><br>
+Sebastian Wicki, KubeCon EU, Aug 2020</li>
+</ul>
+<h3 id="图书">图书</h3>
+<ul>
+<li><a href="">Systems Performance: Enterprise and the Cloud, 2nd Edition</a><br>
+Brendan Gregg, Addison-Wesley Professional Computing Series, 2020</li>
+<li><a href="">BPF Performance Tools</a><br>
+Brendan Gregg, Addison-Wesley Professional Computing Series, Dec 2019</li>
+<li><a href="">Linux Observability with BPF</a><br>
+David Calavera, Lorenzo Fontana, O&rsquo;Reilly, Nov 2019</li>
+</ul>
+<h3 id="文章--博客">文章 &amp; 博客</h3>
+<ul>
+<li><a href="">BPF for security - and chaos - in Kubernetes</a><br>
+Sean Kerner, LWN, Jun 2019</li>
+<li><a href="">Linux Technology for the New Year: eBPF</a><br>
+Joab Jackson, Dec 2018</li>
+<li><a href="https://lwn.net/Articles/740157/">A thorough introduction to eBPF</a><br>
+Matt Fleming, LWN, Dec 2017</li>
+<li><a href="">Cilium, BPF and XDP</a><br>
+Google Open Source Blog, Nov 2016</li>
+<li><a href="">Archive of various articles on BPF</a><br>
+LWN, since Apr 2011</li>
+<li><a href="">Various articles on BPF by Cloudflare</a><br>
+Cloudflare, since March 2018</li>
+<li><a href="">Various articles on BPF by Facebook</a><br>
+Facebook, since August 2018</li>
+</ul>
+</div>
+    
+    <div class="col-12 col-md-6 mb-2 "><p>这篇文档主要演示了 opensnoop(Linux eBPF/bcc) 工具的使用.</p>
+<h2 id="示例">示例</h2>
+<p>opensnoop 在系统范围内跟踪 open() 系统调用，并打印各种详细信息.</p>
+<p>示例输出:</p>
+<pre tabindex="0"><code># ./opensnoop
+PID    COMM      FD ERR PATH
+17326  &lt;...&gt;      7   0 /sys/kernel/debug/tracing/trace_pipe
+1576   snmpd      9   0 /proc/net/dev
+1576   snmpd     11   0 /proc/net/if_inet6
+1576   snmpd     11   0 /proc/sys/net/ipv4/neigh/eth0/retrans_time_ms
+1576   snmpd     11   0 /proc/sys/net/ipv6/neigh/eth0/retrans_time_ms
+1576   snmpd     11   0 /proc/sys/net/ipv6/conf/eth0/forwarding
+1576   snmpd     11   0 /proc/sys/net/ipv6/neigh/eth0/base_reachable_time_ms
+1576   snmpd     11   0 /proc/sys/net/ipv4/neigh/lo/retrans_time_ms
+1576   snmpd     11   0 /proc/sys/net/ipv6/neigh/lo/retrans_time_ms
+1576   snmpd     11   0 /proc/sys/net/ipv6/conf/lo/forwarding
+1576   snmpd     11   0 /proc/sys/net/ipv6/neigh/lo/base_reachable_time_ms
+1576   snmpd      9   0 /proc/diskstats
+1576   snmpd      9   0 /proc/stat
+1576   snmpd      9   0 /proc/vmstat
+1956   supervise  9   0 supervise/status.new
+1956   supervise  9   0 supervise/status.new
+17358  run        3   0 /etc/ld.so.cache
+17358  run        3   0 /lib/x86_64-linux-gnu/libtinfo.so.5
+17358  run        3   0 /lib/x86_64-linux-gnu/libdl.so.2
+17358  run        3   0 /lib/x86_64-linux-gnu/libc.so.6
+17358  run       -1   6 /dev/tty
+17358  run        3   0 /proc/meminfo
+17358  run        3   0 /etc/nsswitch.conf
+17358  run        3   0 /etc/ld.so.cache
+17358  run        3   0 /lib/x86_64-linux-gnu/libnss_compat.so.2
+17358  run        3   0 /lib/x86_64-linux-gnu/libnsl.so.1
+17358  run        3   0 /etc/ld.so.cache
+17358  run        3   0 /lib/x86_64-linux-gnu/libnss_nis.so.2
+17358  run        3   0 /lib/x86_64-linux-gnu/libnss_files.so.2
+17358  run        3   0 /etc/passwd
+17358  run        3   0 ./run
+^C
+</code></pre><p>在跟踪时，snmpd 进程打开了各种 /proc 文件(读取指标). 另外, 一个 “run” 进程读取各种库和配置文件(看起来像
+正在启动: 一个新进程).</p>
+<p>如果在应用程序启动期间使用, <strong>opensnoop 可用于发现配置和日志文件</strong>.</p>
+<h2 id="过滤-pid">过滤 PID</h2>
+<p>-p 选项可用于在内核中过滤 PID. 这里我将它与 -T 一起使用来打印时间戳:</p>
+<pre tabindex="0"><code>$ ./opensnoop -Tp 1956
+TIME(s)       PID    COMM               FD ERR PATH
+0.000000000   1956   supervise           9   0 supervise/status.new
+0.000289999   1956   supervise           9   0 supervise/status.new
+1.023068000   1956   supervise           9   0 supervise/status.new
+1.023381997   1956   supervise           9   0 supervise/status.new
+2.046030000   1956   supervise           9   0 supervise/status.new
+2.046363000   1956   supervise           9   0 supervise/status.new
+3.068203997   1956   supervise           9   0 supervise/status.new
+3.068544999   1956   supervise           9   0 supervise/status.new
+</code></pre><p>这表明 supervise 进程每秒打开2次 status.new 文件.</p>
+<h2 id="包含过滤-uid">包含/过滤 UID</h2>
+<p>-U 选项在输出中包含 UID:</p>
+<pre tabindex="0"><code># ./opensnoop -U
+UID   PID    COMM               FD ERR PATH
+0     27063  vminfo              5   0 /var/run/utmp
+103   628    dbus-daemon        -1   2 /usr/local/share/dbus-1/system-services
+103   628    dbus-daemon        18   0 /usr/share/dbus-1/system-services
+103   628    dbus-daemon        -1   2 /lib/dbus-1/system-services
+</code></pre><p>-u 选项过滤 UID:</p>
+<pre tabindex="0"><code># ./opensnoop -Uu 1000
+UID   PID    COMM               FD ERR PATH
+1000  30240  ls                  3   0 /etc/ld.so.cache
+1000  30240  ls                  3   0 /lib/x86_64-linux-gnu/libselinux.so.1
+1000  30240  ls                  3   0 /lib/x86_64-linux-gnu/libc.so.6
+1000  30240  ls                  3   0 /lib/x86_64-linux-gnu/libpcre.so.3
+1000  30240  ls                  3   0 /lib/x86_64-linux-gnu/libdl.so.2
+1000  30240  ls                  3   0 /lib/x86_64-linux-gnu/libpthread.so.0
+</code></pre><h2 id="过滤失败的-opens">过滤失败的 opens</h2>
+<p>-x 选项仅打印失败的 opens:</p>
+<pre tabindex="0"><code># ./opensnoop -x
+PID    COMM      FD ERR PATH
+18372  run       -1   6 /dev/tty
+18373  run       -1   6 /dev/tty
+18373  multilog  -1  13 lock
+18372  multilog  -1  13 lock
+18384  df        -1   2 /usr/share/locale/en_US.UTF-8/LC_MESSAGES/coreutils.mo
+18384  df        -1   2 /usr/share/locale/en_US.utf8/LC_MESSAGES/coreutils.mo
+18384  df        -1   2 /usr/share/locale/en_US/LC_MESSAGES/coreutils.mo
+18384  df        -1   2 /usr/share/locale/en.UTF-8/LC_MESSAGES/coreutils.mo
+18384  df        -1   2 /usr/share/locale/en.utf8/LC_MESSAGES/coreutils.mo
+18384  df        -1   2 /usr/share/locale/en/LC_MESSAGES/coreutils.mo
+18385  run       -1   6 /dev/tty
+18386  run       -1   6 /dev/tty
+</code></pre><p>这里捕获了一个 df 命令无法打开 coreutils.mo 文件, 并尝试从其他目录打开.</p>
+<p>列 ERR 表示系统错误码, 2 代表 ENOENT: no such file or directory.</p>
+<p>可以使用 -d 选项设置最长跟踪持续时间. 例如, 要跟踪 2秒:</p>
+<pre tabindex="0"><code># ./opensnoop -d 2
+PID    COMM               FD ERR PATH
+2191   indicator-multi    11   0 /sys/block
+2191   indicator-multi    11   0 /sys/block
+2191   indicator-multi    11   0 /sys/block
+2191   indicator-multi    11   0 /sys/block
+2191   indicator-multi    11   0 /sys/block
+</code></pre><h2 id="过滤进程名称">过滤进程名称</h2>
+<p>-n 选项可用于过滤进程名称(部分匹配):</p>
+<pre tabindex="0"><code># ./opensnoop -n ed
+
+PID    COMM               FD ERR PATH
+2679   sed                 3   0 /etc/ld.so.cache
+2679   sed                 3   0 /lib/x86_64-linux-gnu/libselinux.so.1
+2679   sed                 3   0 /lib/x86_64-linux-gnu/libc.so.6
+2679   sed                 3   0 /lib/x86_64-linux-gnu/libpcre.so.3
+2679   sed                 3   0 /lib/x86_64-linux-gnu/libdl.so.2
+2679   sed                 3   0 /lib/x86_64-linux-gnu/libpthread.so.0
+2679   sed                 3   0 /proc/filesystems
+2679   sed                 3   0 /usr/lib/locale/locale-archive
+2679   sed                -1   2
+2679   sed                 3   0 /usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache
+2679   sed                 3   0 /dev/null
+2680   sed                 3   0 /etc/ld.so.cache
+2680   sed                 3   0 /lib/x86_64-linux-gnu/libselinux.so.1
+2680   sed                 3   0 /lib/x86_64-linux-gnu/libc.so.6
+2680   sed                 3   0 /lib/x86_64-linux-gnu/libpcre.so.3
+2680   sed                 3   0 /lib/x86_64-linux-gnu/libdl.so.2
+2680   sed                 3   0 /lib/x86_64-linux-gnu/libpthread.so.0
+2680   sed                 3   0 /proc/filesystems
+2680   sed                 3   0 /usr/lib/locale/locale-archive
+2680   sed                -1   2
+^C
+</code></pre><p>这里捕获了 “sed” 命令，是因为命令中使用了命令名称部分匹配 “-n ed”</p>
+<h2 id="过滤标志">过滤标志</h2>
+<p>-e 选项能打印出额外的列; 例如，以下输出包含传递给 open(2) 的标志(以八进制表示):</p>
+<pre tabindex="0"><code># ./opensnoop -e
+PID    COMM               FD ERR FLAGS    PATH
+28512  sshd               10   0 00101101 /proc/self/oom_score_adj
+28512  sshd                3   0 02100000 /etc/ld.so.cache
+28512  sshd                3   0 02100000 /lib/x86_64-linux-gnu/libwrap.so.0
+28512  sshd                3   0 02100000 /lib/x86_64-linux-gnu/libaudit.so.1
+28512  sshd                3   0 02100000 /lib/x86_64-linux-gnu/libpam.so.0
+28512  sshd                3   0 02100000 /lib/x86_64-linux-gnu/libselinux.so.1
+28512  sshd                3   0 02100000 /lib/x86_64-linux-gnu/libsystemd.so.0
+28512  sshd                3   0 02100000 /usr/lib/x86_64-linux-gnu/libcrypto.so.1.0.2
+28512  sshd                3   0 02100000 /lib/x86_64-linux-gnu/libutil.so.1
+</code></pre><p>-f 选项能基于 open(2) 调用的标志进行过滤, 比如:</p>
+<pre tabindex="0"><code># ./opensnoop -e -f O_WRONLY -f O_RDWR
+PID    COMM               FD ERR FLAGS    PATH
+28084  clear_console       3   0 00100002 /dev/tty
+28084  clear_console      -1  13 00100002 /dev/tty0
+28084  clear_console      -1  13 00100001 /dev/tty0
+28084  clear_console      -1  13 00100002 /dev/console
+28084  clear_console      -1  13 00100001 /dev/console
+28051  sshd                8   0 02100002 /var/run/utmp
+28051  sshd                7   0 00100001 /var/log/wtmp
+</code></pre><h2 id="基于-cgroup-集进行过滤">基于 cgroup 集进行过滤</h2>
+<p>&ndash;cgroupmap 选项基于 cgroup 集进行过滤, 它用于使用外部创建的映射.</p>
+<pre tabindex="0"><code># ./opensnoop --cgroupmap /sys/fs/bpf/test01
+</code></pre><p>更多信息, 查看 <a href="https://github.com/iovisor/bcc/blob/master/docs/special_filtering.md">docs/special_filtering.md</a></p>
+<h2 id="usage-说明">USAGE 说明</h2>
+<pre tabindex="0"><code># ./opensnoop -h
+usage: opensnoop.py [-h] [-T] [-U] [-x] [-p PID] [-t TID]
+                    [--cgroupmap CGROUPMAP] [--mntnsmap MNTNSMAP] [-u UID]
+                    [-d DURATION] [-n NAME] [-e] [-f FLAG_FILTER]
+
+跟踪 open() 系统调用
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -T, --timestamp       include timestamp on output
+  -U, --print-uid       include UID on output
+  -x, --failed          only show failed opens
+  -p PID, --pid PID     trace this PID only
+  -t TID, --tid TID     trace this TID only
+  --cgroupmap CGROUPMAP
+                        trace cgroups in this BPF map only
+  --mntnsmap MNTNSMAP   trace mount namespaces in this BPF map on
+  -u UID, --uid UID     trace this UID only
+  -d DURATION, --duration DURATION
+                        total duration of trace in seconds
+  -n NAME, --name NAME  only print process names containing this name
+  -e, --extended_fields
+                        show extended fields
+  -f FLAG_FILTER, --flag_filter FLAG_FILTER
+                        filter on flags argument (e.g., O_WRONLY)
+
+examples:
+    ./opensnoop           # trace all open() syscalls
+    ./opensnoop -T        # include timestamps
+    ./opensnoop -U        # include UID
+    ./opensnoop -x        # only show failed opens
+    ./opensnoop -p 181    # only trace PID 181
+    ./opensnoop -t 123    # only trace TID 123
+    ./opensnoop -u 1000   # only trace UID 1000
+    ./opensnoop -d 10     # trace for 10 seconds only
+    ./opensnoop -n main   # only print process names containing &quot;main&quot;
+    ./opensnoop -e        # show extended fields
+    ./opensnoop -f O_WRONLY -f O_RDWR  # only print calls for writing
+    ./opensnoop --cgroupmap mappath  # only trace cgroups in this BPF map
+    ./opensnoop --mntnsmap mappath   # only trace mount namespaces in the map
+</code></pre></div>
+    
+    <div class="col-12 col-md-6 mb-2 "><p>这篇文档主要演示了 tcplife(Linux eBPF/bcc) 工具的使用.</p>
+<h2 id="示例">示例</h2>
+<p>tcplife 总结了在跟踪期间打开和关闭的 TCP 会话. 比如:</p>
+<pre tabindex="0"><code># ./tcplife
+PID   COMM       LADDR           LPORT RADDR           RPORT TX_KB RX_KB MS
+22597 recordProg 127.0.0.1       46644 127.0.0.1       28527     0     0 0.23
+3277  redis-serv 127.0.0.1       28527 127.0.0.1       46644     0     0 0.28
+22598 curl       100.66.3.172    61620 52.205.89.26    80        0     1 91.79
+22604 curl       100.66.3.172    44400 52.204.43.121   80        0     1 121.38
+22624 recordProg 127.0.0.1       46648 127.0.0.1       28527     0     0 0.22
+3277  redis-serv 127.0.0.1       28527 127.0.0.1       46648     0     0 0.27
+22647 recordProg 127.0.0.1       46650 127.0.0.1       28527     0     0 0.21
+3277  redis-serv 127.0.0.1       28527 127.0.0.1       46650     0     0 0.26
+[...]
+</code></pre><p>这捕获了一个程序 “recordProg”, 它建立了一些到 “redis-serv” 的短暂的 TCP 连接, 每个连接持续大约 0.25 毫秒. 还有几个 “curl” 会话也被跟踪, 连接到端口 80, 持续了 91 和 121 毫秒.</p>
+<p>此工具对于工作负载表征和流量统计很有用: <strong>识别正在发生的连接以及传输的字节</strong>.</p>
+<p>在这个例子中, 我上传了一个 10 Mbyte 的文件到服务器, 然后再次使用 scp 下载:</p>
+<pre tabindex="0"><code># ./tcplife
+PID   COMM       LADDR           LPORT RADDR           RPORT TX_KB RX_KB MS
+7715  recordProg 127.0.0.1       50894 127.0.0.1       28527     0     0 0.25
+3277  redis-serv 127.0.0.1       28527 127.0.0.1       50894     0     0 0.30
+7619  sshd       100.66.3.172    22    100.127.64.230  63033     5 10255 3066.79
+7770  recordProg 127.0.0.1       50896 127.0.0.1       28527     0     0 0.20
+3277  redis-serv 127.0.0.1       28527 127.0.0.1       50896     0     0 0.24
+7793  recordProg 127.0.0.1       50898 127.0.0.1       28527     0     0 0.23
+3277  redis-serv 127.0.0.1       28527 127.0.0.1       50898     0     0 0.27
+7847  recordProg 127.0.0.1       50900 127.0.0.1       28527     0     0 0.24
+3277  redis-serv 127.0.0.1       28527 127.0.0.1       50900     0     0 0.29
+7870  recordProg 127.0.0.1       50902 127.0.0.1       28527     0     0 0.29
+3277  redis-serv 127.0.0.1       28527 127.0.0.1       50902     0     0 0.30
+7798  sshd       100.66.3.172    22    100.127.64.230  64925 10265     6 2176.15
+[...]
+</code></pre><p>可以看到 sshd 接收了 10 MB, 然后再传输出去. 看起来, 接收(3.07 秒)比传输(2.18 秒)慢.</p>
+<h2 id="宽显">宽显</h2>
+<p>进程名称被截断为 10 个字符. 通过使用宽选项 -w, 列宽变为 16 个字符. IP 地址栏也更宽, 以适合 IPv6 地址:</p>
+<pre tabindex="0"><code># ./tcplife -w
+PID   COMM             IP LADDR                      LPORT RADDR                      RPORT  TX_KB  RX_KB MS
+26315 recordProgramSt  4  127.0.0.1                  44188 127.0.0.1                  28527      0      0 0.21
+3277  redis-server     4  127.0.0.1                  28527 127.0.0.1                  44188      0      0 0.26
+26320 ssh              6  fe80::8a3:9dff:fed5:6b19   22440 fe80::8a3:9dff:fed5:6b19   22         1      1 457.52
+26321 sshd             6  fe80::8a3:9dff:fed5:6b19   22    fe80::8a3:9dff:fed5:6b19   22440      1      1 458.69
+26341 recordProgramSt  4  127.0.0.1                  44192 127.0.0.1                  28527      0      0 0.27
+3277  redis-server     4  127.0.0.1                  28527 127.0.0.1                  44192      0      0 0.32
+</code></pre><h2 id="添加时间戳">添加时间戳</h2>
+<p>可以使用 -t 添加时间戳:</p>
+<pre tabindex="0"><code># ./tcplife -t
+TIME(s)   PID   COMM       LADDR           LPORT RADDR           RPORT TX_KB RX_KB MS
+0.000000  5973  recordProg 127.0.0.1       47986 127.0.0.1       28527     0     0 0.25
+0.000059  3277  redis-serv 127.0.0.1       28527 127.0.0.1       47986     0     0 0.29
+1.022454  5996  recordProg 127.0.0.1       47988 127.0.0.1       28527     0     0 0.23
+1.022513  3277  redis-serv 127.0.0.1       28527 127.0.0.1       47988     0     0 0.27
+2.044868  6019  recordProg 127.0.0.1       47990 127.0.0.1       28527     0     0 0.24
+2.044924  3277  redis-serv 127.0.0.1       28527 127.0.0.1       47990     0     0 0.28
+3.069136  6042  recordProg 127.0.0.1       47992 127.0.0.1       28527     0     0 0.22
+3.069204  3277  redis-serv 127.0.0.1       28527 127.0.0.1       47992     0     0 0.28
+</code></pre><p>这表明 recordProg 进程每秒连接一次.</p>
+<p>另外 -T 选项可以使用 HH:MM:SS 格式时间戳.</p>
+<h2 id="逗号分隔列表">逗号分隔列表</h2>
+<p>-s 选项可以指定逗号分隔的列表模式. 这里同时使用了 -t 和 -T 类型的时间戳:</p>
+<pre tabindex="0"><code># ./tcplife -stT
+TIME,TIME(s),PID,COMM,IP,LADDR,LPORT,RADDR,RPORT,TX_KB,RX_KB,MS
+23:39:38,0.000000,7335,recordProgramSt,4,127.0.0.1,48098,127.0.0.1,28527,0,0,0.26
+23:39:38,0.000064,3277,redis-server,4,127.0.0.1,28527,127.0.0.1,48098,0,0,0.32
+23:39:39,1.025078,7358,recordProgramSt,4,127.0.0.1,48100,127.0.0.1,28527,0,0,0.25
+23:39:39,1.025141,3277,redis-server,4,127.0.0.1,28527,127.0.0.1,48100,0,0,0.30
+23:39:41,2.040949,7381,recordProgramSt,4,127.0.0.1,48102,127.0.0.1,28527,0,0,0.24
+23:39:41,2.041011,3277,redis-server,4,127.0.0.1,28527,127.0.0.1,48102,0,0,0.29
+23:39:42,3.067848,7404,recordProgramSt,4,127.0.0.1,48104,127.0.0.1,28527,0,0,0.30
+23:39:42,3.067914,3277,redis-server,4,127.0.0.1,28527,127.0.0.1,48104,0,0,0.35
+[...]
+</code></pre><h2 id="端口过滤">端口过滤</h2>
+<p>还有过滤本地/远端端口的选项. 这里就过滤了本地 22 和 80 端口.</p>
+<pre tabindex="0"><code># ./tcplife.py -L 22,80
+PID   COMM       LADDR           LPORT RADDR           RPORT TX_KB RX_KB MS
+8301  sshd       100.66.3.172    22    100.127.64.230  58671     3     3 1448.52
+[...]
+</code></pre><h2 id="usage-说明">USAGE 说明</h2>
+<pre tabindex="0"><code># ./tcplife.py -h
+usage: tcplife.py [-h] [-T] [-t] [-w] [-s] [-p PID] [-L LOCALPORT]
+                  [-D REMOTEPORT] [-4 | -6]
+
+跟踪 TCP 会话的生命周期并进行总结
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -T, --time            include time column on output (HH:MM:SS)
+  -t, --timestamp       include timestamp on output (seconds)
+  -w, --wide            wide column output (fits IPv6 addresses)
+  -s, --csv             comma separated values output
+  -p PID, --pid PID     trace this PID only
+  -L LOCALPORT, --localport LOCALPORT
+                        comma-separated list of local ports to trace.
+  -D REMOTEPORT, --remoteport REMOTEPORT
+                        comma-separated list of remote ports to trace.
+  -4, --ipv4            trace IPv4 family only
+  -6, --ipv6            trace IPv6 family only
+
+examples:
+    ./tcplife           # trace all TCP connect()s
+    ./tcplife -t        # include time column (HH:MM:SS)
+    ./tcplife -w        # wider columns (fit IPv6)
+    ./tcplife -stT      # csv output, with times &amp; timestamps
+    ./tcplife -p 181    # only trace PID 181
+    ./tcplife -L 80     # only trace local port 80
+    ./tcplife -L 80,81  # only trace local ports 80 and 81
+    ./tcplife -D 80     # only trace remote port 80
+    ./tcplife -4        # only trace IPv4 family
+    ./tcplife -6        # only trace IPv6 family
+</code></pre></div>
+    
+    <div class="col-12 col-md-6 mb-2 "><h2 id="ppt-分享">PPT 分享</h2>
+<p>以下是 &lt;实践中总结 Kubernetes 必须了解的核心内容&gt; 主题分享 PPT</p>
+<p><img src="images/intro-kubernetes/1.jpg" alt="ppt-page-1"></p>
+<hr>
+<p><img src="images/intro-kubernetes/3.jpg" alt="ppt-page-3"></p>
+<hr>
+<p><img src="images/intro-kubernetes/4.jpg" alt="ppt-page-4"></p>
+<hr>
+<p><img src="images/intro-kubernetes/5.jpg" alt="ppt-page-5"></p>
+<hr>
+<p><img src="images/intro-kubernetes/6.jpg" alt="ppt-page-6"></p>
+<hr>
+<p><img src="images/intro-kubernetes/7.jpg" alt="ppt-page-7"></p>
+<hr>
+<p><img src="images/intro-kubernetes/8.jpg" alt="ppt-page-8"></p>
+<hr>
+<p><img src="images/intro-kubernetes/9.jpg" alt="ppt-page-9"></p>
+<hr>
+<p><img src="images/intro-kubernetes/10.jpg" alt="ppt-page-10"></p>
+<hr>
+<p><img src="images/intro-kubernetes/11.jpg" alt="ppt-page-11"></p>
+<hr>
+<p><img src="images/intro-kubernetes/12.jpg" alt="ppt-page-12"></p>
+<hr>
+<p><img src="images/intro-kubernetes/13.jpg" alt="ppt-page-13"></p>
+<hr>
+<p><img src="images/intro-kubernetes/14.jpg" alt="ppt-page-14"></p>
+<hr>
+<p><img src="images/intro-kubernetes/15.jpg" alt="ppt-page-15"></p>
+<hr>
+<p><img src="images/intro-kubernetes/16.jpg" alt="ppt-page-16"></p>
+<hr>
+<p><img src="images/intro-kubernetes/17.jpg" alt="ppt-page-17"></p>
+<hr>
+<p><img src="images/intro-kubernetes/18.jpg" alt="ppt-page-18"></p>
+<hr>
+<p><img src="images/intro-kubernetes/19.jpg" alt="ppt-page-19"></p>
+<hr>
+<p><img src="images/intro-kubernetes/20.jpg" alt="ppt-page-20"></p>
+<hr>
+<p><img src="images/intro-kubernetes/21.jpg" alt="ppt-page-21"></p>
+<hr>
+<p><img src="images/intro-kubernetes/22.jpg" alt="ppt-page-22"></p>
+<hr>
+<p><img src="images/intro-kubernetes/23.jpg" alt="ppt-page-23"></p>
+<hr>
+<p><img src="images/intro-kubernetes/24.jpg" alt="ppt-page-24"></p>
+<hr>
+<p><img src="images/intro-kubernetes/25.jpg" alt="ppt-page-25"></p>
+<hr>
+<p><img src="images/intro-kubernetes/26.jpg" alt="ppt-page-26"></p>
+<hr>
+<p><img src="images/intro-kubernetes/27.jpg" alt="ppt-page-27"></p>
+<hr>
+<p><img src="images/intro-kubernetes/28.jpg" alt="ppt-page-28"></p>
+<hr>
+<p><img src="images/intro-kubernetes/29.jpg" alt="ppt-page-29"></p>
+<hr>
+<p><img src="images/intro-kubernetes/30.jpg" alt="ppt-page-30"></p>
+<hr>
+<p><img src="images/intro-kubernetes/31.jpg" alt="ppt-page-31"></p>
+<hr>
+<p><img src="images/intro-kubernetes/32.jpg" alt="ppt-page-32"></p>
+<hr>
+<p><img src="images/intro-kubernetes/33.jpg" alt="ppt-page-33"></p>
+<hr>
+<p><img src="images/intro-kubernetes/34.jpg" alt="ppt-page-34"></p>
+<hr>
+<p><img src="images/intro-kubernetes/35.jpg" alt="ppt-page-35"></p>
+<hr>
+<p><img src="images/intro-kubernetes/36.jpg" alt="ppt-page-36"></p>
+<hr>
+<p><img src="images/intro-kubernetes/37.jpg" alt="ppt-page-37"></p>
+<hr>
+<p><img src="images/intro-kubernetes/38.jpg" alt="ppt-page-38"></p>
+<hr>
+<p><img src="images/intro-kubernetes/39.jpg" alt="ppt-page-39"></p>
+<hr>
+<p>完~</p>
+</div>
+    
+    <div class="col-12 col-md-6 mb-2 "><h2 id="前言">前言</h2>
+<p>kubernetes 中 pod 的设计是一个伟大的发明, 今天我很有必要去聊一下 pod 和 container, 探究一下它们究竟是什么? kubernetes 官方文档中关于<a href="https://kubernetes.io/zh/docs/concepts/workloads/pods/#pod-storage">pod 概念介绍</a>提供了一个完整的解释, 但写的不够详细, 表达过于专业, 但还是很推荐大家阅读一下. 当然这篇文档应该更接地气.</p>
+<h2 id="容器真的存在吗">容器真的存在吗?</h2>
+<p>linux 中是没有容器这个概念的, 容器就是 linux 中的普通进程, 它使用了 linux 内核提供的两个重要的特性: namespace &amp; cgroups.</p>
+<p>namespace 提供了一种隔离的特性, 让它之外的内容隐藏, 给它下面的进程一个不被干扰的运行环境(其实不完全,下面说) .</p>
+<p>namespace 包含:</p>
+<ul>
+<li>hostname</li>
+<li>Process IDs</li>
+<li>File System</li>
+<li>Network Interface</li>
+<li>Inter-Process Communication(IPC)</li>
+</ul>
+<p>接上面, 其实 namespace 内部的进程并不是完全不和外面的进程产生影响的. 进程可以不受限制的使用物理机上的所有资源, 这样就会导致其他进程无资源可用. 所以, 为了限制进程资源使用, linux 提供了另一种特性 cgroups.  进程可以像在 namespace 中运行, 但是 cgroups 限制了进程的可以使用的资源. 这些资源包括:</p>
+<ul>
+<li>CPU</li>
+<li>RAM</li>
+<li>block I/O</li>
+<li>network I/O</li>
+<li>etc.</li>
+</ul>
+<p>CPU 通常按照毫核来限制(单位:m), 1000m=1C;  内存按照RAM的字节数来限制. 进程可以在 cgroups 设置的资源限制范围内运行, 不允许超限使用, 比如, 超过内存限制就会报 OOM(out of memory) 的错误.</p>
+<p>需要特别说明的是, 上面提到的 namespace &amp; cgroup 都是 Linux 独立的特性, 你可以使用上面提到的 namespace 中的一个或者多个. namespace &amp; cgroup 作用到一组或者一个进程上. 你可以把多个进程放在一个 namespace 中, 这样它们就可以彼此交互, 或者 把他们放在一个 cgroups 中, 这样他们就可以共享一个CPU &amp; Mem 资源限制.</p>
+<h2 id="组合容器">组合容器</h2>
+<p>我们都用过 docker, 当我们启动一个容器的时候, docker 会帮我们给每一个容器创建它们自己的 namespace &amp; cgroups. 这应该就是我们理解的容器.</p>
+<p><img src="images/what-are-kubernetes-pods-anyway.assets/image-20210809102430362.png" alt="image-20210809102424781"></p>
+<p>如图, 容器本身还是比较独立的, 他们可能会有映射到主机的端口和卷, 这样就可以和外面通信. 但是我们也可以通过一些命令将多个容器组合到一组namespace中, 下面我们举个例子说明:</p>
+<p>首先, 创建一个 nginx 容器:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># cat &lt;&lt;EOF &gt;&gt; nginx.conf</span>
+&gt; error_log stderr;
+&gt; events <span style="color:#f92672">{</span> worker_connections  1024; <span style="color:#f92672">}</span>
+&gt; http <span style="color:#f92672">{</span>
+&gt;     access_log /dev/stdout combined;
+&gt;     server <span style="color:#f92672">{</span>
+&gt;         listen <span style="color:#ae81ff">80</span> default_server;
+&gt;         server_name example.com www.example.com;
+&gt;         location / <span style="color:#f92672">{</span>
+&gt;             proxy_pass http://127.0.0.1:2368;
+&gt;         <span style="color:#f92672">}</span>
+&gt;     <span style="color:#f92672">}</span>
+&gt; <span style="color:#f92672">}</span>
+&gt; EOF
+<span style="color:#75715e"># docker run -d --name nginx -v `pwd`/nginx.conf:/etc/nginx/nginx.conf -p 8080:80 --ipc=shareable nginx </span>
+</code></pre></div><p>接着, 我们再启动一个 ghost 容器, ghost 是一个开源的博客系统, 同时我们添加几个额外的命令到 nginx 容器上.</p>
+<pre tabindex="0"><code># docker run -d --name ghost --net=container:nginx --ipc=container:nginx --pid=container:nginx ghost
+</code></pre><p>好了, 现在 nginx 容器可以通过 localhost 将请求代理到 ghost 容器, 访问 <code>http://localhost:8080</code>试试, 你可以通过 nginx 反向代理看到一个 ghost 博客. 上面的命令就把一组容器组合到里同一组 namespace 中, 容器彼此之间可以互相发现/通信.</p>
+<p>就像这样:</p>
+<p><img src="images/what-are-kubernetes-pods-anyway.assets/image-20210809134007587.png" alt="image-20210809134007587"></p>
+<h2 id="某种意义上-pod-就是一组容器">某种意义上, pod 就是一组容器</h2>
+<p>现在我们已经知道, 我们可以把一组进程组合到一个 namespace &amp; cgroups 中, 这就是 kubernetes 中的 pod.  pod 允许你定义你要运行的容器, 然后 kubernetes 会帮正确的配置 namespace &amp; cgroups. 它稍微复杂的一点是, 网络这块它没用 docker network, 而是用到了 CNI(通用网络接口), 但原理都差不多.</p>
+<p><img src="images/what-are-kubernetes-pods-anyway.assets/image-20210809135653975.png" alt="image-20210809135653975"></p>
+<p>按照上述方式创建的 pod, 更像是运行在同一台机器上, 他们之间可以通过 localhost 通信, 可以共享存储卷. 甚至他们可以使用 IPC 或者互相发送 HUP / TERM 这类信号.</p>
+<p>我们再举个例子, 如下图, 我们运行一个 nginx 反向代理 app,  再运行一个 confd, 当 app 实例增加或减少的时候去动态配置 <code>nginx.conf</code> 并重启 nginx, etcd 中存储了 app 的 ip 地址. 当 ip 列表发生变化, confd 会收到 etcd 发的通知, 并更新 <code>nginx.conf</code> 并给 nginx 发送一个 HUP 信号, nginx 收到 HUP 信号会重启.</p>
+<p><img src="images/what-are-kubernetes-pods-anyway.assets/image-20210809141738720.png" alt="image-20210809141738720"></p>
+<p>如果用 docker, 你大概会把 nginx 和 confd 放在一个容器中. 由于 docker 只有一个 entrypoint, 所以你要启动一个类似 supervisord 一样的进程管理器 来让 nginx 和 confd 都运行起来. 你每启动一个 nginx 副本就要启动一个 supervisord, 这不好吧. 更重要的是, docker 只知道 supervisord 的状态, 因为它只有一个 entrypoint. 它看不到里面的所有进程, 这就意味着, 你用 docker 提供的工具获取不到他们的信息. 一旦 nginx <code>Crash-Restart Loop</code>, docker 一点办法没有.</p>
+<p><img src="images/what-are-kubernetes-pods-anyway.assets/image-20210809142718304.png" alt="image-20210809142718304"></p>
+<p>通过 pod , kubernetes 能管理每一个进程, 看到他们的状态, 它可以通过 api 将进程状态信息暴露给用户, 或者提供进程崩溃时重启/记录日志等服务.</p>
+<p><img src="images/what-are-kubernetes-pods-anyway.assets/image-20210809143225671.png" alt="image-20210809143225671"></p>
+<h2 id="把容器当作接口">把容器当作接口</h2>
+<p>使用 pod 这种组织容器的方式, 可以把容器当作提供各种功能的 &ldquo;接口&rdquo;. 它不同于传统意义上的 web 接口. 更像是可以被容器所使用的某种抽象意义的接口.</p>
+<p>我们拿上面 nginx+confd 的例子来说, confd 不需要知道任何 nginx 进程的东西, 它就只需要去 watch etcd 然后给 nginx 进程发送 HUP 信号或者执行个命令. 而且你可以把 nginx 替换成其他任何类型的应用, 以这样的模式来使用 confd 的这种能力. 这种模式下, confd 通常被称作 <strong>&ldquo;sidecar container&rdquo;</strong>  边车容器, 下面这图就很形象.</p>
+<p><img src="images/what-are-kubernetes-pods-anyway.assets/image-20210809150256978.png" alt="image-20210809150256978"></p>
+<p>像 istio 这样的服务网格项目, 也是, 给应用程序容器放置一个边车容器来提供服务路由, 遥测, 网络策略等功能, 但是对应用程序并没有做任何侵略性更改. 你也可以使用多个边车容器来组织 pod, 比如在一个 pod 中同时放置 confd &amp; istio 边车容器. 用这样的方式, 可以构建更加复杂可靠的系统, 同时还能保持每个应用的独立性和简单性.</p>
+<h2 id="参考">参考</h2>
+<p><a href="https://www.ianlewis.org/en/what-are-kubernetes-pods-anyway">What are Kubernetes Pods Anyway?</a></p>
+<p><a href="https://jvns.ca/blog/2016/10/10/what-even-is-a-container/">What even is a container: namespaces and cgroups</a></p>
+<p>video: <a href="https://www.youtube.com/watch?v=sK5i-N34im8">Cgroups, namespaces, and beyond: what are containers made from?</a></p>
+</div>
+    
+  </div>
+</div>
+
+
+  </div>
+
+  <div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <div class="footer-inner">
+          
+          <ul class="social">
+              
+                  <li><a href="https://github.com/llaoj" target="blank"><img width="20" height="20" src="/social/github.svg" title="Github" alt="Github" /></a></li>
+              
+          </ul>
+          
+          <ul class="footer-menu">
+            <li><a href="https://www.rutron.net/">Home</a></li>
+            <li><a href="https://www.rutron.net/contact">Contact</a></li>
+            <li class="copyright">© 2022 如创科技</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  <div class="sub-footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <div class="sub-footer-inner">
+          <ul>
+            
+            <li><strong>Phone: </strong>15666139166</li>
+            
+            
+            <li><strong>Email: </strong><a href="mailto:rutronnet@163.com">rutronnet@163.com</a></li>
+            
+          </ul>
+          <ul>
+            
+            <li class="zerostatic"><a href="https://beian.miit.gov.cn/#/Integrated/index">鲁ICP备2021035257号-1</a></li>
+            
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/scripts.min.98ee06cc35517b5800b382aecb0fc59893e95b9c11dd21842d0d57e4f68043e3.js"></script>
+  
+
+  
+  
+  
+    
+  
+
+
+</body>
+</html>

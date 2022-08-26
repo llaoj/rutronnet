@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>harbor on 如创科技</title>
+    <link>https://www.rutron.net/tags/harbor/</link>
+    <description>Recent content in harbor on 如创科技</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh</language>
+    <lastBuildDate>Tue, 29 Mar 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://www.rutron.net/tags/harbor/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Harbor 双主复制解决方案实践</title>
+      <link>https://www.rutron.net/posts/2203/harbor-dual-master-replication-ha/</link>
+      <pubDate>Tue, 29 Mar 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.rutron.net/posts/2203/harbor-dual-master-replication-ha/</guid>
+      <description>既然使用了外部的服务, 那么高可用的压力自然而然的转移到了外部服务上. 我们一开始采用的外部的 NFS 共享存储服务, 由于我们团队实际情况, 我们暂时还不能保证外部存储的高可用. 同时, 鉴于我们对镜像服务高可用的迫切需求, 决定调研新的 Harbor 的高可用方案.</description>
+    </item>
+    
+  </channel>
+</rss>

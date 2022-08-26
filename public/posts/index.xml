@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on 如创科技</title>
+    <link>https://www.rutron.net/posts/</link>
+    <description>Recent content in Posts on 如创科技</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh</language>
+    <lastBuildDate>Sat, 16 Jul 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://www.rutron.net/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Kubernetes 服务器配置和规划建设要求</title>
+      <link>https://www.rutron.net/posts/2207/kubernetes-requirement/</link>
+      <pubDate>Sat, 16 Jul 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.rutron.net/posts/2207/kubernetes-requirement/</guid>
+      <description>新建集群的第一步就是要规划服务器、网络、操作系统等等, 下面就结合我平时的工作经验总结下相关的要求, 内容根据日常工作持续补充完善:
+服务器配置 kubernetes 集群分为控制节点和数据节点, 它们对于配置的要求有所不同:
+控制面    节点规模 Master规格     1~5个节点 4核 8Gi（不建议2核 4Gi）   6~20个节点 4核 16Gi   21~100个节点 8核 32Gi   100~200个节点 16核 64Gi    系统盘40+Gi，用于储存 etcd 信息及相关配置文件等
+数据面  规格：CPU &amp;gt;= 4核, 内存 &amp;gt;= 8Gi 确定整个集群的日常使用的总核数以及可用度的容忍度  例如：集群总的核数有160核, 可以容忍10%的错误. 那么最小选择10台16核VM, 并且高峰运行的负荷不要超过 160*90%=144核. 如果容忍度是20%, 那么最小选择5台32核VM, 并且高峰运行的负荷不要超过160*80%=128核. 这样就算有一台VM出现故障, 剩余VM仍可以支持现有业务正常运行.   确定 CPU:Memory 比例. 对于使用内存比较多的应用, 例如Java类应用, 建议考虑使用1:8的机型 比如: virtual machine 32C 64G 200G系统盘 数据盘可选  什么情况下使用裸金属服务器?</description>
+    </item>
+    
+    <item>
+      <title>MetalLB概念安装配置和使用</title>
+      <link>https://www.rutron.net/posts/2205/metalb/</link>
+      <pubDate>Mon, 30 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.rutron.net/posts/2205/metalb/</guid>
+      <description>官方文档
+为什么使用? Kubernetes没有提供适用于裸金属集群的网络负载均衡器实现, 也就是LoadBalancer类型的Service. Kubernetes 附带的网络负载均衡器的实现都是调用各种 IaaS 平台（GCP、AWS、Azure ……）的胶水代码。 如果您没有在受支持的 IaaS 平台（GCP、AWS、Azure&amp;hellip;）上运行，LoadBalancers 在创建时将一直保持在pending状态。
+裸金属集群的运维人员只剩下两个方式来将用户流量引入集群内: NodePort和externalIPs. 这两种在生产环境使用有很大的缺点, 这样, 裸金属集群也就成了 Kubernetes 生态中的第二类选择, 并不是首选.
+MetalLB 的目的是实现一个网络负载均衡器来与标准的网络设备集成, 这样这些外部服务就能尽可能的正常工作了.
+要求 MetalLB 要求如下:
+ 一个 Kubernetes 集群, Kubernetes 版本 1.13.0+, 没有网络负载均衡器功能. 可以与 MetalLB 共存的集群网络配置。 一些供 MetalLB 分发的 IPv4 地址。 当使用 BGP 操作模式时，您将需要一台或多台能够发布 BGP 的路由器。 使用 L2 操作模式时，节点之间必须允许 7946 端口（TCP 和 UDP，可配置其他端口）上的流量，这是 hashicorp/memberlist 的要求。  功能 MetalLB 是作为 Kubernetes 中的一个组件, 提供了一个网络负载均衡器的实现. 简单来说, 在非公有云环境搭建的集群上, 不能使用公有云的负载均衡器, 它可以让你在集群中创建 LoadBalancer 类型的 Service.</description>
+    </item>
+    
+    <item>
+      <title>Linux 控制组(cgroups)和进程隔离</title>
+      <link>https://www.rutron.net/posts/2205/cgroups-process-isolation/</link>
+      <pubDate>Sun, 15 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.rutron.net/posts/2205/cgroups-process-isolation/</guid>
+      <description>控制组(cgroups)是内核的一个特性，它能限制/统计/隔离一个或者多个进程使用CPU、内存、磁盘I/O和网络。cgroups技术最开始是Google开发，最终在2.6.24版本的内核中出现。3.15和3.16版本内核将合并进重新设计的cgroups，它添加来kernfs(拆分一些sysfs逻辑)。cgroups的主要设计目标是提供一个统一的接口，它可以管理进程或者整个操作系统级别的虚拟化，包含Linux容器，或者LXC。</description>
+    </item>
+    
+    <item>
+      <title>Apisxi Ingress Controller 设计说明</title>
+      <link>https://www.rutron.net/posts/2204/apisix-ingress-controller-design/</link>
+      <pubDate>Thu, 14 Apr 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.rutron.net/posts/2204/apisix-ingress-controller-design/</guid>
+      <description>apisix-ingress-controller 要求 kubernetes 版本 1.16+. 因为使用了 CustomResourceDefinition v1 stable 版本的 API. 从 1.0.0 版本开始，APISIX-ingress-controller 要求 Apache APISIX 版本 2.7+.</description>
+    </item>
+    
+    <item>
+      <title>Grafana Mimir 发布 目前最具扩展性的开源时序数据库</title>
+      <link>https://www.rutron.net/posts/2204/announcing-grafana-mimir/</link>
+      <pubDate>Fri, 01 Apr 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.rutron.net/posts/2204/announcing-grafana-mimir/</guid>
+      <description>Grafana Mimir 是目前最具扩展性、性能最好的开源时序数据库，Mimir 允许你将指标扩展到 1 亿。它部署简单、高可用、多租户支持、持久存储、查询性能超高，比 Cortex 快 40 倍。 Mimir 托管在 &lt;a href=&#34;https://github.com/grafana/mimir&#34;&gt;https://github.com/grafana/mimir&lt;/a&gt; 并在 AGPLv3 下获得许可。</description>
+    </item>
+    
+    <item>
+      <title>Harbor 双主复制解决方案实践</title>
+      <link>https://www.rutron.net/posts/2203/harbor-dual-master-replication-ha/</link>
+      <pubDate>Tue, 29 Mar 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.rutron.net/posts/2203/harbor-dual-master-replication-ha/</guid>
+      <description>既然使用了外部的服务, 那么高可用的压力自然而然的转移到了外部服务上. 我们一开始采用的外部的 NFS 共享存储服务, 由于我们团队实际情况, 我们暂时还不能保证外部存储的高可用. 同时, 鉴于我们对镜像服务高可用的迫切需求, 决定调研新的 Harbor 的高可用方案.</description>
+    </item>
+    
+    <item>
+      <title>[译]什么是 eBPF?</title>
+      <link>https://www.rutron.net/posts/2203/what-is-ebpf/</link>
+      <pubDate>Wed, 23 Mar 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.rutron.net/posts/2203/what-is-ebpf/</guid>
+      <description>eBPF 程序是事件驱动的, 能在内核或应用程序执行到一个特定的 hook 点时执行. 预定义的 hooks 包含系统调用, 函数出/入口, 内核追踪点, 网络事件等等. 如果预定义 hook 不能满足需求, 也可以创建内核探针(kprobe)或者用户探针(uprobe), 在内核/用户应用程序的任何位置, 把探针附加到 eBPF 程序上.</description>
+    </item>
+    
+    <item>
+      <title>bcc 之 opensnoop 工具的使用</title>
+      <link>https://www.rutron.net/posts/2203/bcc-opensnoop-usage/</link>
+      <pubDate>Wed, 16 Mar 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.rutron.net/posts/2203/bcc-opensnoop-usage/</guid>
+      <description>这篇文档主要演示了 opensnoop(Linux eBPF/bcc) 工具的使用. opensnoop 在系统范围内跟踪 open() 系统调用，并打印各种详细信息.</description>
+    </item>
+    
+    <item>
+      <title>bcc 之 tcplife 工具的使用</title>
+      <link>https://www.rutron.net/posts/2203/bcc-tcplife-usage/</link>
+      <pubDate>Wed, 16 Mar 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.rutron.net/posts/2203/bcc-tcplife-usage/</guid>
+      <description>这篇文档主要演示了 tcplife(Linux eBPF/bcc) 工具的使用. tcplife 总结了在跟踪期间打开和关闭的 TCP 会话. 比如</description>
+    </item>
+    
+    <item>
+      <title>[PPT] 实践中总结 Kubernetes 必须了解的核心内容</title>
+      <link>https://www.rutron.net/posts/2202/intro-kubernetes/</link>
+      <pubDate>Tue, 08 Feb 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.rutron.net/posts/2202/intro-kubernetes/</guid>
+      <description>PPT 分享 以下是 &amp;lt;实践中总结 Kubernetes 必须了解的核心内容&amp;gt; 主题分享 PPT
+                                      完~</description>
+    </item>
+    
+    <item>
+      <title>kubernetes 中的 pod 究竟是什么</title>
+      <link>https://www.rutron.net/posts/2202/what-are-kubernetes-pods-anyway/</link>
+      <pubDate>Tue, 08 Feb 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.rutron.net/posts/2202/what-are-kubernetes-pods-anyway/</guid>
+      <description>前言 kubernetes 中 pod 的设计是一个伟大的发明, 今天我很有必要去聊一下 pod 和 container, 探究一下它们究竟是什么? kubernetes 官方文档中关于pod 概念介绍提供了一个完整的解释, 但写的不够详细, 表达过于专业, 但还是很推荐大家阅读一下. 当然这篇文档应该更接地气.
+容器真的存在吗? linux 中是没有容器这个概念的, 容器就是 linux 中的普通进程, 它使用了 linux 内核提供的两个重要的特性: namespace &amp;amp; cgroups.
+namespace 提供了一种隔离的特性, 让它之外的内容隐藏, 给它下面的进程一个不被干扰的运行环境(其实不完全,下面说) .
+namespace 包含:
+ hostname Process IDs File System Network Interface Inter-Process Communication(IPC)  接上面, 其实 namespace 内部的进程并不是完全不和外面的进程产生影响的. 进程可以不受限制的使用物理机上的所有资源, 这样就会导致其他进程无资源可用. 所以, 为了限制进程资源使用, linux 提供了另一种特性 cgroups. 进程可以像在 namespace 中运行, 但是 cgroups 限制了进程的可以使用的资源. 这些资源包括:
+ CPU RAM block I/O network I/O etc.</description>
+    </item>
+    
+  </channel>
+</rss>

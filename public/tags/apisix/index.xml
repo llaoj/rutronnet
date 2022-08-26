@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>apisix on 如创科技</title>
+    <link>https://www.rutron.net/tags/apisix/</link>
+    <description>Recent content in apisix on 如创科技</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh</language>
+    <lastBuildDate>Thu, 14 Apr 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://www.rutron.net/tags/apisix/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Apisxi Ingress Controller 设计说明</title>
+      <link>https://www.rutron.net/posts/2204/apisix-ingress-controller-design/</link>
+      <pubDate>Thu, 14 Apr 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.rutron.net/posts/2204/apisix-ingress-controller-design/</guid>
+      <description>apisix-ingress-controller 要求 kubernetes 版本 1.16+. 因为使用了 CustomResourceDefinition v1 stable 版本的 API. 从 1.0.0 版本开始，APISIX-ingress-controller 要求 Apache APISIX 版本 2.7+.</description>
+    </item>
+    
+  </channel>
+</rss>

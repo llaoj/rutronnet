@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ppt on 如创科技</title>
+    <link>https://www.rutron.net/tags/ppt/</link>
+    <description>Recent content in ppt on 如创科技</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh</language>
+    <lastBuildDate>Tue, 08 Feb 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://www.rutron.net/tags/ppt/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[PPT] 实践中总结 Kubernetes 必须了解的核心内容</title>
+      <link>https://www.rutron.net/posts/2202/intro-kubernetes/</link>
+      <pubDate>Tue, 08 Feb 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.rutron.net/posts/2202/intro-kubernetes/</guid>
+      <description>PPT 分享 以下是 &amp;lt;实践中总结 Kubernetes 必须了解的核心内容&amp;gt; 主题分享 PPT
+                                      完~</description>
+    </item>
+    
+  </channel>
+</rss>

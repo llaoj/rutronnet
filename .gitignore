@@ -8,7 +8,7 @@ Thumbs.db
 .settings/
 .build/
 .idea/
-public/
+# public/
 nbproject/
 
 # Vagrant
