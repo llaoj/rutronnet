@@ -46,4 +46,4 @@ jobs:
             TAG_NAME=${GITHUB_REF#refs/tags/}
             docker stop $APP_NAME && docker rm $APP_NAME
             docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ secrets.REGISTRY }}
-            docker run -d --restart always --name $APP_NAME -p $APP_PORT:$APP_PORT ${{ secrets.REGISTRY }}/$IMAGE_NAME:$TAG_NAME
+            docker run -d --restart always --name $APP_NAME -p 80:$APP_PORT ${{ secrets.REGISTRY }}/$IMAGE_NAME:$TAG_NAME
