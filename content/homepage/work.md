@@ -1,7 +1,7 @@
 ---
 title: '我们帮助您的发展'
 weight: 1
-background: 'images/kevin-bhagat-461952-unsplash.jpg'
+background: 'images/applications-with-cloud-native.png'
 button: '我们的工作'
 buttonLink: 'work'
 ---
