@@ -4,7 +4,7 @@ date: 2018-12-06T09:29:16+10:00
 layout: 'about'
 heroHeading: '关于我们'
 heroSubHeading: "如创科技成立于2019年8月份, 在山东青岛为云原生而生."
-heroBackground: 'images/hero-6.jpg'
+heroBackground: 'work/cloud-native-bg.png'
 ---
 
 <div>

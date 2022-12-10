@@ -16,10 +16,10 @@ theme = "github.com/llaoj/hugo-hero-theme"
   [params.logo]
     mobile = "images/logo.png"
     mobile_height = "40px"
-    mobile_width = "40px"
-    desktop = "images/logo.png"
+    mobile_width = ""
+    desktop = "images/logo-w.png"
     desktop_height = "40px"
-    desktop_width = "40px "
+    desktop_width = ""
     alt = "如创科技"
 
   [params.homepage_meta_tags]
@@ -34,19 +34,24 @@ theme = "github.com/llaoj/hugo-hero-theme"
     meta_twitter_creator = ""
 
 [[menu.main]]
+  name = "首页"
+  url = "/"
+    weight = 1
+
+[[menu.main]]
   name = "服务"
   url = "/services/"
-    weight = 1
+    weight = 2
 
 [[menu.main]]
     name = "工作"
     url = "/work/"
-    weight = 2
+    weight = 3
 
 [[menu.main]]
     name = "关于"
     url = "/about/"
-    weight = 3
+    weight = 4
 
 # [[menu.main]]
 #     name = "History"
@@ -56,7 +61,7 @@ theme = "github.com/llaoj/hugo-hero-theme"
 [[menu.main]]
     name = "联系"
     url = "/contact/"
-    weight = 4
+    weight = 5
 
 [permalinks]
   post = "/:year/:month/:day/:slug/"
